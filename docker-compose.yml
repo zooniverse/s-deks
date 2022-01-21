@@ -12,7 +12,7 @@ services:
     image: redis
     command: redis-server --appendonly yes
 
-  panoptes:
+  skeds:
     image: skeds:local
     build:
       context: .
