@@ -25,6 +25,7 @@ services:
       - "RAILS_ENV=development"
       - "DATABASE_URL=postgresql://skeds:skeds@pg"
       - "REDIS_URL=redis://redis:6379/0"
+      - RAILS_LOG_TO_STDOUT=true
     links:
       - redis:redis
       - postgres:pg
