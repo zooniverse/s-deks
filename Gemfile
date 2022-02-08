@@ -9,6 +9,7 @@ gem 'bootsnap', require: false
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem 'jbuilder'
 
+gem 'pg'
 gem 'puma'
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
