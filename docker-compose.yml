@@ -3,8 +3,8 @@ services:
   postgres:
     image: postgres:13
     environment:
-      - "POSTGRES_USER=skeds"
-      - "POSTGRES_PASSWORD=skeds"
+      - POSTGRES_USER=skeds
+      - POSTGRES_PASSWORD=skeds
     ports:
       - "5433:5432"
 
@@ -20,12 +20,14 @@ services:
       - ./:/rails_app
       - gem_cache:/usr/local/bundle
     ports:
-      - "3001:3000"
+      - 3001:3000
     environment:
-      - "RAILS_ENV=development"
-      - "DATABASE_URL=postgresql://skeds:skeds@pg"
-      - "REDIS_URL=redis://redis:6379/0"
+      - RAILS_ENV=development
+      - DATABASE_URL=postgresql://skeds:skeds@pg
+      - REDIS_URL=redis://redis:6379/0
       - RAILS_LOG_TO_STDOUT=true
+      - RAILS_MAX_THREADS=2
+      - REVISION=c079966-fake-revision
     links:
       - redis:redis
       - postgres:pg
