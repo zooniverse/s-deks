@@ -28,4 +28,4 @@ RUN (echo $REVISION > ./public/commit_id.txt)
 
 EXPOSE 80
 
-CMD ["/rails_app/scripts/docker/start.sh"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
