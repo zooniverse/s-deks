@@ -21,3 +21,7 @@
 .DS_Store
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# ignore rspec setups and artefacts
+.rspec
+spec/examples.txt
