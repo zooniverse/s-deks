@@ -16,10 +16,10 @@ ActiveRecord::Schema.define(version: 2022_02_10_113840) do
   enable_extension "plpgsql"
 
   create_table "subjects", force: :cascade do |t|
-    t.bigint "subject_id"
-    t.bigint "workflow_id"
-    t.bigint "project_id"
-    t.jsonb "metadata"
+    t.bigint "subject_id", null: false
+    t.bigint "workflow_id", null: false
+    t.bigint "project_id", null: false
+    t.jsonb "metadata", default: {}, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
