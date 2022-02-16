@@ -3,8 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Subject, type: :model do
+  fixtures :contexts
+
   let(:attributes) do
-    { subject_id: 1, workflow_id: 2, project_id: 3 }
+    { subject_id: 1, context_id: 1 }
   end
   let(:model) { described_class.new(attributes) }
 
@@ -17,13 +19,23 @@ RSpec.describe Subject, type: :model do
     expect(model).to be_invalid
   end
 
-  it 'is invalid without a workflow_id' do
-    model.workflow_id = nil
-    expect(model).to be_invalid
+  xit 'is is invalid for duplicate subject ids in the same context' do
+    # possible for subjects to reuse across contexts, i.e. has_many
+    # but for now let's just scope the subject resouce to the context id
+    # as I don't expect this to actually happen with the real world data
+    # do the simple data model for now, iterate later if we need it
+    #
+    # NOTE: subject reuse is very rare across projects in the API
   end
 
-  it 'is invalid without a project_id' do
-    model.project_id = nil
-    expect(model).to be_invalid
+  describe '.context' do
+    it 'is invalid without a context_id' do
+      model.context_id = nil
+      expect(model).to be_invalid
+    end
+
+    it 'correctly links the association' do
+      expect(model.context).to be_valid
+    end
   end
 end

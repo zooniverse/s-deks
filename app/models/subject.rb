@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
 class Subject < ApplicationRecord
-  validates :subject_id, :workflow_id, :project_id, presence: true
+  belongs_to :context
+
+  validates :subject_id, :context_id, presence: true
 end
