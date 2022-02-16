@@ -10,18 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_10_113840) do
-
+ActiveRecord::Schema[7.0].define(version: 2022_02_16_171912) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "subjects", force: :cascade do |t|
-    t.bigint "subject_id", null: false
+  create_table "contexts", force: :cascade do |t|
     t.bigint "workflow_id", null: false
-    t.bigint "project_id", null: false
-    t.jsonb "metadata", default: {}, null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "project_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["workflow_id", "project_id"], name: "index_contexts_on_workflow_id_and_project_id", unique: true
   end
 
+  create_table "subjects", force: :cascade do |t|
+    t.bigint "subject_id", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "context_id", null: false
+  end
+
+  add_foreign_key "subjects", "contexts"
 end
