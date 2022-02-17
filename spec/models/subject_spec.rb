@@ -19,21 +19,19 @@ RSpec.describe Subject, type: :model do
     expect(model).to be_invalid
   end
 
-  xit 'is is invalid for duplicate subject ids in the same context' do
-    # possible for subjects to reuse across contexts, i.e. has_many
-    # but for now let's just scope the subject resouce to the context id
-    # as I don't expect this to actually happen with the real world data
-    # do the simple data model for now, iterate later if we need it
-    #
-    # NOTE: subject reuse is very rare across projects in the API
+  it 'is invalid without a context_id' do
+    model.context_id = nil
+    expect(model).to be_invalid
+  end
+
+  it 'is invalid for duplicate subjects in the same context' do
+    model.save!
+    dup = described_class.new(attributes)
+    dup.valid?
+    expect(dup.errors[:subject_id]).to include('Subject must be unique for the context')
   end
 
   describe '.context' do
-    it 'is invalid without a context_id' do
-      model.context_id = nil
-      expect(model).to be_invalid
-    end
-
     it 'correctly links the association' do
       expect(model.context).to be_valid
     end
