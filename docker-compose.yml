@@ -3,8 +3,8 @@ services:
   postgres:
     image: postgres:13
     environment:
-      - POSTGRES_USER=skeds
-      - POSTGRES_PASSWORD=skeds
+      - POSTGRES_USER=sdeks
+      - POSTGRES_PASSWORD=sdeks
     ports:
       - "5433:5432"
 
@@ -12,8 +12,8 @@ services:
     image: redis
     command: redis-server --appendonly yes
 
-  skeds:
-    image: skeds:local
+  sdeks:
+    image: sdeks:local
     build:
       context: .
       args:
@@ -24,7 +24,7 @@ services:
     ports:
       - 3001:3000
     environment:
-      - DATABASE_URL=postgresql://skeds:skeds@pg
+      - DATABASE_URL=postgresql://sdeks:sdeks@pg
       - REDIS_URL=redis://redis:6379/0
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_MAX_THREADS=2
