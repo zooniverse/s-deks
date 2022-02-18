@@ -36,4 +36,23 @@ RSpec.describe Subject, type: :model do
       expect(model.context).to be_valid
     end
   end
+
+  describe '.user_reductions' do
+    let(:user_reduction) do
+      UserReduction.create({ subject_id: model.id, workflow_id: 4, labels: %w[bear plane], raw_payload: {} })
+    end
+
+    before do
+      model.save!
+      user_reduction
+    end
+
+    it 'correctly links the association' do
+      expect(model.user_reductions).to match_array(user_reduction)
+    end
+
+    it 'raises an error when destroying' do
+      expect { model.destroy }.to raise_error(ActiveRecord::DeleteRestrictionError, 'Cannot delete record because of dependent user_reductions')
+    end
+  end
 end
