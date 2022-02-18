@@ -3,6 +3,10 @@ require:
   - rubocop-rails
   - rubocop-rspec
 
+Metrics/BlockLength:
+  Exclude:
+    - '**/*_spec.rb'
+
 AllCops:
   NewCops: enable
   TargetRailsVersion: 7
