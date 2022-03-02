@@ -34,7 +34,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_18_160748) do
   create_table "user_reductions", force: :cascade do |t|
     t.bigint "subject_id", null: false
     t.bigint "workflow_id", null: false
-    t.jsonb "labels", default: {}, null: false
+    t.jsonb "labels", default: [], null: false
     t.jsonb "raw_payload", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
