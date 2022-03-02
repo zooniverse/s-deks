@@ -3,31 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe UserReduction, type: :model do
-  let(:raw_payload) do
-    {
-      'id' => 4,
-      'reducible' => {
-        'id' => 4,
-        'type' => 'Workflow'
-      },
-      'data' => {
-        '0' => 3,
-        '1' => 9,
-        '2' => 0,
-        '3' => 3
-      },
-      'subject' => {
-        'id' => 4,
-        'metadata' => {},
-        'created_at' => '2021-08-06T11:08:53.918Z',
-        'updated_at' => '2021-08-06T11:08:53.918Z'
-      },
-      'created_at' => '2021-08-06T11:08:54.000Z',
-      'updated_at' => '2021-08-06T11:08:54.000Z'
-    }
-  end
   let(:attributes) do
-    { subject_id: 4, workflow_id: 4, labels: %w[bear plane], raw_payload: raw_payload }
+    { subject_id: 4, workflow_id: 4, labels: %w[bear plane], raw_payload: {} }
   end
   let(:user_reduction) { described_class.new(attributes) }
 
@@ -47,17 +24,11 @@ RSpec.describe UserReduction, type: :model do
     expect(dup.errors[:subject_id]).to include('UserReduction must be unique for the subject and workflow')
   end
 
-  describe '.unpack_from_raw_payload' do
-    xit 'add feature here to convert the raw reduction payload to the model data' do
-      # this will be used to ingest data and will be called in an operation before save
-    end
-  end
-
   describe '.subject' do
     fixtures :contexts
     let(:subject_model) { Subject.create({ subject_id: 4, context_id: 1 }) }
     let(:user_reduction) do
-      described_class.new({ subject_id: subject_model.id, workflow_id: 4, labels: %w[bear plane], raw_payload: raw_payload })
+      described_class.new({ subject_id: subject_model.id, workflow_id: 4 })
     end
 
     it 'correctly links the association' do
