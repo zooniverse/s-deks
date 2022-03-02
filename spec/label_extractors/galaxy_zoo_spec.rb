@@ -11,7 +11,7 @@ RSpec.describe LabelExtractors::GalaxyZoo do
     }
   end
 
-  describe '.extract', :focus do
+  describe '.extract' do
     let(:extracted_labels) { described_class.extract(data_payload) }
 
     it 'converts the keys to labels list' do
