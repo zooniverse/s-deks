@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_03_02_171953) do
+ActiveRecord::Schema[7.0].define(version: 2022_03_03_161713) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,6 +20,17 @@ ActiveRecord::Schema[7.0].define(version: 2022_03_02_171953) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["workflow_id", "project_id"], name: "index_contexts_on_workflow_id_and_project_id", unique: true
+  end
+
+  create_table "predictions", force: :cascade do |t|
+    t.bigint "subject_id", null: false
+    t.text "image_url", null: false
+    t.jsonb "results", default: {}, null: false
+    t.string "user_id"
+    t.string "agent_identifier"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subject_id"], name: "index_predictions_on_subject_id"
   end
 
   create_table "subjects", force: :cascade do |t|
