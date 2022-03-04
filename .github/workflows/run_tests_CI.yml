@@ -22,9 +22,6 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v2
-      - name: Check for focus specs
-        run: |
-          ! grep -R --exclude=spec_helper.rb "\(describe\|context\|it\).*\(:focus\|focus:\)" spec/
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
