@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Prediction, type: :model, focus: true do
+RSpec.describe Prediction, type: :model do
   let(:image_url) do
     'https://panoptes-uploads.zooniverse.org/subject_location/11f98201-1c3f-44d5-965b-e00373daeb18.jpeg'
   end
@@ -25,6 +25,11 @@ RSpec.describe Prediction, type: :model, focus: true do
 
   it 'is invalid without an image_url' do
     model.image_url = nil
+    expect(model).to be_invalid
+  end
+
+  it 'is invalid with an empty image_url' do
+    model.image_url = ''
     expect(model).to be_invalid
   end
 
