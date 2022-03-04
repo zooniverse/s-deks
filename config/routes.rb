@@ -4,5 +4,7 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root 'home#index'
 
+  resource :user_reductions, only: [:create]
+
   # all other routes go here
 end
