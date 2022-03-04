@@ -6,13 +6,13 @@ module Import
 
     # allow the label extracror to be injected at run time for the specific project we import data for
     def initialize(payload, label_extractor = LabelExtractors::GalaxyZoo)
-      @payload = payload.with_indifferent_access
+      @payload = payload
       @label_extractor = label_extractor
     end
 
-    def import
+    def run
       # use the top level model namespace
-      ::UserReduction.new(
+      ::UserReduction.create!(
         raw_payload: payload,
         subject_id: subject_id,
         workflow_id: workflow_id,
@@ -33,7 +33,7 @@ module Import
     end
 
     def for_workflow_reducible
-      payload.dig('reducible', 'type').casecmp?('workflow')
+      payload.dig('reducible', 'type')&.casecmp?('workflow')
     end
 
     # use a custom label extractor (injected at run time)
@@ -41,6 +41,8 @@ module Import
     # to convert the reduced volunteer data (stats reducer)
     # key format lables to human readable string labels
     def labels
+      return unless payload['data']
+
       label_extractor.extract(payload['data'])
     end
   end
