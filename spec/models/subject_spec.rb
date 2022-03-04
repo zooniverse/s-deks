@@ -55,4 +55,34 @@ RSpec.describe Subject, type: :model do
       expect { model.destroy }.to raise_error(ActiveRecord::DeleteRestrictionError, 'Cannot delete record because of dependent user_reductions')
     end
   end
+
+  describe '.predictions' do
+    let(:prediction) do
+      Prediction.create({ subject_id: model.id, image_url: 'url', results: {} })
+    end
+
+    before do
+      model.save!
+      prediction
+    end
+
+    it 'correctly links the association' do
+      expect(model.predictions).to match_array(prediction)
+    end
+
+    it 'raises an error when destroying' do
+      expect { model.destroy }.to raise_error(ActiveRecord::DeleteRestrictionError, 'Cannot delete record because of dependent predictions')
+    end
+
+    it 'allows for multi image subject predictions' do
+      frame_2_prediction = Prediction.create({ subject_id: model.id, image_url: 'url_2', results: {} })
+      expect(model.predictions).to match_array([frame_2_prediction, prediction])
+    end
+
+    it 'allows a subject to have predictions for the same image path' do
+      latest_image_prediction = Prediction.create({ subject_id: model.id, image_url: 'url', results: {} })
+      # note: this also tests the association ordering clause to ensure we load the latest ones first
+      expect(model.predictions).to match([latest_image_prediction, prediction])
+    end
+  end
 end
