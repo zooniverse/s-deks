@@ -1,7 +1,7 @@
 name: Zooni CI
 on:
   pull_request:
-  push: { branches: master }
+  push: { branches: main }
 env:
   DATABASE_URL: postgresql://sdeks:sdeks@localhost/gh_ci_test
 jobs:
