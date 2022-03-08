@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 class UserReductionsController < ApplicationController
+  # as we're running in API mode we need to include basic auth code
+  include ActionController::HttpAuthentication::Basic::ControllerMethods
+
+  http_basic_authenticate_with name: ReductionBasicAuth.username, password: ReductionBasicAuth.password, only: :create
+
   def create
     user_reduction = Import::UserReduction.new(user_reduction_params).run
     render status: :created, json: user_reduction.to_json

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'UserReductions', type: :request do
-  describe 'POST /user_reductions', :focus do
+  describe 'POST /user_reductions' do
     let(:user_reduction_json_payload) do
       {
         user_reduction: {
