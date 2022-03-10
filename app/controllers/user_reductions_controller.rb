@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class UserReductionsController < ApplicationController
-  # as we're running in API mode we need to include basic auth code
+  # as we're running in API mode we need to include basic auth
   include ActionController::HttpAuthentication::Basic::ControllerMethods
 
   http_basic_authenticate_with name: ReductionBasicAuth.username, password: ReductionBasicAuth.password, only: :create
