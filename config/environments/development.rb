@@ -50,4 +50,7 @@ Rails.application.configure do
     logger.formatter = config.log_formatter
     config.logger    = ActiveSupport::TaggedLogging.new(logger)
   end
+
+  # Store uploaded files on the local disk
+  config.active_storage.service = :development
 end
