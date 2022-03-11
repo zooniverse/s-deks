@@ -4,10 +4,11 @@ module LabelExtractors
   class GalaxyZoo
     class UnkonwnLabelKey < StandardError; end
 
+    GZ_LABEL_KEY_PREFIX = 'smooth-or-featured_'
     GZ_TASK_KEY_MAPPING = {
       '0' => 'smooth',
-      '1' => 'features or disk',
-      '2' => 'star or artifact'
+      '1' => 'featured-or-disk',
+      '2' => 'artifact'
     }.freeze
 
     # extract the keys from the user_reduction data hash
@@ -27,9 +28,14 @@ module LabelExtractors
       # however caesar only extracts / reduces T0 data
       # and Mike confirmed my understanding
       # that only task T0 is what Zoobot / Active Learning Loop is training and classifying on
-      GZ_TASK_KEY_MAPPING.fetch_values(*data_hash.keys)
-    rescue KeyError => e
-      raise UnkonwnLabelKey, e.message
+      #
+      # use the known catalogue schema for Zoobot decals
+      # https://github.com/mwalmsley/zoobot/blob/1a4f48105254b3073b6e3cb47014c6db938ba73f/zoobot/label_metadata.py#L32
+      data_hash.transform_keys do |key|
+        raise UnkonwnLabelKey, "key not found: #{key}" unless GZ_TASK_KEY_MAPPING[key]
+
+        "#{GZ_LABEL_KEY_PREFIX}#{GZ_TASK_KEY_MAPPING[key]}"
+      end
     end
   end
 end
