@@ -4,7 +4,13 @@ require 'rails_helper'
 
 RSpec.describe UserReduction, type: :model do
   let(:attributes) do
-    { subject_id: 4, workflow_id: 4, labels: %w[bear plane], raw_payload: {} }
+    {
+      subject_id: 4,
+      workflow_id: 4,
+      labels: { 'smooth-or-featured_smooth' => 1, 'smooth-or-featured_featured-or-disk' => 3 },
+      unique_id: '8000_231121_468',
+      raw_payload: {}
+    }
   end
   let(:user_reduction) { described_class.new(attributes) }
 
