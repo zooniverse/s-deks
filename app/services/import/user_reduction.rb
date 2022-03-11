@@ -16,7 +16,8 @@ module Import
         raw_payload: payload,
         subject_id: subject_id,
         workflow_id: workflow_id,
-        labels: labels
+        labels: labels,
+        unique_id: unique_id
       )
     end
 
@@ -34,6 +35,10 @@ module Import
 
     def for_workflow_reducible
       payload.dig('reducible', 'type')&.casecmp?('workflow')
+    end
+
+    def unique_id
+      payload.dig('subject', 'metadata', '#name')
     end
 
     # use a custom label extractor (injected at run time)

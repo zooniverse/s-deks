@@ -18,7 +18,7 @@ RSpec.describe Import::UserReduction do
         },
         subject: {
           id: 4,
-          'metadata' => {},
+          'metadata' => { '#name' => '8000_231121_468' },
           'created_at' => '2021-08-06T11:08:53.918Z',
           'updated_at' => '2021-08-06T11:08:53.918Z'
         },
@@ -29,6 +29,13 @@ RSpec.describe Import::UserReduction do
   end
 
   describe '.run' do
+    let(:expected_labels) do
+      {
+        'smooth-or-featured_smooth' => 3,
+        'smooth-or-featured_featured-or-disk' => 9,
+        'smooth-or-featured_artifact' => 0
+      }
+    end
     let(:label_extractor) { LabelExtractors::GalaxyZoo.new(raw_payload['data']) }
     let(:user_reduction_model) { described_class.new(raw_payload).run }
 
@@ -37,8 +44,11 @@ RSpec.describe Import::UserReduction do
     end
 
     it 'extracts the labels correctly' do
-      expected_labels = ['smooth', 'features or disk', 'star or artifact']
-      expect(user_reduction_model.labels).to match_array(expected_labels)
+      expect(user_reduction_model.labels).to match(expected_labels)
+    end
+
+    it 'extracts the name correctly' do
+      expect(user_reduction_model.unique_id).to match('8000_231121_468')
     end
 
     it 'raises with an invalid payload' do
@@ -46,4 +56,3 @@ RSpec.describe Import::UserReduction do
     end
   end
 end
-
