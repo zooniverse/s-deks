@@ -3,6 +3,9 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
+# used for Azure active storage
+gem 'azure-storage-blob', require: false
+
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
 
