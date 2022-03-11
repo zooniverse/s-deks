@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DataExport, type: :model do
+RSpec.describe TrainingDataExport, type: :model do
   let(:attributes) do
     {}
   end
@@ -19,8 +19,7 @@ RSpec.describe DataExport, type: :model do
 
   describe '.file' do
     it 'has the active storage association' do
-      expect(model.file).to be_empty
+      expect(model.file).not_to be_nil
     end
-
   end
 end
