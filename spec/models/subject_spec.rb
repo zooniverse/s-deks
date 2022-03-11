@@ -39,7 +39,15 @@ RSpec.describe Subject, type: :model do
 
   describe '.user_reductions' do
     let(:user_reduction) do
-      UserReduction.create({ subject_id: model.id, workflow_id: 4, labels: %w[bear plane], raw_payload: {} })
+      UserReduction.create(
+        {
+          subject_id: model.id,
+          workflow_id: 4,
+          labels: { 'smooth-or-featured_smooth' => 1, 'smooth-or-featured_featured-or-disk' => 3 },
+          unique_id: '8000_231121_468',
+          raw_payload: {}
+        }
+      )
     end
 
     before do
