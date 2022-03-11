@@ -1,0 +1,26 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe DataExport, type: :model do
+  let(:attributes) do
+    {}
+  end
+  let(:model) { described_class.new(attributes) }
+
+  it 'creates a valid model' do
+    expect(model).to be_valid
+  end
+
+  it 'is invalid without a state' do
+    model.state = nil
+    expect(model).to be_invalid
+  end
+
+  describe '.file' do
+    it 'has the active storage association' do
+      expect(model.file).to be_empty
+    end
+
+  end
+end
