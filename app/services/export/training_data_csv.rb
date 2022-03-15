@@ -13,28 +13,24 @@ module Export
 
     def dump
       csv << HEADERS
-      UserReduction.where(workflow_id: workflow_id).find_each do |user_reduction|
-        # long term we may have to think about multi image subjects here
-        # and spit out 1 row for each image frame
-        # so perhaps make the `zoobot_container_path` an array for easy addition of new frames
-        # and we loop here to ensure we capture each image frame
-        # with the reduction data
-        csv << [
-          user_reduction.unique_id,
-          # TODO: ensure this method is available on the user_reduction model
-          #   the data comes from the subject URL that is copied into an expected
-          #   storage container path prefix and filename of the source URL from the subject location
-          user_reduction.zoobot_container_path, # the path in the zoobot storage container for this file
-          user_reduction.labels['smooth-or-featured_smooth'],
-          user_reduction.labels['smooth-or-featured_featured-or-disk'],
-          user_reduction.labels['smooth-or-featured_artifact']
-        ]
+      user_reduction_scope.find_each do |user_reduction|
+        # Ensure we handle multi image subjects here
+        # include 1 line per image for use in training catalogues
+        user_reduction.subject.locations.each do |location|
+          # each location is an object containing only 1 mimetype key and an image URL
+          image_url = location.values.first
+          csv << [
+            user_reduction.unique_id,
+            Zoobot.container_image_path(image_url),
+            user_reduction.labels['smooth-or-featured_smooth'],
+            user_reduction.labels['smooth-or-featured_featured-or-disk'],
+            user_reduction.labels['smooth-or-featured_artifact']
+          ]
+        end
       end
       temp_file.rewind
       temp_file
     end
-
-    # csv_dump << formatter.headers if formatter.headers
 
     private
 
@@ -44,6 +40,11 @@ module Export
 
     def dump_scope
       UserReduction.where(workflow_id: workflow_id)
+    end
+
+    # avoid N+1 lookups here, preload the subject as required
+    def user_reduction_scope
+      UserReduction.where(workflow_id: workflow_id).preload(:subject)
     end
   end
 end
