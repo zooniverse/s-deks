@@ -8,7 +8,7 @@ RSpec.describe Zoobot do
   end
 
   describe '.container_image_path' do
-    let(:expected_path) { '/training_images/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg' }
+    let(:expected_path) { '/test/training_images/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg' }
 
     it 'converts the url to a training container path' do
       extracted_path = described_class.container_image_path(image_url)
