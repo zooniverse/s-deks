@@ -5,8 +5,11 @@ require 'rails_helper'
 RSpec.describe Subject, type: :model do
   fixtures :contexts
 
+  let(:locations) do
+    [{ 'image/jpeg': 'https://panoptes-uploads.zooniverse.org/subject_location/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg' }]
+  end
   let(:attributes) do
-    { subject_id: 1, context_id: 1 }
+    { subject_id: 1, context_id: 1, locations: locations }
   end
   let(:model) { described_class.new(attributes) }
 
