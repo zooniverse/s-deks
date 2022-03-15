@@ -1,9 +1,12 @@
 # frozen_string_literal: true
+
 require 'csv'
 
 module Export
   class TrainingDataCsv
-    HEADERS = %w[id_str file_loc smooth-or-featured_smooth smooth-or-featured_featured-or-disk smooth-or-featured_artifact]
+    FILE_HEADERS = %w[id_str file_loc].freeze
+    LABEL_HEADERS = %w[smooth-or-featured_smooth smooth-or-featured_featured-or-disk smooth-or-featured_artifact].freeze
+
     attr_reader :workflow_id, :temp_file
 
     def initialize(workflow_id)
@@ -12,7 +15,7 @@ module Export
     end
 
     def dump
-      csv << HEADERS
+      csv << (FILE_HEADERS | LABEL_HEADERS)
       user_reduction_scope.find_each do |user_reduction|
         # Ensure we handle multi image subjects here
         # include 1 line per image for use in training catalogues
@@ -22,9 +25,9 @@ module Export
           csv << [
             user_reduction.unique_id,
             Zoobot.container_image_path(image_url),
-            user_reduction.labels['smooth-or-featured_smooth'],
-            user_reduction.labels['smooth-or-featured_featured-or-disk'],
-            user_reduction.labels['smooth-or-featured_artifact']
+            user_reduction.labels[LABEL_HEADERS[0]],
+            user_reduction.labels[LABEL_HEADERS[1]],
+            user_reduction.labels[LABEL_HEADERS[2]]
           ]
         end
       end
