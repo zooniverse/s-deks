@@ -29,6 +29,8 @@ services:
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_MAX_THREADS=2
       - REVISION=c079966-fake-revision
+      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
+      - AZURE_STORAGE_ACCESS_KEY=${AZURE_STORAGE_ACCESS_KEY}
     links:
       - redis:redis
       - postgres:pg

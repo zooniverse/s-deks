@@ -10,10 +10,10 @@ staging:
   service: AzureStorage
   storage_account_name: <%= ENV['AZURE_STORAGE_ACCOUNT_NAME'] %>
   storage_access_key: <%= ENV['AZURE_STORAGE_ACCESS_KEY'] %>
-  container: 'staging'
+  container: <%= ENV.fetch('AZURE_STORAGE_CONTAINER', 'staging') %>
 
 production:
   service: AzureStorage
   storage_account_name: <%= ENV['AZURE_STORAGE_ACCOUNT_NAME'] %>
   storage_access_key: <%= ENV['AZURE_STORAGE_ACCESS_KEY'] %>
-  container: 'production'
+  container: <%= ENV.fetch('AZURE_STORAGE_CONTAINER', 'production') %>
