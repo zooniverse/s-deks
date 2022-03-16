@@ -7,6 +7,9 @@ Metrics/BlockLength:
   Exclude:
     - '**/*_spec.rb'
 
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
 AllCops:
   NewCops: enable
   TargetRailsVersion: 7
