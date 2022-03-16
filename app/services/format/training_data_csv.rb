@@ -2,7 +2,7 @@
 
 require 'csv'
 
-module Export
+module Format
   class TrainingDataCsv
     FILE_HEADERS = %w[id_str file_loc].freeze
     LABEL_HEADERS = %w[smooth-or-featured_smooth smooth-or-featured_featured-or-disk smooth-or-featured_artifact].freeze
