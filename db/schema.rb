@@ -62,13 +62,13 @@ ActiveRecord::Schema[7.0].define(version: 2022_03_11_141027) do
   end
 
   create_table "subjects", force: :cascade do |t|
-    t.bigint "subject_id", null: false
+    t.bigint "zooniverse_subject_id", null: false
     t.jsonb "metadata", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "context_id", null: false
     t.jsonb "locations", default: []
-    t.index ["subject_id", "context_id"], name: "index_subjects_on_subject_id_and_context_id", unique: true
+    t.index ["zooniverse_subject_id", "context_id"], name: "index_subjects_on_zooniverse_subject_id_and_context_id", unique: true
   end
 
   create_table "training_data_exports", force: :cascade do |t|
