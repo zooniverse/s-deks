@@ -14,7 +14,7 @@ RSpec.describe Format::TrainingDataCsv do
       ]
     end
     let(:reduction_subject) do
-      Subject.create({ subject_id: 1, context_id: 1, locations: subject_locations })
+      Subject.create({ zooniverse_subject_id: 1, context_id: 1, locations: subject_locations })
     end
     let(:user_reduction_attributes) do
       {

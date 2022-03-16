@@ -32,7 +32,7 @@ RSpec.describe UserReduction, type: :model do
 
   describe '.subject' do
     fixtures :contexts
-    let(:subject_model) { Subject.create({ subject_id: 4, context_id: 1 }) }
+    let(:subject_model) { Subject.create({ zooniverse_subject_id: 4, context_id: 1 }) }
     let(:user_reduction) do
       described_class.new({ subject_id: subject_model.id, workflow_id: 4 })
     end

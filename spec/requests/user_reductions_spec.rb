@@ -4,12 +4,15 @@ require 'rails_helper'
 
 RSpec.describe 'UserReductions', type: :request do
   describe 'POST /user_reductions' do
+    fixtures :contexts
+
+    let(:context) { Context.first }
     let(:user_reduction_json_payload) do
       {
         user_reduction: {
           id: 4,
           reducible: {
-            id: 4,
+            id: context.workflow_id,
             type: 'Workflow'
           },
           data: {
@@ -18,7 +21,7 @@ RSpec.describe 'UserReductions', type: :request do
             '2' => 0
           },
           subject: {
-            id: 4,
+            id: 999,
             metadata: { '#name' => '8000_231121_468' },
             created_at: '2021-08-06T11:08:53.918Z',
             updated_at: '2021-08-06T11:08:53.918Z'
@@ -32,6 +35,10 @@ RSpec.describe 'UserReductions', type: :request do
       json_headers_with_basic_auth(ReductionBasicAuth.username, ReductionBasicAuth.password)
     end
     let(:create_request) { post '/user_reductions', params: user_reduction_json_payload, headers: request_headers }
+
+    before do
+      Subject.create(zooniverse_subject_id: 999, context_id: context.id)
+    end
 
     it 'returns the created response' do
       create_request

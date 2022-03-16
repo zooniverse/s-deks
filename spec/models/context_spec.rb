@@ -25,7 +25,7 @@ RSpec.describe Context, type: :model do
 
   describe '.subjects' do
     let(:subject_model) do
-      Subject.create({ subject_id: 1, context_id: context.id })
+      Subject.create({ zooniverse_subject_id: 1, context_id: context.id })
     end
 
     before do

@@ -24,6 +24,13 @@ module Import
     private
 
     def subject_id
+      context = Context.find_by(workflow_id: workflow_id)
+      return unless context
+
+      Subject.find_by(context_id: context.id, zooniverse_subject_id: zooniverse_subject_id).id
+    end
+
+    def zooniverse_subject_id
       payload.dig('subject', 'id')
     end
 

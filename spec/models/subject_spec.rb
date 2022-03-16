@@ -9,7 +9,7 @@ RSpec.describe Subject, type: :model do
     [{ 'image/jpeg': 'https://panoptes-uploads.zooniverse.org/subject_location/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg' }]
   end
   let(:attributes) do
-    { subject_id: 1, context_id: 1, locations: locations }
+    { zooniverse_subject_id: 1, context_id: 1, locations: locations }
   end
   let(:model) { described_class.new(attributes) }
 
@@ -17,8 +17,8 @@ RSpec.describe Subject, type: :model do
     expect(model).to be_valid
   end
 
-  it 'is invalid without a subject_id' do
-    model.subject_id = nil
+  it 'is invalid without a zooniverse_subject_id' do
+    model.zooniverse_subject_id = nil
     expect(model).to be_invalid
   end
 
@@ -31,7 +31,7 @@ RSpec.describe Subject, type: :model do
     model.save!
     dup = described_class.new(attributes)
     dup.valid?
-    expect(dup.errors[:subject_id]).to include('Subject must be unique for the context')
+    expect(dup.errors[:zooniverse_subject_id]).to include('Subject must be unique for the context')
   end
 
   describe '.context' do
