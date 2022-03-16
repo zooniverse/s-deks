@@ -14,7 +14,7 @@ module Format
       @temp_file = Tempfile.new("user_reductions_workflow_id_#{workflow_id}.csv")
     end
 
-    def dump
+    def run
       csv << (FILE_HEADERS | LABEL_HEADERS)
       user_reduction_scope.find_each do |user_reduction|
         # Ensure we handle multi image subjects here
