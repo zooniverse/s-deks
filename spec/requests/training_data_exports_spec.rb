@@ -33,12 +33,10 @@ RSpec.describe 'TrainingDataExports', type: :request do
       expect(json_parsed_response_body.keys).to match_array(expected_attributes)
     end
 
-    it 'runs the export service' do
-      training_data_export_service = instance_double(Export::TrainingData)
-      allow(training_data_export_service).to receive(:run)
-      allow(Export::TrainingData).to receive(:new).with(TrainingDataExport).and_return(training_data_export_service)
+    it 'runs the export worker' do
+      allow(TrainingDataExporterJob).to receive(:perform_async)
       create_request
-      expect(training_data_export_service).to have_received(:run)
+      expect(TrainingDataExporterJob).to have_received(:perform_async).with(Integer)
     end
 
     context 'with invalid authentication credentials' do

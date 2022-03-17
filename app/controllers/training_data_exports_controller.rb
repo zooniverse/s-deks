@@ -20,8 +20,7 @@ class TrainingDataExportsController < ApplicationController
       workflow_id: training_data_export_params[:workflow_id]
     )
 
-    # TODO: long term move this to a background worker
-    Export::TrainingData.new(training_data_export).run
+    TrainingDataExporterJob.perform_async(training_data_export.id)
 
     render status: :created, json: training_data_export.to_json
   end
