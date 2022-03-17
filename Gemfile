@@ -23,6 +23,7 @@ gem 'rails', '~> 7.0'
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem 'kredis'
 
+gem 'sidekiq'
 gem 'strong_migrations'
 
 group :development, :test do
@@ -34,7 +35,6 @@ group :development, :test do
   gem 'rubocop-rspec', require: false
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   gem 'spring'
-
 end
 
 group :test do
