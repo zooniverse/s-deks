@@ -15,4 +15,14 @@ RSpec.describe Zoobot do
       expect(extracted_path).to eq(expected_path)
     end
   end
+
+  describe '.storage_path_key' do
+    let(:exported_workflow_id) { 4 }
+    let(:expected_path_key) { "/test/training_catalogues/workflow-#{exported_workflow_id}-training-catalogue" }
+
+    it 'converts the url to a training container path' do
+      extracted_path_key = described_class.storage_path_key(exported_workflow_id)
+      expect(extracted_path_key).to eq(expected_path_key)
+    end
+  end
 end
