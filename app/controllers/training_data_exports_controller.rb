@@ -7,8 +7,12 @@ class TrainingDataExportsController < ApplicationController
   http_basic_authenticate_with(
     name: Rails.application.config.api_basic_auth_username,
     password: Rails.application.config.api_basic_auth_password,
-    only: :create
   )
+
+  def show
+    training_data_export = TrainingDataExport.find(params[:id])
+    render status: :ok, json: training_data_export.to_json
+  end
 
   def create
     training_data_export = TrainingDataExport.create(
