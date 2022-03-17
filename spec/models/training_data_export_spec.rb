@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe TrainingDataExport, type: :model do
   let(:attributes) do
-    {}
+    { workflow_id: 1 }
   end
   let(:model) { described_class.new(attributes) }
 
