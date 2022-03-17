@@ -34,7 +34,6 @@ services:
     links:
       - redis:redis
       - postgres:pg
-      - sidekiq:sidekiq
 
   sidekiq:
     image: sdeks:local
