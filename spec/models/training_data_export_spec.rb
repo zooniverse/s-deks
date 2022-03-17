@@ -17,6 +17,11 @@ RSpec.describe TrainingDataExport, type: :model do
     expect(model).to be_invalid
   end
 
+  it 'is invalid without a workflow_id' do
+    model.workflow_id = nil
+    expect(model).to be_invalid
+  end
+
   describe '.file' do
     it 'has the active storage association' do
       expect(model.file).not_to be_nil

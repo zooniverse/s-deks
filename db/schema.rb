@@ -73,6 +73,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_03_11_141027) do
 
   create_table "training_data_exports", force: :cascade do |t|
     t.integer "state", default: 0, null: false
+    t.bigint "workflow_id", null: false
+    t.text "storage_path", default: "", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
