@@ -28,5 +28,14 @@ module Sdeks
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # API basic auth scheme
+    # Long term this can switch to Zooniverse API JWT token auth & pundit authorization schemes
+    config.api_basic_auth_username = ENV.fetch('API_BASIC_AUTH_USERNAME', 'sdeks-user')
+    config.api_basic_auth_password = ENV.fetch('API_BASIC_AUTH_PASSWORD', 'sdeks-password')
+
+    # UserReduction ingester basic auth scheme (Caesar etc)
+    config.user_reduction_basic_auth_username = ENV.fetch('REDUCTION_BASIC_AUTH_USERNAME', 'sdeks-user')
+    config.user_reduction_basic_auth_password = ENV.fetch('REDUCTION_BASIC_AUTH_PASSWORD', 'sdeks-password')
   end
 end
