@@ -14,9 +14,9 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root 'home#index'
 
-  resource :user_reductions, only: [:create]
+  resources :user_reductions, only: [:create]
 
-  resource :training_data_exports, only: [:create]
+  resources :training_data_exports, only: %i[index create]
 
   # all other routes go here
 end
