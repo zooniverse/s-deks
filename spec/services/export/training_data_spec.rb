@@ -4,12 +4,13 @@ require 'rails_helper'
 
 RSpec.describe Export::TrainingData do
   describe '#run' do
-    let(:export_key_prefix) { Time.now.iso8601 }
-    let(:export_service_instance) { described_class.new(1, export_key_prefix: export_key_prefix) }
+    let(:workflow_id) { 10 }
+    let(:storage_path) { "#{Zoobot.storage_path_key(workflow_id)}-#{Time.now.iso8601}.csv" }
+    let(:training_data_model) { TrainingDataExport.new(workflow_id: workflow_id, storage_path: storage_path) }
+    let(:export_service_instance) { described_class.new(training_data_model) }
     let(:formatter_double) { instance_double(Format::TrainingDataCsv) }
-    let(:training_data_model) { TrainingDataExport.new }
+
     let(:temp_export_file) { Tempfile.new }
-    let(:blob_key) { "training_catalogues/#{export_key_prefix}-training-catalogue.csv" }
     let(:active_storage_proxy) { training_data_model.file }
 
     before do
@@ -24,25 +25,24 @@ RSpec.describe Export::TrainingData do
       expect { export_service_instance.run }.not_to raise_error
     end
 
-    it 'creates the TrainingDataExport model' do
-      export_service_instance.run
-      expect(TrainingDataExport).to have_received(:create).once
-    end
-
     it 'calls the formatter service' do
       export_service_instance.run
       expect(formatter_double).to have_received(:run).once
     end
 
     it 'uploads the export file at a known storage key' do
-      attach_params = { key: blob_key, io: temp_export_file, filename: blob_key }
+      attach_params = { key: storage_path, io: temp_export_file, filename: storage_path }
       export_service_instance.run
       expect(active_storage_proxy).to have_received(:attach).with(attach_params)
     end
 
-    it 'marks the export model as finished!' do
+    it 'marks the export model as finished' do
+      expect { export_service_instance.run }.to change(training_data_model, :finished?).from(false).to(true)
+    end
+
+    it 'records the storage path on the export model' do
       export_service_instance.run
-      expect(training_data_model.finished?).to be(true)
+      expect(training_data_model.storage_path).to match(storage_path)
     end
 
     context 'with an failed remote file upload' do
