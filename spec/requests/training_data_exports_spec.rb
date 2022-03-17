@@ -8,9 +8,6 @@ RSpec.describe 'TrainingDataExports', type: :request do
   let(:context) { Context.first }
 
   describe 'POST /training_data_exports' do
-    let(:training_data_export_json_payload) do
-      { training_data_export: { workflow_id: context.workflow_id } }.to_json
-    end
     let(:request_headers) do
       # long term look at switching this to panoptes JWT auth via gem 'panoptes-client'
       json_headers_with_basic_auth(
@@ -18,25 +15,11 @@ RSpec.describe 'TrainingDataExports', type: :request do
         Rails.application.config.api_basic_auth_password
       )
     end
+    let(:training_data_export_json_payload) do
+      { training_data_export: { workflow_id: context.workflow_id } }.to_json
+    end
     let(:create_request) do
       post '/training_data_exports', params: training_data_export_json_payload, headers: request_headers
-    end
-
-    before do
-      reduction_subject = Subject.create(zooniverse_subject_id: 999, context_id: context.id)
-      UserReduction.create(
-        {
-          subject_id: reduction_subject.id,
-          workflow_id: context.workflow_id,
-          labels: {
-            'smooth-or-featured_smooth' => 3,
-            'smooth-or-featured_featured-or-disk' => 9,
-            'smooth-or-featured_artifact' => 0
-          },
-          unique_id: '8000_231121_468',
-          raw_payload: {}
-        }
-      )
     end
 
     it 'returns the created response' do
@@ -44,13 +27,13 @@ RSpec.describe 'TrainingDataExports', type: :request do
       expect(response).to have_http_status(:created)
     end
 
-    it 'serailizes the created training_data_export in the response body as json' do
+    it 'serializes the created training_data_export in the response body as json' do
       create_request
       expected_attributes = %w[id workflow_id state storage_path created_at updated_at]
       expect(json_parsed_response_body.keys).to match_array(expected_attributes)
     end
 
-    it 'runs the export service instace' do
+    it 'runs the export service' do
       training_data_export_service = instance_double(Export::TrainingData)
       allow(training_data_export_service).to receive(:run)
       allow(Export::TrainingData).to receive(:new).with(TrainingDataExport).and_return(training_data_export_service)
