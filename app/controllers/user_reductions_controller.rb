@@ -4,7 +4,11 @@ class UserReductionsController < ApplicationController
   # as we're running in API mode we need to include basic auth
   include ActionController::HttpAuthentication::Basic::ControllerMethods
 
-  http_basic_authenticate_with name: ReductionBasicAuth.username, password: ReductionBasicAuth.password, only: :create
+  http_basic_authenticate_with(
+    name: Rails.application.config.user_reduction_basic_auth_username,
+    password: Rails.application.config.user_reduction_basic_auth_password,
+    only: :create
+  )
 
   def create
     user_reduction = Import::UserReduction.new(user_reduction_params).run

@@ -32,7 +32,10 @@ RSpec.describe 'UserReductions', type: :request do
       }.to_json
     end
     let(:request_headers) do
-      json_headers_with_basic_auth(ReductionBasicAuth.username, ReductionBasicAuth.password)
+      json_headers_with_basic_auth(
+        Rails.application.config.user_reduction_basic_auth_username,
+        Rails.application.config.user_reduction_basic_auth_password
+      )
     end
     let(:create_request) { post '/user_reductions', params: user_reduction_json_payload, headers: request_headers }
 
