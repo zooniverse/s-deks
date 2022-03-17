@@ -18,7 +18,7 @@ RSpec.describe Zoobot do
 
   describe '.storage_path_key' do
     let(:exported_workflow_id) { 4 }
-    let(:expected_path_key) { "/test/training_catalogues/workflow-#{exported_workflow_id}-training-catalogue" }
+    let(:expected_path_key) { "/test/training_catalogues/workflow-#{exported_workflow_id}" }
 
     it 'converts the url to a training container path' do
       extracted_path_key = described_class.storage_path_key(exported_workflow_id)

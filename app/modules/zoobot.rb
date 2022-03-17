@@ -10,6 +10,6 @@ module Zoobot
   end
 
   def self.storage_path_key(workflow_id)
-    "#{CONTAINER_PATH_PREFIX}/workflow-#{workflow_id}-training-catalogue"
+    "#{CONTAINER_PATH_PREFIX}/workflow-#{workflow_id}"
   end
 end
