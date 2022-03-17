@@ -22,8 +22,8 @@ We only support running Panoptes via Docker and Docker Compose. If you'd like to
 
 2. `docker-compose up` to start the containers
 
-    * If the above step reports a missing database error, kill the docker-compose process or open a new terminal window in the current directory and then run `docker-compose run --rm sdeks bundle exec rake db:setup` to setup the database.
+    * If the above step reports a missing database error, kill the docker-compose process or open a new terminal window in the current directory and then run `docker-compose run --rm api bundle exec rake db:setup` to setup the database.
 
-    * Alternatively use the following command to start a bash terminal session in the container `docker compose run --service-ports --rm sdeks bash`
+    * Alternatively use the following command to start a bash terminal session in the container `docker compose run --service-ports --rm api bash`
 
-    * Run the tests in the container `docker compose run --service-ports --rm sdeks RAILS_ENV=test bin/rspec`
+    * Run the tests in the container `docker compose run --service-ports --rm api RAILS_ENV=test bin/rspec`

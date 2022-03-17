@@ -12,7 +12,7 @@ services:
     image: redis
     command: redis-server --appendonly yes
 
-  sdeks:
+  api:
     image: sdeks:local
     build:
       context: .
@@ -29,6 +29,25 @@ services:
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_MAX_THREADS=2
       - REVISION=c079966-fake-revision
+      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
+      - AZURE_STORAGE_ACCESS_KEY=${AZURE_STORAGE_ACCESS_KEY}
+    links:
+      - redis:redis
+      - postgres:pg
+      - sidekiq:sidekiq
+
+  sidekiq:
+    image: sdeks:local
+    volumes:
+      - ./:/rails_app
+      - gem_cache:/usr/local/bundle
+    command: ["bundle", "exec", "sidekiq"]
+    environment:
+      - SIDEKIQ_VERBOSE=true
+      - DATABASE_URL=postgresql://sdeks:sdeks@pg
+      - REDIS_URL=redis://redis:6379/0
+      - RAILS_MAX_THREADS=1
+      - RAILS_LOG_TO_STDOUT=true
       - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
       - AZURE_STORAGE_ACCESS_KEY=${AZURE_STORAGE_ACCESS_KEY}
     links:
