@@ -82,6 +82,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_03_11_141027) do
   create_table "user_reductions", force: :cascade do |t|
     t.bigint "subject_id", null: false
     t.bigint "workflow_id", null: false
+    t.bigint "zooniverse_subject_id", null: false
     t.jsonb "labels", default: {}, null: false
     t.jsonb "raw_payload", default: {}, null: false
     t.datetime "created_at", null: false
@@ -89,6 +90,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_03_11_141027) do
     t.string "unique_id", null: false
     t.index ["subject_id"], name: "index_user_reductions_on_subject_id"
     t.index ["workflow_id", "subject_id"], name: "index_user_reductions_on_workflow_id_and_subject_id", unique: true
+    t.index ["zooniverse_subject_id"], name: "index_user_reductions_on_zooniverse_subject_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
