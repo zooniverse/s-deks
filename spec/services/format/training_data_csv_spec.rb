@@ -14,11 +14,12 @@ RSpec.describe Format::TrainingDataCsv do
       ]
     end
     let(:reduction_subject) do
-      Subject.create({ zooniverse_subject_id: 1, context_id: 1, locations: subject_locations })
+      Subject.create(zooniverse_subject_id: 1, context_id: 1, locations: subject_locations)
     end
     let(:user_reduction_attributes) do
       {
         subject_id: reduction_subject.id,
+        zooniverse_subject_id: reduction_subject.zooniverse_subject_id,
         workflow_id: workflow_id,
         labels: {
           'smooth-or-featured_smooth' => 3,
