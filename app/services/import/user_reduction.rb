@@ -15,6 +15,7 @@ module Import
       ::UserReduction.create!(
         raw_payload: payload,
         subject_id: subject_id,
+        zooniverse_subject_id: zooniverse_subject_id,
         workflow_id: workflow_id,
         labels: labels,
         unique_id: unique_id
@@ -27,7 +28,10 @@ module Import
       context = Context.find_by(workflow_id: workflow_id)
       return unless context
 
-      Subject.find_by(context_id: context.id, zooniverse_subject_id: zooniverse_subject_id).id
+      Subject.find_or_create_by(
+        context_id: context.id,
+        zooniverse_subject_id: zooniverse_subject_id
+      ).id
     end
 
     def zooniverse_subject_id

@@ -50,7 +50,7 @@ RSpec.describe 'UserReductions', type: :request do
 
     it 'serailizes the created user_reduction in the response body as json' do
       create_request
-      expected_attributes = %w[id subject_id workflow_id labels raw_payload unique_id created_at updated_at]
+      expected_attributes = %w[id zooniverse_subject_id subject_id workflow_id labels raw_payload unique_id created_at updated_at]
       expect(json_parsed_response_body.keys).to match_array(expected_attributes)
     end
 

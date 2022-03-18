@@ -6,6 +6,7 @@ RSpec.describe Import::UserReduction do
   fixtures :contexts
 
   let(:context) { Context.first }
+  let(:zooniverse_subject_id) { 999 }
   let(:raw_payload) do
     ActionController::Parameters.new(
       {
@@ -20,7 +21,7 @@ RSpec.describe Import::UserReduction do
           '2' => 0  # star or artifact
         },
         subject: {
-          id: 999,
+          id: zooniverse_subject_id,
           'metadata' => { '#name' => '8000_231121_468' },
           'created_at' => '2021-08-06T11:08:53.918Z',
           'updated_at' => '2021-08-06T11:08:53.918Z'
@@ -29,10 +30,6 @@ RSpec.describe Import::UserReduction do
         'updated_at' => '2021-08-06T11:08:54.000Z'
       }
     )
-  end
-
-  before do
-    Subject.create(zooniverse_subject_id: 999, context_id: context.id)
   end
 
   describe '.run' do
@@ -56,6 +53,20 @@ RSpec.describe Import::UserReduction do
 
     it 'extracts the name correctly' do
       expect(user_reduction_model.unique_id).to match('8000_231121_468')
+    end
+
+    it 'creates a placeholder backfilling subject' do
+      expect { user_reduction_model }.to change(Subject, :count).from(0).to(1)
+    end
+
+    it 'correctly sets up the placeholder backfilling subject' do
+      expected_subject_attributes = { 'zooniverse_subject_id' => zooniverse_subject_id, 'context_id' => context.id }
+      expect(user_reduction_model.subject.attributes).to include(expected_subject_attributes)
+    end
+
+    it 'correctly links existing known subjects' do
+      subject = Subject.create(zooniverse_subject_id: zooniverse_subject_id, context_id: context.id)
+      expect(user_reduction_model.subject_id).to match(subject.id)
     end
 
     it 'raises with an invalid payload' do
