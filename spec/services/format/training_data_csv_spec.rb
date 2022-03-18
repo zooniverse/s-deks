@@ -60,5 +60,15 @@ RSpec.describe Format::TrainingDataCsv do
         expect(results).to match(expected_output)
       end
     end
+
+    context 'with no subject locations - pending backfilling' do
+      let(:subject_locations) { [] }
+
+      it 'raises an error' do
+        expect {
+          export_file
+        }.to raise_error(Format::TrainingDataCsv::MissingLocationData, "For subject id: #{reduction_subject.id}")
+      end
+    end
   end
 end
