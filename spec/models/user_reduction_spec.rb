@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe UserReduction, type: :model do
   let(:attributes) do
     {
-      subject_id: 4,
+      zooniverse_subject_id: 4,
       workflow_id: 4,
       labels: { 'smooth-or-featured_smooth' => 1, 'smooth-or-featured_featured-or-disk' => 3 },
       unique_id: '8000_231121_468',
@@ -18,8 +18,8 @@ RSpec.describe UserReduction, type: :model do
     expect(user_reduction).to be_valid
   end
 
-  it 'is invalid without a subject_id' do
-    user_reduction.subject_id = nil
+  it 'is invalid without a zooniverse_subject_id' do
+    user_reduction.zooniverse_subject_id = nil
     expect(user_reduction).to be_invalid
   end
 
@@ -27,7 +27,7 @@ RSpec.describe UserReduction, type: :model do
     user_reduction.save!
     dup = described_class.new(attributes)
     dup.valid?
-    expect(dup.errors[:subject_id]).to include('UserReduction must be unique for the subject and workflow')
+    expect(dup.errors[:zooniverse_subject_id]).to include('UserReduction must be unique for the zooniverse subject and workflow')
   end
 
   describe '.subject' do
