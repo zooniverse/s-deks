@@ -34,6 +34,17 @@ RSpec.describe Subject, type: :model do
     expect(dup.errors[:zooniverse_subject_id]).to include('Subject must be unique for the context')
   end
 
+  describe '.update_locations_from_api?' do
+    it 'returns true when missing locations' do
+      model.locations = [] # [] is the default
+      expect(model.update_locations_from_api?).to eq(true)
+    end
+
+    it 'returns false when locations exist' do
+      expect(model.update_locations_from_api?).to eq(false)
+    end
+  end
+
   describe '.context' do
     it 'correctly links the association' do
       expect(model.context).to be_valid
