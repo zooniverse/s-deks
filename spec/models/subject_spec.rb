@@ -44,6 +44,7 @@ RSpec.describe Subject, type: :model do
     let(:user_reduction) do
       UserReduction.create(
         {
+          zooniverse_subject_id: model.zooniverse_subject_id,
           subject_id: model.id,
           workflow_id: 4,
           labels: { 'smooth-or-featured_smooth' => 1, 'smooth-or-featured_featured-or-disk' => 3 },

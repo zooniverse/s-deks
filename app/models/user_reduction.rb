@@ -3,5 +3,5 @@
 class UserReduction < ApplicationRecord
   belongs_to :subject, optional: true
 
-  validates :zooniverse_subject_id, presence: true, uniqueness: { scope: :workflow_id, message: 'UserReduction must be unique for the subject and workflow' }
+  validates :zooniverse_subject_id, presence: true, uniqueness: { scope: :workflow_id, message: 'UserReduction must be unique for the zooniverse subject and workflow' }
 end
