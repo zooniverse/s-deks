@@ -10,6 +10,13 @@ require 'rspec/rails'
 # require our spec support helpers
 Dir[Rails.root.join('spec/support/*.rb')].sort.each { |f| require f }
 
+# disable all external real network requests in test env
+# and allow for easy request stubbing if needed
+# https://github.com/bblimke/webmock#real-requests-to-network-can-be-allowed-or-disabled
+# requiring is the same as WebMock.disable_net_connect!
+require 'webmock/rspec'
+
+
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
 # run as spec files by default. This means that files in spec/support that end
