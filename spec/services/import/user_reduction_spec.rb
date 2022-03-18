@@ -70,7 +70,9 @@ RSpec.describe Import::UserReduction do
     end
 
     it 'raises with an invalid payload' do
-      expect { described_class.new({}).run }.to raise_error(ActiveRecord::RecordInvalid)
+      expect {
+        described_class.new({}).run
+      }.to raise_error(Import::UserReduction::InvalidPayload, 'missing workflow and/or subject_id')
     end
   end
 end

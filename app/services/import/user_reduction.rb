@@ -2,6 +2,8 @@
 
 module Import
   class UserReduction
+    class InvalidPayload < StandardError; end
+
     attr_accessor :payload, :label_extractor
 
     # allow the label extracror to be injected at run time for the specific project we import data for
@@ -11,10 +13,15 @@ module Import
     end
 
     def run
+      validate_payload
+
+      # compose the Import::Subject service to find or create the subject
+      subject = Import::Subject.new(zooniverse_subject_id, context).run
+
       # use the top level model namespace
       ::UserReduction.create!(
         raw_payload: payload,
-        subject_id: subject_id,
+        subject_id: subject.id,
         zooniverse_subject_id: zooniverse_subject_id,
         workflow_id: workflow_id,
         labels: labels,
@@ -24,14 +31,14 @@ module Import
 
     private
 
-    def subject_id
-      context = Context.find_by(workflow_id: workflow_id)
-      return unless context
+    def validate_payload
+      return if workflow_id && zooniverse_subject_id
 
-      Subject.find_or_create_by(
-        context_id: context.id,
-        zooniverse_subject_id: zooniverse_subject_id
-      ).id
+      raise InvalidPayload, 'missing workflow and/or subject_id'
+    end
+
+    def context
+      Context.find_by(workflow_id: workflow_id)
     end
 
     def zooniverse_subject_id
