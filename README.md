@@ -1,4 +1,5 @@
 # Sloan Knowledge Extraction and Discovery Service
+Knowledge And Discovery Engine (KaDE)
 
 The Zooniverse API for supporting knoweldge extraction and discovery for machine learning systems.
 
