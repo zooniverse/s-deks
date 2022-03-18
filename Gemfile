@@ -12,6 +12,8 @@ gem 'bootsnap', require: false
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem 'jbuilder'
 
+# gem 'panoptes-client', '~> 1.1'
+gem 'panoptes-client', path: '/panoptes-client.rb'
 gem 'pg'
 gem 'puma'
 
@@ -40,4 +42,5 @@ end
 group :test do
   gem 'rspec-rails'
   gem 'spring-commands-rspec'
+  # gem 'webmock'
 end
