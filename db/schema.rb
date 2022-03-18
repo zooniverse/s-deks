@@ -80,7 +80,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_03_11_141027) do
   end
 
   create_table "user_reductions", force: :cascade do |t|
-    t.bigint "subject_id", null: false
+    t.bigint "subject_id"
     t.bigint "workflow_id", null: false
     t.bigint "zooniverse_subject_id", null: false
     t.jsonb "labels", default: {}, null: false
