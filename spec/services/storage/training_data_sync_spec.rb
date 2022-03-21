@@ -21,11 +21,6 @@ RSpec.describe Storage::TrainingDataSync do
     it 'copies the src file to the destination container', :focus do
       data_syncer.run
       expect(blob_service_double).to have_received(:copy_blob_from_uri).with(Rails.env, blob_destination_path, src_image_url)
-      #
-      # blob_client = Azure::Storage::Blob::BlobService.create(storage_account_name: ENV['AZURE_STORAGE_ACCOUNT_NAME'], storage_access_key: ENV['AZURE_STORAGE_ACCESS_KEY'])
-      # copy_id, copy_status = blob_client.copy_blob_from_uri('staging', blob_destination_path, src_image_url)
-      # blob_client.get_blob_properties('staging', blob_destination_path).properties[:copy_status]
-      #
     end
   end
 end
