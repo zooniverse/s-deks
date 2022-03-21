@@ -7,6 +7,9 @@ Metrics/BlockLength:
   Exclude:
     - '**/*_spec.rb'
 
+Naming/VariableNumber:
+  EnforcedStyle: 'snake_case'
+
 RSpec/MultipleMemoizedHelpers:
   Enabled: false
 
