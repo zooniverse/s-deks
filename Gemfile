@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # used for Azure active storage
-gem 'azure-storage-blob', require: false
+gem 'azure-storage-blob'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
@@ -13,6 +13,12 @@ gem 'bootsnap', require: false
 # gem 'jbuilder'
 
 # gem 'panoptes-client', '~> 1.1'
+# TODO - this is what needs to happen next
+# 1. publish the faraday-panoptes update
+# 2. test the publish with a local FS gem changes to panoptes-client.rb
+# 3. bump the panoptes-client.rb
+# 4. patch this system and others if need be
+# 5. should be able to use the minor version for the changes in both gems
 gem 'panoptes-client', path: '/panoptes-client.rb'
 gem 'pg'
 gem 'puma'
