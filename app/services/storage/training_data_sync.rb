@@ -11,7 +11,7 @@ module Storage
     end
 
     def run
-      return if copy_operation_status == COPY_OPERATION_SUCCESS_CODE
+      return if image_url_blob_already_copied
 
       _copy_id, _copy_status = blob_service_client.copy_blob_from_uri(
         Rails.env,
@@ -20,8 +20,14 @@ module Storage
       )
     end
 
-    def copy_operation_status
-      blob_service_client.get_blob_properties(Rails.env, blob_destination_path).properties[:copy_status]
+    def image_url_blob_already_copied
+      response = blob_service_client.get_blob_properties(Rails.env, blob_destination_path)
+      response.properties[:copy_status] == COPY_OPERATION_SUCCESS_CODE
+    rescue Azure::Core::Http::HTTPError => _e
+      # treat all errors as a failure and attempt to re-copy
+      # we can refine this via the response status code
+      # e.g. _e.status_code == 404 -> blob doesn't exist yet
+      false
     end
 
     private

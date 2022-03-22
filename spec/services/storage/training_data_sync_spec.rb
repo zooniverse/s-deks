@@ -11,30 +11,27 @@ RSpec.describe Storage::TrainingDataSync do
     let(:blob_destination_path) { Zoobot.training_image_path(src_image_url) }
     let(:blob_service_client_double) { instance_double(Azure::Storage::Blob::BlobService) }
     let(:blob_instance_double) { instance_double(Azure::Storage::Blob::Blob) }
-    let(:blob_copy_properties) do
-      {
-        blob_type: 'BlockBlob',
-        copy_id: '6569935c-a8a1-4f90-819a-e4258271e163',
-        copy_status: 'pending',
-        copy_source: src_image_url,
-        copy_progress: '0/551722',
-        copy_completion_time: nil,
-        copy_status_description: nil
-      }
-    end
 
     before do
       # call ActiveStorage::Blob.service before any debugg statement
       # to ensure we load the service correctly
       allow(blob_service_client_double).to receive(:copy_blob_from_uri)
-      allow(blob_service_client_double).to receive(:get_blob_properties).and_return(blob_instance_double)
-      allow(blob_instance_double).to receive(:properties).and_return(blob_copy_properties)
       allow(Azure::Storage::Blob::BlobService).to receive(:create).and_return(blob_service_client_double)
     end
 
-    it 'copies the src file to the destination container' do
-      data_syncer.run
-      expect(blob_service_client_double).to have_received(:copy_blob_from_uri).with(Rails.env, blob_destination_path, src_image_url)
+    context 'when the blob does not already exist' do
+      let(:azure_blob_error) do
+        instance_double(Azure::Core::Http::HttpResponse, uri: 'fake-uri', status_code: 404, body: 'The specified blob does not exist.')
+      end
+
+      before do
+        allow(blob_service_client_double).to receive(:get_blob_properties).and_raise(Azure::Core::Http::HTTPError, azure_blob_error)
+      end
+
+      it 'copies the src file to the destination container' do
+        data_syncer.run
+        expect(blob_service_client_double).to have_received(:copy_blob_from_uri).with(Rails.env, blob_destination_path, src_image_url)
+      end
     end
 
     context 'when the blob is already copied' do
@@ -48,6 +45,11 @@ RSpec.describe Storage::TrainingDataSync do
           copy_completion_time: 'Mon, 21 Mar 2022 13:36:38 GMT',
           copy_status_description: nil
         }
+      end
+
+      before do
+        allow(blob_instance_double).to receive(:properties).and_return(blob_copy_properties)
+        allow(blob_service_client_double).to receive(:get_blob_properties).and_return(blob_instance_double)
       end
 
       it 'does not call the blob copy uri function' do
