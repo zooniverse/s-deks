@@ -17,13 +17,19 @@ RSpec.describe Import::Subject do
       expect(subject_instance).to be_valid
     end
 
-    it 'queues a data backfilling worker on create' do
+    it 'queues a data backfilling worker' do
       allow(SubjectBackfillerJob).to receive(:perform_async)
       subject_import_service.run
       expect(SubjectBackfillerJob).to have_received(:perform_async).with(Integer)
     end
 
-    it 'skips does not create subjects that already exist' do
+    it 'queues a training data syncer worker' do
+      allow(TrainingDataSyncerJob).to receive(:perform_async)
+      subject_import_service.run
+      expect(TrainingDataSyncerJob).to have_received(:perform_async).with(Integer)
+    end
+
+    it 'does not create subjects that already exist' do
       # long term may want to look at upserts here
       # but short term the subject data should be static
       existing_subject = Subject.create(zooniverse_subject_id: zooniverse_subject_id, context_id: context.id)
