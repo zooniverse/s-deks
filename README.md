@@ -28,3 +28,33 @@ We only support running Panoptes via Docker and Docker Compose. If you'd like to
     * Alternatively use the following command to start a bash terminal session in the container `docker compose run --service-ports --rm api bash`
 
     * Run the tests in the container `docker compose run --service-ports --rm api RAILS_ENV=test bin/rspec`
+
+## API
+
+The KaDE service has a json API
+
+Create a new Training Data Export resource for use as a training data catalogue.
+
+This resulting export resource will link to a csv training data catalogue at a hosted storage location
+
+`POST /training_data_exports/`
+
+Requires a JSON payload for creating a training data export for a known workflow, e.g.
+
+``` JSON
+{ training_data_export: { workflow_id: 3 } }
+```
+
+Get the details of a Training Data Export resource
+
+`GET /training_data_exports/$id`
+
+Returns a JSON payload describing the export resource
+
+``` JSON
+{
+ 'id': 1,
+ 'workflow_id': 3,
+ 'state' => 'started',
+ 'storage_path' => '/staging/training_catalogues/workflow-3.csv'
+}
