@@ -5,6 +5,8 @@ WORKDIR /rails_app
 RUN apt-get update && apt-get -y upgrade && \
     apt-get install --no-install-recommends -y \
         build-essential \
+        # remove git once panoptes-client.rb is updated to >= v.0.4
+        git \
         libpq-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
