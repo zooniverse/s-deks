@@ -81,7 +81,13 @@ This resulting export resource will link to a csv training data catalogue at a h
 Requires a JSON payload for creating a training data export for a known workflow, e.g.
 
 ``` JSON
-{ training_data_export: { workflow_id: 3 } }
+{ 'training_data_export': { 'workflow_id': 3 } }
+```
+
+Example using Curl to create an export against localhost
+
+``` sh
+curl -u sdeks-user:sdeks-password -H 'Content-Type: application/json' -X POST http://localhost:3001/training_data_exports -d '{ "training_data_export": { "workflow_id": 3 } }'
 ```
 
 ### Get the details of a Training Data Export resource
