@@ -33,7 +33,46 @@ We only support running Panoptes via Docker and Docker Compose. If you'd like to
 
 The KaDE service has a json API
 
-Create a new Training Data Export resource for use as a training data catalogue.
+### User Reductions Resource
+
+### Create a new User Reductions resource
+
+This resulting user reduction resource represents the known aggregated state of a subject.
+
+This end point is meant to be used by Caesar system to post aggregated subject reductions into this system.
+
+`POST /user_reductions/`
+
+Requires a JSON payload for creating a User Reduction resource. The payload is static and derived from the Caesar system internals.
+
+``` JSON
+{
+  'user_reduction': {
+    'id': 4,
+    'reducible': {
+      'id': 3,
+      'type': 'Workflow'
+    },
+    'data': {
+      '0' => 3,
+      '1' => 9,
+      '2' => 0
+    },
+    'subject': {
+      'id': 999,
+      'metadata': { '#name' => '8000_231121_468' },
+      'created_at': '2021-08-06T11:08:53.918Z',
+      'updated_at': '2021-08-06T11:08:53.918Z'
+    },
+    'created_at': '2021-08-06T11:08:54.000Z',
+    'updated_at': '2021-08-06T11:08:54.000Z'
+  }
+}
+```
+
+### Training Data Exports Resource
+
+### Create a new Training Data Export resource
 
 This resulting export resource will link to a csv training data catalogue at a hosted storage location
 
@@ -45,7 +84,7 @@ Requires a JSON payload for creating a training data export for a known workflow
 { training_data_export: { workflow_id: 3 } }
 ```
 
-Get the details of a Training Data Export resource
+### Get the details of a Training Data Export resource
 
 `GET /training_data_exports/$id`
 
