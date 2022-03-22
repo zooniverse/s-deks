@@ -21,8 +21,6 @@ services:
     volumes:
       - ./:/rails_app
       - gem_cache:/usr/local/bundle
-      - /Users/camallen/workspace/zooniverse/panoptes-client.rb:/panoptes-client.rb
-      - /Users/camallen/workspace/zooniverse/faraday-panoptes:/faraday-panoptes
     ports:
       - 3001:3000
     environment:
