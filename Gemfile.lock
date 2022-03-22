@@ -1,5 +1,7 @@
-PATH
-  remote: /panoptes-client.rb
+GIT
+  remote: https://github.com/zooniverse/panoptes-client.rb.git
+  revision: 1f87c9d492179446e6a812eea0875b5d7b677358
+  branch: relax-faraday-panoptes-constraint
   specs:
     panoptes-client (1.1.1)
       deprecate

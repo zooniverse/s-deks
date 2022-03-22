@@ -19,7 +19,7 @@ gem 'bootsnap', require: false
 # 3. bump the panoptes-client.rb
 # 4. patch this system and others if need be
 # 5. should be able to use the minor version for the changes in both gems
-gem 'panoptes-client', path: '/panoptes-client.rb'
+gem 'panoptes-client', github: 'zooniverse/panoptes-client.rb', branch: 'relax-faraday-panoptes-constraint'
 gem 'pg'
 gem 'puma'
 
