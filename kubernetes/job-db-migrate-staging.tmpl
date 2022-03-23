@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: __JOB_NAME__
+spec:
+  template:
+    spec:
+      containers:
+      - name: kade-migrate-db-staging
+        image: ghcr.io/zooniverse/kade:__IMAGE_TAG__
+        command: ["bundle", "exec", "rails" "db:migrate"]
+        envFrom:
+        - secretRef:
+            name: panoptes-common-env-vars
+        - secretRef:
+            name: panoptes-staging-env-vars
+        - configMapRef:
+            name: panoptes-staging-shared
+      restartPolicy: Never
+  backoffLimit: 1
