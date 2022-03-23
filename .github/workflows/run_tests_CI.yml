@@ -4,6 +4,7 @@ on:
   push: { branches: main }
 env:
   DATABASE_URL: postgresql://kade:kade@localhost/gh_ci_test
+  RAILS_ENV: test
 jobs:
   test:
     name: Run Tests
@@ -39,10 +40,8 @@ jobs:
         with:
           ruby-version: 3.1
           bundler-cache: true
-          cache-version: 1
       - name: Setup DB and configs
-        run: |
-          RAILS_ENV=test bundle exec rake db:setup
+        run: bin/rails db:create
       - name: Run tests
-        run: RAILS_ENV=test bundle exec rspec
+        run: bundle exec bin/rspec
 
