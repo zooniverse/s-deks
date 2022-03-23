@@ -3,7 +3,7 @@ on:
   pull_request:
   push: { branches: main }
 env:
-  DATABASE_URL: postgresql://sdeks:sdeks@localhost/gh_ci_test
+  DATABASE_URL: postgresql://kade:kade@localhost/gh_ci_test
 jobs:
   test:
     name: Run Tests
@@ -12,11 +12,18 @@ jobs:
       postgres:
         image: postgres:13-alpine
         env:
-          POSTGRES_USER: sdeks
-          POSTGRES_PASSWORD: sdeks
+          POSTGRES_USER: kade
+          POSTGRES_PASSWORD: kade
         ports: ['5432:5432']
         options:
           --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -37,4 +44,7 @@ jobs:
         run: |
           RAILS_ENV=test bundle exec rake db:setup
       - name: Run tests
-        run: RAILS_ENV=test bundle exec rspec
+        run: bundle exec rspec
+        env:
+          RAILS_ENV: test
+          REDIS_URL: redis://redis:6379/0
