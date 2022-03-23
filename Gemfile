@@ -14,6 +14,8 @@ gem 'honeybadger'
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem 'jbuilder'
 
+gem 'newrelic_rpm'
+
 # gem 'panoptes-client', '~> 1.1'
 # switch this back to ^ once the relax farday-panoptes PR is merged and published
 gem 'panoptes-client', github: 'zooniverse/panoptes-client.rb', branch: 'relax-faraday-panoptes-constraint'
