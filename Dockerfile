@@ -26,8 +26,6 @@ ADD ./ /rails_app
 ARG REVISION=''
 ENV REVISION=$REVISION
 
-RUN (echo $REVISION > ./public/commit_id.txt)
-
 EXPOSE 80
 
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

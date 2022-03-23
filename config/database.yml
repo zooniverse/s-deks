@@ -13,3 +13,7 @@ development:
 test:
   <<: *default
   database: kade_test
+
+staging:
+  <<: *default
+  database: kade_staging
