@@ -27,6 +27,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 6379:6379
     steps:
       - uses: actions/checkout@v2
       - name: Check for focus specs
@@ -44,7 +46,5 @@ jobs:
         run: |
           RAILS_ENV=test bundle exec rake db:setup
       - name: Run tests
-        run: bundle exec rspec
-        env:
-          RAILS_ENV: test
-          REDIS_URL: 'redis://localhost:6379/0'
+        run: RAILS_ENV=test bundle exec rspec
+
