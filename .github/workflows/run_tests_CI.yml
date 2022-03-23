@@ -15,7 +15,7 @@ jobs:
           POSTGRES_USER: kade
           POSTGRES_PASSWORD: kade
         ports: ['5432:5432']
-        options:
+        options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
@@ -47,4 +47,4 @@ jobs:
         run: bundle exec rspec
         env:
           RAILS_ENV: test
-          REDIS_URL: redis://redis:6379/0
+          REDIS_URL: 'redis://redis:6379/0'
