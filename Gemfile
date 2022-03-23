@@ -9,16 +9,13 @@ gem 'azure-storage-blob'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
 
+gem 'honeybadger'
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem 'jbuilder'
 
 # gem 'panoptes-client', '~> 1.1'
-# TODO - this is what needs to happen next
-# 1. publish the faraday-panoptes update
-# 2. test the publish with a local FS gem changes to panoptes-client.rb
-# 3. bump the panoptes-client.rb
-# 4. patch this system and others if need be
-# 5. should be able to use the minor version for the changes in both gems
+# switch this back to ^ once the relax farday-panoptes PR is merged and published
 gem 'panoptes-client', github: 'zooniverse/panoptes-client.rb', branch: 'relax-faraday-panoptes-constraint'
 gem 'pg'
 gem 'puma'
