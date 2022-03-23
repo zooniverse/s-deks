@@ -8,7 +8,7 @@ spec:
       containers:
       - name: kade-migrate-db-staging
         image: ghcr.io/zooniverse/kade:__IMAGE_TAG__
-        command: ["bundle", "exec", "rails" "db:migrate"]
+        command: ["bundle", "exec", "rails", "db:migrate"]
         envFrom:
         - secretRef:
             name: panoptes-common-env-vars
