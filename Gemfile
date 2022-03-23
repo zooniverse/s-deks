@@ -9,12 +9,8 @@ gem 'azure-storage-blob'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', require: false
 
-gem 'honeybadger'
-
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem 'jbuilder'
-
-gem 'newrelic_rpm'
 
 # gem 'panoptes-client', '~> 1.1'
 # switch this back to ^ once the relax farday-panoptes PR is merged and published
@@ -32,6 +28,11 @@ gem 'rails', '~> 7.0'
 
 gem 'sidekiq'
 gem 'strong_migrations'
+
+group :production, :staging do
+  gem 'honeybadger'
+  gem 'newrelic_rpm'
+end
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
