@@ -46,7 +46,7 @@ This end point is meant to be used by Caesar system to post aggregated subject r
 
 Requires a JSON payload for creating a User Reduction resource. The payload is static and derived from the Caesar system internals.
 
-``` JSON
+``` javascript
 {
   'user_reduction': {
     'id': 4,
@@ -81,7 +81,7 @@ This resulting export resource will link to a csv training data catalogue at a h
 
 Requires a JSON payload for creating a training data export for a known workflow, e.g.
 
-``` JSON
+``` javascript
 { 'training_data_export': { 'workflow_id': 3 } }
 ```
 
@@ -97,7 +97,7 @@ curl -u kade-user:kade-password -H 'Content-Type: application/json' -X POST http
 
 Returns a JSON payload describing the export resource
 
-``` JSON
+``` javascript
 {
  'id': 1,
  'workflow_id': 3,
