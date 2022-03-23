@@ -69,7 +69,9 @@ spec:
             # allow a longer response time than 1s
             timeoutSeconds: 10
           env:
-          - name: HONEYBADGER_REVISION=
+          - name: REVISION
+            value: '__IMAGE_TAG__'
+          - name: HONEYBADGER_REVISION
             value: '__IMAGE_TAG__'
           envFrom:
           - secretRef:
