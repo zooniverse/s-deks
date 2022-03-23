@@ -1,13 +1,14 @@
-# Sloan Knowledge Extraction and Discovery Service
-Knowledge And Discovery Engine (KaDE)
+# Sloan Knowledge and Discovery Engine
+
+Knowledge and Discovery Engine - KaDE
 
 The Zooniverse API for supporting knoweldge extraction and discovery for machine learning systems.
 
 ## Requirements
 
-DEK-S uses Docker to manage its environment, the requirements listed below are also found in `docker-compose.yml`. The means by which a new S-DEKS instance is created with Docker is located in the `Dockerfile`. If you plan on using Docker to manage S-DEKS, skip ahead to Installation.
+KaDE uses Docker to manage its environment, the requirements listed below are also found in `docker-compose.yml`. The means by which a new instance is created with Docker is located in the `Dockerfile`. If you plan on using Docker to manage this application, skip ahead to Installation.
 
-DEK-S is primarily developed against stable MRI, currently 3.1. If you're running MRI Ruby you'll need to have the Postgresql client libraries installed as well as have [Postgresql](http://postgresql.org) version 13 running.
+KaDE is primarily developed against stable MRI, currently 3.1. If you're running MRI Ruby you'll need to have the Postgresql client libraries installed as well as have [Postgresql](http://postgresql.org) version 13+ running.
 
 Optionally, you can also run the following:
 
@@ -87,7 +88,7 @@ Requires a JSON payload for creating a training data export for a known workflow
 Example using Curl to create an export against localhost
 
 ``` sh
-curl -u sdeks-user:sdeks-password -H 'Content-Type: application/json' -X POST http://localhost:3001/training_data_exports -d '{ "training_data_export": { "workflow_id": 3 } }'
+curl -u kade-user:kade-password -H 'Content-Type: application/json' -X POST http://localhost:3001/training_data_exports -d '{ "training_data_export": { "workflow_id": 3 } }'
 ```
 
 ### Get the details of a Training Data Export resource

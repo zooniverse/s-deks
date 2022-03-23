@@ -11,7 +11,7 @@ require 'active_storage/engine'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Sdeks
+module Kade
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
@@ -31,11 +31,11 @@ module Sdeks
 
     # API basic auth scheme
     # Long term this can switch to Zooniverse API JWT token auth & pundit authorization schemes
-    config.api_basic_auth_username = ENV.fetch('API_BASIC_AUTH_USERNAME', 'sdeks-user')
-    config.api_basic_auth_password = ENV.fetch('API_BASIC_AUTH_PASSWORD', 'sdeks-password')
+    config.api_basic_auth_username = ENV.fetch('API_BASIC_AUTH_USERNAME', 'kade-user')
+    config.api_basic_auth_password = ENV.fetch('API_BASIC_AUTH_PASSWORD', 'kade-password')
 
     # UserReduction ingester basic auth scheme (Caesar etc)
-    config.user_reduction_basic_auth_username = ENV.fetch('REDUCTION_BASIC_AUTH_USERNAME', 'sdeks-user')
-    config.user_reduction_basic_auth_password = ENV.fetch('REDUCTION_BASIC_AUTH_PASSWORD', 'sdeks-password')
+    config.user_reduction_basic_auth_username = ENV.fetch('REDUCTION_BASIC_AUTH_USERNAME', 'kade-user')
+    config.user_reduction_basic_auth_password = ENV.fetch('REDUCTION_BASIC_AUTH_PASSWORD', 'kade-password')
   end
 end

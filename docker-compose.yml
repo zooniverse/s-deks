@@ -3,8 +3,8 @@ services:
   postgres:
     image: postgres:13
     environment:
-      - POSTGRES_USER=sdeks
-      - POSTGRES_PASSWORD=sdeks
+      - POSTGRES_USER=kade
+      - POSTGRES_PASSWORD=kade
     ports:
       - "5433:5432"
 
@@ -13,7 +13,7 @@ services:
     command: redis-server --appendonly yes
 
   api:
-    image: sdeks:local
+    image: kade:local
     build:
       context: .
       args:
@@ -24,7 +24,7 @@ services:
     ports:
       - 3001:3000
     environment:
-      - DATABASE_URL=postgresql://sdeks:sdeks@pg
+      - DATABASE_URL=postgresql://kade:kade@pg
       - REDIS_URL=redis://redis:6379/0
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_MAX_THREADS=2
@@ -36,14 +36,14 @@ services:
       - postgres:pg
 
   sidekiq:
-    image: sdeks:local
+    image: kade:local
     volumes:
       - ./:/rails_app
       - gem_cache:/usr/local/bundle
     command: ["bundle", "exec", "sidekiq"]
     environment:
       - SIDEKIQ_VERBOSE=true
-      - DATABASE_URL=postgresql://sdeks:sdeks@pg
+      - DATABASE_URL=postgresql://kade:kade@pg
       - REDIS_URL=redis://redis:6379/0
       - RAILS_MAX_THREADS=1
       - RAILS_LOG_TO_STDOUT=true
