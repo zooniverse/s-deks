@@ -75,6 +75,8 @@ spec:
             value: '__IMAGE_TAG__'
           envFrom:
           - secretRef:
+            name: kade-staging-env-vars
+          - secretRef:
               name: kade-common-env-vars
           - secretRef:
               name: kade-staging-app-db
