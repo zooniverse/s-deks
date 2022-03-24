@@ -4,8 +4,11 @@ require 'rails_helper'
 
 RSpec.describe SubjectBackfillerJob, type: :job do
   describe 'perform' do
+    fixtures :contexts
+
+    let(:context) { Context.first }
     let(:existing_subject) do
-      Subject.create(zooniverse_subject_id: 123, context_id: 1)
+      Subject.create(zooniverse_subject_id: 123, context_id: context.id)
     end
     let(:locations_import_service) { instance_double(Import::SubjectLocations) }
     let(:job) { described_class.new }
