@@ -10,6 +10,13 @@ Metrics/BlockLength:
 Naming/VariableNumber:
   EnforcedStyle: 'snake_case'
 
+Rails/UnknownEnv:
+  Environments:
+    - production
+    - development
+    - test
+    - staging
+
 RSpec/MultipleMemoizedHelpers:
   Enabled: false
 
