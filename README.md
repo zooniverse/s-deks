@@ -16,7 +16,7 @@ Optionally, you can also run the following:
 
 ## Installation
 
-We only support running Panoptes via Docker and Docker Compose. If you'd like to run it outside a container, see the above Requirements sections to get started.
+We only support running KaDE via Docker and Docker Compose. If you'd like to run it outside a container, see the above Requirements sections to get started.
 
 ## Usage
 
