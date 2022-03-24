@@ -37,5 +37,13 @@ module Kade
     # UserReduction ingester basic auth scheme (Caesar etc)
     config.user_reduction_basic_auth_username = ENV.fetch('REDUCTION_BASIC_AUTH_USERNAME', 'kade-user')
     config.user_reduction_basic_auth_password = ENV.fetch('REDUCTION_BASIC_AUTH_PASSWORD', 'kade-password')
+
+    # Re Add session management for mounting sidekiq UI app
+    #
+    # This also configures session_options for use below
+    config.session_store :cookie_store, key: '_kade_session'
+    # Required for all session management (regardless of session_store)
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use config.session_store, config.session_options
   end
 end
