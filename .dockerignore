@@ -1,0 +1,4 @@
+.bundle
+spec
+log/*
+tmp/*
