@@ -9,12 +9,17 @@ spec:
       - name: kade-migrate-db-staging
         image: ghcr.io/zooniverse/kade:__IMAGE_TAG__
         command: ["bundle", "exec", "rails", "db:migrate"]
+        env:
+          - name: REVISION
+            value: '__IMAGE_TAG__'
+          - name: HONEYBADGER_REVISION
+            value: '__IMAGE_TAG__'
         envFrom:
         - secretRef:
-            name: panoptes-common-env-vars
+            name: kade-common-env-vars
         - secretRef:
-            name: panoptes-staging-env-vars
+            name: kade-staging-sidekiq-db
         - configMapRef:
-            name: panoptes-staging-shared
+            name: kade-staging-shared
       restartPolicy: Never
   backoffLimit: 1
