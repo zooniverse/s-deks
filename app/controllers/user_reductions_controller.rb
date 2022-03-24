@@ -15,7 +15,6 @@ class UserReductionsController < ApplicationController
   )
 
   def create
-    debugger
     # so the payload doesn't conform to the expected format for strong params
     # Started POST "/user_reductions" for 10.244.6.79 at 2022-03-24 15:36:58 +0000
     # I, [2022-03-24T15:36:58.576861 #1]  INFO -- : [3c9799100bace703fe82f97187bc97a8] Processing by UserReductionsController#create as JSON
