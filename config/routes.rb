@@ -1,5 +1,29 @@
+# frozen_string_literal: true
+
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+
+  # https://github.com/mperham/sidekiq/wiki/Monitoring#rails-http-basic-auth-from-routes
+  Sidekiq::Web.use Rack::Auth::Basic do |username, password|
+    # Protect against timing attacks:
+    # - See https://codahale.com/a-lesson-in-timing-attacks/
+    # - See https://thisdata.com/blog/timing-attacks-against-string-comparison/
+    # - Use & (do not use &&) so that it doesn't short circuit.
+    # - Use digests to stop length information leaking (see also ActiveSupport::SecurityUtils.variable_size_secure_compare)
+    user_name_valid = ActiveSupport::SecurityUtils.secure_compare(
+      ::Digest::SHA256.hexdigest(username),
+      ::Digest::SHA256.hexdigest(Rails.application.config.api_basic_auth_username)
+    )
+    password_valid = ActiveSupport::SecurityUtils.secure_compare(
+      ::Digest::SHA256.hexdigest(password),
+      ::Digest::SHA256.hexdigest(Rails.application.config.api_basic_auth_password)
+    )
+    user_name_valid & password_valid
+  end if Rails.env.production? || Rails.env.staging?
+
+  mount Sidekiq::Web => '/sidekiq'
 
   # https://lipanski.com/posts/activestorage-cdn-rails-direct-route
   # add a direct public URL path helper for serving public assets
