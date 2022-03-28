@@ -3,33 +3,52 @@
 require 'rails_helper'
 
 RSpec.describe 'Subjects', type: :request do
-  describe 'GET /subjects/:id' do
-    fixtures :contexts
+  fixtures :contexts
 
-    let(:context) { Context.first }
-    let(:request_headers) do
-      # long term look at switching this to panoptes JWT auth via gem 'panoptes-client'
-      json_headers_with_basic_auth(
-        Rails.application.config.api_basic_auth_username,
-        Rails.application.config.api_basic_auth_password
-      )
-    end
-    let(:get_request) do
-      get "/subjects/#{subject_instance.id}", headers: request_headers
-    end
-    let(:zooniverse_subject_id) { 999 }
-    let(:locations) do
-      [{ 'image/jpeg' => 'https://panoptes-uploads.zooniverse.org/subject_location/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg' }]
-    end
-    let(:metadata) { { 'name' => '#uniq-name!' } }
-    let(:subject_instance) do
-      Subject.create({ zooniverse_subject_id: zooniverse_subject_id, context_id: context.id, metadata: metadata, locations: locations })
-    end
+  let(:context) { Context.first }
+  let(:request_headers) do
+    # long term look at switching this to panoptes JWT auth via gem 'panoptes-client'
+    json_headers_with_basic_auth(
+      Rails.application.config.api_basic_auth_username,
+      Rails.application.config.api_basic_auth_password
+    )
+  end
+  let(:zooniverse_subject_id) { 999 }
+  let(:locations) do
+    [{ 'image/jpeg' => 'https://panoptes-uploads.zooniverse.org/subject_location/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg' }]
+  end
+  let(:metadata) { { 'name' => '#uniq-name!' } }
+  let(:subject_instance) do
+    Subject.create({ zooniverse_subject_id: zooniverse_subject_id, context_id: context.id, metadata: metadata, locations: locations })
+  end
 
+  before do
+    subject_instance
+  end
+
+  describe 'GET /subjects/' do
     before do
-      subject_instance
+      Subject.create({ zooniverse_subject_id: 1000, context_id: context.id })
     end
 
+    it 'returns the ok response' do
+      get '/subjects/', headers: request_headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns both subject records' do
+      get '/subjects/', headers: request_headers
+      expect(json_parsed_response_body.length).to eq(2)
+    end
+
+    it 'filters via the ?zooniverse_subject_id param' do
+      get "/subjects/?zooniverse_subject_id=#{zooniverse_subject_id}", headers: request_headers
+      expect(json_parsed_response_body.length).to eq(1)
+      expect(json_parsed_response_body.first['zooniverse_subject_id']).to eq(zooniverse_subject_id)
+    end
+  end
+
+  describe 'GET /subjects/:id' do
     it 'returns the ok response' do
       get_request
       expect(response).to have_http_status(:ok)
