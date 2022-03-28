@@ -38,9 +38,11 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root 'home#index'
 
-  resources :user_reductions, only: [:create]
+  resources :subjects, only: %i[show]
 
   resources :training_data_exports, only: %i[show create]
+
+  resources :user_reductions, only: [:create]
 
   # all other routes go here
 end
