@@ -51,8 +51,13 @@ RSpec.describe Import::UserReduction do
       expect(user_reduction_model.labels).to match(expected_labels)
     end
 
-    it 'extracts the name correctly' do
-      expect(user_reduction_model.unique_id).to match('8000_231121_468')
+    it 'extracts the name correctly for staging env' do
+      staging_payload = raw_payload.dup
+      staging_payload_metadata = raw_payload[:subject]['metadata'].dup
+      staging_payload_metadata['!SDSS_ID'] = '1237663785278570672'
+      staging_payload[:subject]['metadata'] = staging_payload_metadata.except('#name')
+      user_reduction_model_staging = described_class.new(staging_payload).run
+      expect(user_reduction_model_staging.unique_id).to match('1237663785278570672')
     end
 
     it 'creates a placeholder backfilling subject' do

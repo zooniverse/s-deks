@@ -56,7 +56,11 @@ module Import
     end
 
     def unique_id
-      payload.dig('subject', 'metadata', '#name')
+      unique_id = payload.dig('subject', 'metadata', '#name')
+      return unique_id if unique_id
+
+      # staging has older data with different subject metadata - fallback to handling this special env case
+      payload.dig('subject', 'metadata', '!SDSS_ID') if Rails.env.staging? || Rails.env.test?
     end
 
     # use a custom label extractor (injected at run time)
