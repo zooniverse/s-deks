@@ -56,32 +56,32 @@ RSpec.describe 'UserReductions', type: :request do
 
     context 'with unrwapped params' do
       let(:user_reduction_json_payload) do
-      {
-        id: 4,
-        reducible: {
-          id: context.workflow_id,
-          type: 'Workflow'
-        },
-        data: {
-          '0' => 3,
-          '1' => 9,
-          '2' => 0
-        },
-        subject: {
-          id: 999,
-          metadata: { '#name' => '8000_231121_468' },
-          created_at: '2021-08-06T11:08:53.918Z',
-          updated_at: '2021-08-06T11:08:53.918Z'
-        },
-        created_at: '2021-08-06T11:08:54.000Z',
-        updated_at: '2021-08-06T11:08:54.000Z'
-      }.to_json
-    end
+        {
+          id: 4,
+          reducible: {
+            id: context.workflow_id,
+            type: 'Workflow'
+          },
+          data: {
+            '0' => 3,
+            '1' => 9,
+            '2' => 0
+          },
+          subject: {
+            id: 999,
+            metadata: { '#name' => '8000_231121_468' },
+            created_at: '2021-08-06T11:08:53.918Z',
+            updated_at: '2021-08-06T11:08:53.918Z'
+          },
+          created_at: '2021-08-06T11:08:54.000Z',
+          updated_at: '2021-08-06T11:08:54.000Z'
+        }.to_json
+      end
 
       it 'returns the created response' do
-      create_request
-      expect(response).to have_http_status(:created)
-    end
+        create_request
+        expect(response).to have_http_status(:created)
+      end
     end
 
     context 'with invalid authentication credentials' do
