@@ -49,6 +49,10 @@ RSpec.describe 'Subjects', type: :request do
   end
 
   describe 'GET /subjects/:id' do
+    let(:get_request) do
+      get "/subjects/#{subject_instance.id}", headers: request_headers
+    end
+
     it 'returns the ok response' do
       get_request
       expect(response).to have_http_status(:ok)
