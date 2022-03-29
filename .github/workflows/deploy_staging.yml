@@ -12,15 +12,16 @@ on:
 jobs:
   check_ci_ok:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - run: |
-          echo 'The triggering CI tests workflow failed'
-          exit 1
+          echo 'The triggering CI tests workflow is ok'
+          exit 0
 
   build_and_push_image:
     name: Build and Push Image
     uses: zooniverse/ci-cd/.github/workflows/build_and_push_image.yaml@main
+    needs: check_ci_ok
     with:
       repo_name: kade
       commit_id: ${{ github.sha }}
