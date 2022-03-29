@@ -25,7 +25,7 @@ RSpec.describe Export::TrainingData do
       allow(active_storage_proxy).to receive(:attached?).and_return(true)
     end
 
-    it 'does not raise unexpected errors' do
+    it 'does not raise unexpected errors', :focus do
       expect { export_service_instance.run }.not_to raise_error
     end
 
