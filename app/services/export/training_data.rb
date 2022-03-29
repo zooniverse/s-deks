@@ -16,9 +16,9 @@ module Export
       # ensure we specify a known key here so we know the location on contianer storage
       # vs a rails generated key id
       training_data_export.file.attach(
-        key: training_data_export.storage_path,
+        key: training_data_export.storage_path_key,
         io: csv_export_file,
-        filename: training_data_export.storage_path
+        filename: training_data_export.storage_path_file_name
       )
 
       # finally mark the export model state change

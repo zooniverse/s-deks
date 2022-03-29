@@ -5,7 +5,11 @@ require 'rails_helper'
 RSpec.describe Export::TrainingData do
   describe '#run' do
     let(:workflow_id) { 10 }
-    let(:storage_path) { "#{Zoobot.storage_path_key(workflow_id)}-#{Time.now.iso8601}.csv" }
+    let(:file_time) { Time.now.iso8601 }
+    let(:storage_path) { "#{Zoobot.storage_path_key(workflow_id)}-#{file_time}.csv" }
+    let(:storage_path_file_name) { "workflow-#{workflow_id}-#{file_time}.csv" }
+    let(:storage_path_key) { "/training_catalogues/#{storage_path_file_name}" }
+
     let(:training_data_model) { TrainingDataExport.new(workflow_id: workflow_id, storage_path: storage_path) }
     let(:export_service_instance) { described_class.new(training_data_model) }
     let(:formatter_double) { instance_double(Format::TrainingDataCsv) }
@@ -31,7 +35,7 @@ RSpec.describe Export::TrainingData do
     end
 
     it 'uploads the export file at a known storage key' do
-      attach_params = { key: storage_path, io: temp_export_file, filename: storage_path }
+      attach_params = { key: storage_path_key, io: temp_export_file, filename: storage_path_file_name }
       export_service_instance.run
       expect(active_storage_proxy).to have_received(:attach).with(attach_params)
     end
