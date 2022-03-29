@@ -3,6 +3,8 @@
 module Storage
   class TrainingDataSync
     COPY_OPERATION_SUCCESS_CODE = 'success'
+    PROD_CONTAINER_URL_PREFIX = 'https://panoptesuploads.blob.core.windows.net/public'
+    STAGING_CONTAINER_URL_PREFIX = 'https://panoptesuploadsstaging.blob.core.windows.net/public'
 
     attr_accessor :src_image_url
 
@@ -16,7 +18,7 @@ module Storage
       _copy_id, _copy_status = blob_service_client.copy_blob_from_uri(
         Rails.env,
         blob_destination_path,
-        src_image_url
+        src_blob_uri_from_src_url
       )
     end
 
@@ -41,6 +43,18 @@ module Storage
 
     def blob_destination_path
       @blob_destination_path ||= Zoobot.training_image_path(src_image_url)
+    end
+
+    # convert the public / CDN url to a blob storage conatiner URL
+    # in testing the public CDN url works some of the time so let's use the
+    # storage / container URIs to make sure the copies work
+    def src_blob_uri_from_src_url
+      parsed_uri = URI.parse(src_image_url)
+      if Rails.env.production?
+        "#{PROD_CONTAINER_URL_PREFIX}#{parsed_uri.path}"
+      else
+        "#{STAGING_CONTAINER_URL_PREFIX}#{parsed_uri.path}"
+      end
     end
   end
 end
