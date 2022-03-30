@@ -10,7 +10,7 @@ class SubjectsController < ApplicationController
   )
 
   def index
-    subject_scope = Subject.all.limit(10)
+    subject_scope = Subject.all.limit(params_page_size)
     if params[:zooniverse_subject_id]
       subject_scope = subject_scope.where(zooniverse_subject_id: params[:zooniverse_subject_id])
     end
