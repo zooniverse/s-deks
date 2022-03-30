@@ -15,6 +15,9 @@ class UserReductionsController < ApplicationController
 
   def index
     user_reduction_scope = UserReduction.preload(:subject).order(id: :desc).limit(params_page_size)
+    if params[:zooniverse_subject_id]
+      user_reduction_scope = user_reduction_scope.where(zooniverse_subject_id: params[:zooniverse_subject_id])
+    end
     render(
       status: :ok,
       json: user_reduction_scope.as_json(include: :subject)

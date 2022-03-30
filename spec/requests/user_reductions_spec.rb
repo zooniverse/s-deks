@@ -92,6 +92,14 @@ RSpec.describe 'UserReductions', type: :request do
       get '/user_reductions/', headers: request_headers
       expect(json_parsed_response_body.length).to eq(1)
     end
+
+    it 'filters via the ?zooniverse_subject_id param' do
+      other_user_reduction = UserReduction.create(
+        { zooniverse_subject_id: 1001, subject_id: -1, workflow_id: context.workflow_id, unique_id: 'more-unique' }
+      )
+      get "/user_reductions/?zooniverse_subject_id=#{other_user_reduction.zooniverse_subject_id}", headers: request_headers
+      expect(json_parsed_response_body.length).to eq(1)
+    end
   end
 
   describe 'POST /user_reductions' do
