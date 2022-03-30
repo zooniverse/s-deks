@@ -32,9 +32,72 @@ We only support running KaDE via Docker and Docker Compose. If you'd like to run
 
 ## API
 
-The KaDE service has a json API
+The KaDE service has a json API for the following resource
+
+All `GET /$resource/` list end points allow the use of `?page_size=100` query param to change the default number of returned objects.
 
 ### User Reductions Resource
+
+#### List User Reduction resources
+
+`GET /user_reductions/` List all user_reductions
+`GET /user_reductions/?zooniverse_subject_id=85095` Filter the list for user_reductions that match the zooniverse API ID
+
+Returns a JSON payload listing the last 10 user_reductions by defualt resources
+
+``` javascript
+[
+  {
+    'id': 4,
+    'reducible': {
+      'id': 3,
+      'type': 'Workflow'
+    },
+    'data': {
+      '0' => 3,
+      '1' => 9,
+      '2' => 0
+    },
+    'subject': {
+      'id': 999,
+      'metadata': { '#name' => '8000_231121_468' },
+      'created_at': '2021-08-06T11:08:53.918Z',
+      'updated_at': '2021-08-06T11:08:53.918Z'
+    },
+    'created_at': '2021-08-06T11:08:54.000Z',
+    'updated_at': '2021-08-06T11:08:54.000Z'
+  }
+]
+```
+
+#### Get the details of a User Reduction resource
+
+`GET /user_reductions/$id`
+
+Returns a JSON payload describing the user reduction resource
+
+``` javascript
+{
+    'id': 4,
+    'reducible': {
+      'id': 3,
+      'type': 'Workflow'
+    },
+    'data': {
+      '0' => 3,
+      '1' => 9,
+      '2' => 0
+    },
+    'subject': {
+      'id': 999,
+      'metadata': { '#name' => '8000_231121_468' },
+      'created_at': '2021-08-06T11:08:53.918Z',
+      'updated_at': '2021-08-06T11:08:53.918Z'
+    },
+    'created_at': '2021-08-06T11:08:54.000Z',
+    'updated_at': '2021-08-06T11:08:54.000Z'
+  }
+```
 
 ### Create a new User Reductions resource
 
@@ -127,7 +190,8 @@ Returns a JSON payload listing the last 10 export resources
 
 #### List Subject resources
 
-`GET /subjects/`
+`GET /subjects/` List all subjects
+`GET /subjects/?zooniverse_subject_id=85095` Filter the list for subjects that match the zooniverse API ID
 
 Returns a JSON payload listing the last 10 subject resources
 
