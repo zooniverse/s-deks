@@ -6,7 +6,13 @@ RSpec.describe 'UserReductions', type: :request do
   fixtures :contexts
 
   let(:context) { Context.first }
-  let(:request_headers) do
+  let(:non_create_request_headers) do
+    json_headers_with_basic_auth(
+      Rails.application.config.api_basic_auth_username,
+      Rails.application.config.api_basic_auth_password
+    )
+  end
+  let(:create_request_headers) do
     json_headers_with_basic_auth(
       Rails.application.config.user_reduction_basic_auth_username,
       Rails.application.config.user_reduction_basic_auth_password
@@ -33,7 +39,7 @@ RSpec.describe 'UserReductions', type: :request do
 
   describe 'GET /user_reductions/:id' do
     let(:get_request) do
-      get "/user_reductions/#{user_reduction.id}", headers: request_headers
+      get "/user_reductions/#{user_reduction.id}", headers: non_create_request_headers
     end
 
     it 'returns the ok response' do
@@ -58,7 +64,7 @@ RSpec.describe 'UserReductions', type: :request do
     end
 
     context 'with invalid authentication credentials' do
-      let(:request_headers) do
+      let(:non_create_request_headers) do
         json_headers_with_basic_auth('unknown', 'credentials')
       end
 
@@ -69,7 +75,7 @@ RSpec.describe 'UserReductions', type: :request do
     end
 
     context 'without an authorization header' do
-      let(:request_headers) { json_headers }
+      let(:non_create_request_headers) { json_headers }
 
       it 'returns unauthorized response' do
         get_request
@@ -84,12 +90,12 @@ RSpec.describe 'UserReductions', type: :request do
     end
 
     it 'returns the ok response' do
-      get '/user_reductions/', headers: request_headers
+      get '/user_reductions/', headers: non_create_request_headers
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns both subject records' do
-      get '/user_reductions/', headers: request_headers
+      get '/user_reductions/', headers: non_create_request_headers
       expect(json_parsed_response_body.length).to eq(1)
     end
 
@@ -97,7 +103,7 @@ RSpec.describe 'UserReductions', type: :request do
       other_user_reduction = UserReduction.create(
         { zooniverse_subject_id: 1001, subject_id: -1, workflow_id: context.workflow_id, unique_id: 'more-unique' }
       )
-      get "/user_reductions/?zooniverse_subject_id=#{other_user_reduction.zooniverse_subject_id}", headers: request_headers
+      get "/user_reductions/?zooniverse_subject_id=#{other_user_reduction.zooniverse_subject_id}", headers: non_create_request_headers
       expect(json_parsed_response_body.length).to eq(1)
     end
   end
@@ -127,7 +133,7 @@ RSpec.describe 'UserReductions', type: :request do
         }
       }.to_json
     end
-    let(:create_request) { post '/user_reductions', params: user_reduction_json_payload, headers: request_headers }
+    let(:create_request) { post '/user_reductions', params: user_reduction_json_payload, headers: create_request_headers }
 
     it 'returns the created response' do
       create_request
@@ -171,7 +177,7 @@ RSpec.describe 'UserReductions', type: :request do
     end
 
     context 'with invalid authentication credentials' do
-      let(:request_headers) do
+      let(:create_request_headers) do
         json_headers_with_basic_auth('unknown', 'credentials')
       end
 
@@ -182,7 +188,7 @@ RSpec.describe 'UserReductions', type: :request do
     end
 
     context 'without an authorization header' do
-      let(:request_headers) { json_headers }
+      let(:create_request_headers) { json_headers }
 
       it 'returns unauthorized response' do
         create_request

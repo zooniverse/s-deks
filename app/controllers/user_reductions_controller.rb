@@ -10,7 +10,14 @@ class UserReductionsController < ApplicationController
 
   http_basic_authenticate_with(
     name: Rails.application.config.user_reduction_basic_auth_username,
-    password: Rails.application.config.user_reduction_basic_auth_password
+    password: Rails.application.config.user_reduction_basic_auth_password,
+    only: :create
+  )
+
+  http_basic_authenticate_with(
+    name: Rails.application.config.api_basic_auth_username,
+    password: Rails.application.config.api_basic_auth_password,
+    only: %i[show index]
   )
 
   def index
