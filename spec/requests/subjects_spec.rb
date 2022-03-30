@@ -28,7 +28,7 @@ RSpec.describe 'Subjects', type: :request do
 
   describe 'GET /subjects/' do
     before do
-      subject = Subject.create({ zooniverse_subject_id: 1000, context_id: context.id })
+      Subject.create({ zooniverse_subject_id: 1000, context_id: context.id })
     end
 
     it 'returns the ok response' do
