@@ -42,7 +42,7 @@ Rails.application.routes.draw do
 
   resources :training_data_exports, only: %i[index show create]
 
-  resources :user_reductions, only: [:create]
+  resources :user_reductions, only: %i[index show create]
 
   # all other routes go here
 end

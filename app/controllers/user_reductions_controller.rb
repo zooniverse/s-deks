@@ -10,15 +10,26 @@ class UserReductionsController < ApplicationController
 
   http_basic_authenticate_with(
     name: Rails.application.config.user_reduction_basic_auth_username,
-    password: Rails.application.config.user_reduction_basic_auth_password,
-    only: :create
+    password: Rails.application.config.user_reduction_basic_auth_password
   )
 
+  def index
+    user_reduction_scope = UserReduction.preload(:subject).order(id: :desc).limit(params_page_size)
+    render(
+      status: :ok,
+      json: user_reduction_scope.as_json(include: :subject)
+    )
+  end
+
+  def show
+    user_reduction = UserReduction.preload(:subject).find(params[:id])
+    render(
+      status: :ok,
+      json: user_reduction.as_json(include: :subject)
+    )
+  end
+
   def create
-    # so the payload doesn't conform to the expected format for strong params
-    # Started POST "/user_reductions" for 10.244.6.79 at 2022-03-24 15:36:58 +0000
-    # I, [2022-03-24T15:36:58.576861 #1]  INFO -- : [3c9799100bace703fe82f97187bc97a8] Processing by UserReductionsController#create as JSON
-    # I, [2022-03-24T15:36:58.577022 #1]  INFO -- : [3c9799100bace703fe82f97187bc97a8]   Parameters: {"id"=>1659, "reducible"=>{"id"=>3598, "type"=>"Workflow"}, "data"=>{"1"=>1}, "subject"=>{"id"=>85082, "metadata"=>{"!Image"=>"http://skyserver.sdss.org/dr8/en/tools/explore/obj.asp?id=1237648721216078463", "!SDSS_ID"=>"1237648721216078463", "Galaxy_ID"=>"5", "image_file"=>"1237648721216078463.jpeg", "!GZ_Original_Merger"=>"0", "!GZ_Original_Spiral"=>"31", "!GZ_Original_Artifact"=>"1", "!GZ_Original_Elliptical"=>"0", "!Computer_Classification"=>"Not Elliptical"}, "created_at"=>"2020-03-30T19:55:06.539Z", "updated_at"=>"2020-03-30T19:55:06.539Z"}, "reducer_key"=>"[FILTERED]", "created_at"=>"2022-03-24T15:24:10.052Z", "updated_at"=>"2022-03-24T15:24:10.052Z", "user_reduction"=>{"id"=>1659, "created_at"=>"2022-03-24T15:24:10.052Z", "updated_at"=>"2022-03-24T15:24:10.052Z"}}
     user_reduction = Import::UserReduction.new(user_reduction_params).run
     render status: :created, json: user_reduction.to_json
   end

@@ -3,10 +3,98 @@
 require 'rails_helper'
 
 RSpec.describe 'UserReductions', type: :request do
-  describe 'POST /user_reductions' do
-    fixtures :contexts
+  fixtures :contexts
 
-    let(:context) { Context.first }
+  let(:context) { Context.first }
+  let(:request_headers) do
+    json_headers_with_basic_auth(
+      Rails.application.config.user_reduction_basic_auth_username,
+      Rails.application.config.user_reduction_basic_auth_password
+    )
+  end
+  let(:subject_instance) do
+    Subject.create(zooniverse_subject_id: 999, context_id: context.id)
+  end
+  let(:user_reduction) do
+    UserReduction.create(
+      {
+        zooniverse_subject_id: subject_instance.zooniverse_subject_id,
+        subject_id: subject_instance.id,
+        workflow_id: context.workflow_id,
+        labels: {},
+        unique_id: 'very_unique_id',
+      }
+    )
+  end
+
+  before do
+    subject_instance
+  end
+
+  describe 'GET /user_reductions/:id' do
+    let(:get_request) do
+      get "/user_reductions/#{user_reduction.id}", headers: request_headers
+    end
+
+    it 'returns the ok response' do
+      get_request
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'serializes the json subject data in the response body' do
+      get_request
+      expected_attributes = {
+        'id' => user_reduction.id,
+        'zooniverse_subject_id' => user_reduction.zooniverse_subject_id,
+        'labels' => user_reduction.labels,
+        'unique_id' => user_reduction.unique_id
+      }
+      expect(json_parsed_response_body).to include(expected_attributes)
+    end
+
+    it 'serializes the linked subject json data in the response body' do
+      get_request
+      expect(json_parsed_response_body['subject']).not_to be_empty
+    end
+
+    context 'with invalid authentication credentials' do
+      let(:request_headers) do
+        json_headers_with_basic_auth('unknown', 'credentials')
+      end
+
+      it 'returns unauthorized response' do
+        get_request
+        expect(response.status).to eq(401)
+      end
+    end
+
+    context 'without an authorization header' do
+      let(:request_headers) { json_headers }
+
+      it 'returns unauthorized response' do
+        get_request
+        expect(response.status).to eq(401)
+      end
+    end
+  end
+
+  describe 'GET /user_reductions/' do
+    before do
+      user_reduction
+    end
+
+    it 'returns the ok response' do
+      get '/user_reductions/', headers: request_headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns both subject records' do
+      get '/user_reductions/', headers: request_headers
+      expect(json_parsed_response_body.length).to eq(1)
+    end
+  end
+
+  describe 'POST /user_reductions' do
     let(:user_reduction_json_payload) do
       {
         user_reduction: {
@@ -31,17 +119,7 @@ RSpec.describe 'UserReductions', type: :request do
         }
       }.to_json
     end
-    let(:request_headers) do
-      json_headers_with_basic_auth(
-        Rails.application.config.user_reduction_basic_auth_username,
-        Rails.application.config.user_reduction_basic_auth_password
-      )
-    end
     let(:create_request) { post '/user_reductions', params: user_reduction_json_payload, headers: request_headers }
-
-    before do
-      Subject.create(zooniverse_subject_id: 999, context_id: context.id)
-    end
 
     it 'returns the created response' do
       create_request
