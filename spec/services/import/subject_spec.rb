@@ -23,12 +23,6 @@ RSpec.describe Import::Subject do
       expect(SubjectBackfillerJob).to have_received(:perform_async).with(Integer)
     end
 
-    it 'queues a training data syncer worker' do
-      allow(TrainingDataSyncerJob).to receive(:perform_async)
-      subject_import_service.run
-      expect(TrainingDataSyncerJob).to have_received(:perform_async).with(Integer)
-    end
-
     it 'does not create subjects that already exist' do
       # long term may want to look at upserts here
       # but short term the subject data should be static

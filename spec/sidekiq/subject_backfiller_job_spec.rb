@@ -22,6 +22,12 @@ RSpec.describe SubjectBackfillerJob, type: :job do
       job.perform(existing_subject.id)
       expect(locations_import_service).to have_received(:run)
     end
+
+    it 'queues a training data syncer worker' do
+      allow(TrainingDataSyncerJob).to receive(:perform_async)
+      job.perform(existing_subject.id)
+      expect(TrainingDataSyncerJob).to have_received(:perform_async).with(Integer)
+    end
   end
 end
 

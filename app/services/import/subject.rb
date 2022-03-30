@@ -12,7 +12,6 @@ module Import
     def run
       subject = ::Subject.find_or_create_by!(context_id: context.id, zooniverse_subject_id: zooniverse_subject_id)
       SubjectBackfillerJob.perform_async(subject.id)
-      TrainingDataSyncerJob.perform_async(subject.id)
       subject
     end
   end

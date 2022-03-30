@@ -4,7 +4,11 @@ class SubjectBackfillerJob
   include Sidekiq::Job
 
   def perform(subject_id)
-    subject_to_backfill_data = Subject.find(subject_id)
-    Import::SubjectLocations.new(subject_to_backfill_data).run
+    subject = Subject.find(subject_id)
+    Import::SubjectLocations.new(subject).run
+
+    # now we have the URL's backfilled we can sync
+    # the training images to the storage container
+    TrainingDataSyncerJob.perform_async(subject.id)
   end
 end
