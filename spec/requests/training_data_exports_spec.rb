@@ -6,15 +6,15 @@ RSpec.describe 'TrainingDataExports', type: :request do
   fixtures :contexts
 
   let(:context) { Context.first }
+  let(:request_headers) do
+    # long term look at switching this to panoptes JWT auth via gem 'panoptes-client'
+    json_headers_with_basic_auth(
+      Rails.application.config.api_basic_auth_username,
+      Rails.application.config.api_basic_auth_password
+    )
+  end
 
   describe 'POST /training_data_exports' do
-    let(:request_headers) do
-      # long term look at switching this to panoptes JWT auth via gem 'panoptes-client'
-      json_headers_with_basic_auth(
-        Rails.application.config.api_basic_auth_username,
-        Rails.application.config.api_basic_auth_password
-      )
-    end
     let(:training_data_export_json_payload) do
       { training_data_export: { workflow_id: context.workflow_id } }.to_json
     end
@@ -61,13 +61,6 @@ RSpec.describe 'TrainingDataExports', type: :request do
   end
 
   describe 'GET /training_data_exports/:id' do
-    let(:request_headers) do
-      # long term look at switching this to panoptes JWT auth via gem 'panoptes-client'
-      json_headers_with_basic_auth(
-        Rails.application.config.api_basic_auth_username,
-        Rails.application.config.api_basic_auth_password
-      )
-    end
     let(:get_request) do
       get "/training_data_exports/#{training_data_export.id}", headers: request_headers
     end
@@ -94,6 +87,47 @@ RSpec.describe 'TrainingDataExports', type: :request do
         'storage_path' => training_data_export.storage_path
       }
       expect(json_parsed_response_body).to include(expected_attributes)
+    end
+
+    context 'with invalid authentication credentials' do
+      let(:request_headers) do
+        json_headers_with_basic_auth('unknown', 'credentials')
+      end
+
+      it 'returns unauthorized response' do
+        get_request
+        expect(response.status).to eq(401)
+      end
+    end
+
+    context 'without an authorization header' do
+      let(:request_headers) { json_headers }
+
+      it 'returns unauthorized response' do
+        get_request
+        expect(response.status).to eq(401)
+      end
+    end
+  end
+
+  describe 'GET /training_data_exports/' do
+    let(:get_request) do
+      get '/training_data_exports', headers: request_headers
+    end
+
+    before do
+      TrainingDataExport.create(workflow_id: context.workflow_id, storage_path: 'path_1')
+      TrainingDataExport.create(workflow_id: context.workflow_id, storage_path: 'path_2')
+    end
+
+    it 'returns the ok response' do
+      get_request
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns both training data export records' do
+      get_request
+      expect(json_parsed_response_body.length).to eq(2)
     end
 
     context 'with invalid authentication credentials' do

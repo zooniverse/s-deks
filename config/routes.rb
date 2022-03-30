@@ -40,7 +40,7 @@ Rails.application.routes.draw do
 
   resources :subjects, only: %i[index show]
 
-  resources :training_data_exports, only: %i[show create]
+  resources :training_data_exports, only: %i[index show create]
 
   resources :user_reductions, only: [:create]
 

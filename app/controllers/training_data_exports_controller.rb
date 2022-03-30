@@ -9,6 +9,11 @@ class TrainingDataExportsController < ApplicationController
     password: Rails.application.config.api_basic_auth_password,
   )
 
+  def index
+    training_data_export_scope = TrainingDataExport.all.order(id: :desc).limit(params_page_size)
+    render status: :ok, json: training_data_export_scope.to_json
+  end
+
   def show
     training_data_export = TrainingDataExport.find(params[:id])
     render status: :ok, json: training_data_export.to_json
