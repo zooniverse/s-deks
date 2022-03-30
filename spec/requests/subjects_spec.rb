@@ -28,7 +28,7 @@ RSpec.describe 'Subjects', type: :request do
 
   describe 'GET /subjects/' do
     before do
-      Subject.create({ zooniverse_subject_id: 1000, context_id: context.id })
+      subject = Subject.create({ zooniverse_subject_id: 1000, context_id: context.id })
     end
 
     it 'returns the ok response' do
@@ -49,6 +49,17 @@ RSpec.describe 'Subjects', type: :request do
   end
 
   describe 'GET /subjects/:id' do
+    let(:linked_user_reduction) do
+      UserReduction.create(
+        {
+          zooniverse_subject_id: subject_instance.zooniverse_subject_id,
+          subject_id: subject_instance.id,
+          workflow_id: context.workflow_id,
+          labels: {},
+          unique_id: 'very_unique_id',
+        }
+      )
+    end
     let(:get_request) do
       get "/subjects/#{subject_instance.id}", headers: request_headers
     end
@@ -58,7 +69,7 @@ RSpec.describe 'Subjects', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'serailizes the json subject data in the response body' do
+    it 'serializes the json subject data in the response body' do
       get_request
       expected_attributes = {
         'id' => subject_instance.id,
@@ -67,6 +78,12 @@ RSpec.describe 'Subjects', type: :request do
         'locations' => locations
       }
       expect(json_parsed_response_body).to include(expected_attributes)
+    end
+
+    it 'serializes the linked user_reduciton json data in the response body' do
+      linked_user_reduction
+      get_request
+      expect(json_parsed_response_body['user_reductions']).not_to be_empty
     end
 
     context 'with invalid authentication credentials' do

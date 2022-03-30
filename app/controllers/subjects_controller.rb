@@ -10,15 +10,21 @@ class SubjectsController < ApplicationController
   )
 
   def index
-    subject_scope = Subject.all.limit(params_page_size)
+    subject_scope = Subject.preload(:user_reductions).order(id: :desc).limit(params_page_size)
     if params[:zooniverse_subject_id]
       subject_scope = subject_scope.where(zooniverse_subject_id: params[:zooniverse_subject_id])
     end
-    render status: :ok, json: subject_scope.to_json
+    render(
+      status: :ok,
+      json: subject_scope.as_json(include: :user_reductions)
+    )
   end
 
   def show
-    subject = Subject.find(params[:id])
-    render status: :ok, json: subject.to_json
+    subject = Subject.preload(:user_reductions).find(params[:id])
+    render(
+      status: :ok,
+      json: subject.as_json(include: :user_reductions)
+    )
   end
 end
