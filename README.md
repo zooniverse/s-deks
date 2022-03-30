@@ -73,7 +73,7 @@ Requires a JSON payload for creating a User Reduction resource. The payload is s
 
 ### Training Data Exports Resource
 
-### Create a new Training Data Export resource
+#### Create a new Training Data Export resource
 
 This resulting export resource will link to a csv training data catalogue at a hosted storage location
 
@@ -91,7 +91,7 @@ Example using Curl to create an export against localhost
 curl -u kade-user:kade-password -H 'Content-Type: application/json' -X POST http://localhost:3001/training_data_exports -d '{ "training_data_export": { "workflow_id": 3 } }'
 ```
 
-### Get the details of a Training Data Export resource
+#### Get the details of a Training Data Export resource
 
 `GET /training_data_exports/$id`
 
@@ -104,3 +104,65 @@ Returns a JSON payload describing the export resource
  'state' => 'started',
  'storage_path' => '/staging/training_catalogues/workflow-3.csv'
 }
+```
+
+#### List Training Data Export resources
+
+`GET /training_data_exports/`
+
+Returns a JSON payload listing the last 10 export resources
+
+``` javascript
+[
+  {
+    'id': 1,
+    'workflow_id': 3,
+    'state' => 'started',
+    'storage_path' => '/staging/training_catalogues/workflow-3.csv'
+  }
+]
+```
+
+### Subjects Resource
+
+#### List Subject resources
+
+`GET /subjects/`
+
+Returns a JSON payload listing the last 10 subject resources
+
+``` javascript
+[
+  {
+    'id': 1,
+    'zooniverse_subject_id': 999,
+    'metadata': { 'name': '#uniq-name!' },
+    'context_id': 1,
+    'locations': [
+      {
+        'image/jpeg': 'https://panoptes-uploads.zooniverse.org/subject_location/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg'
+      }
+    ]
+  }
+]
+```
+
+#### Get the details of a Subject resource
+
+`GET /subjects/$id`
+
+Returns a JSON payload describing the subject resource
+
+``` javascript
+{
+  'id': 1,
+  'zooniverse_subject_id': 999,
+  'metadata': { 'name': '#uniq-name!' },
+  'context_id': 1,
+  'locations': [
+    {
+      'image/jpeg': 'https://panoptes-uploads.zooniverse.org/subject_location/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg'
+    }
+  ]
+}
+```
