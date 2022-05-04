@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgres:
-    image: postgres:13
+    image: postgres:11
     environment:
       - POSTGRES_USER=kade
       - POSTGRES_PASSWORD=kade
