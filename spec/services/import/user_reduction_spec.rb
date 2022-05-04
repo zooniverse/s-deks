@@ -26,6 +26,19 @@ RSpec.describe Import::UserReduction do
           'created_at' => '2021-08-06T11:08:53.918Z',
           'updated_at' => '2021-08-06T11:08:53.918Z'
         },
+        # ??? Can we include a task mapping key here
+        # to link the reducation data payload
+        # to the target use case, e.g. `task_schema_key` (or something)
+        # to allow the caesar system to specify which label system (task)
+        # this data payload aligns to
+        # without this we have to use instrospection on the
+        # data payloads or arbitrary reducer_key values - not good
+        #
+        # i.e. we define the task schema and expose the key linkage points
+        # in code and re-use these in caesar
+
+        # encode this via the incoming URL query params
+
         'created_at' => '2021-08-06T11:08:54.000Z',
         'updated_at' => '2021-08-06T11:08:54.000Z'
       }
@@ -40,8 +53,9 @@ RSpec.describe Import::UserReduction do
         'smooth-or-featured_artifact' => 0
       }
     end
-    let(:label_extractor) { LabelExtractors::GalaxyZoo.new(raw_payload['data']) }
-    let(:user_reduction_model) { described_class.new(raw_payload).run }
+    let(:task_schema_lookup_key) { 'T0' }
+    let(:label_extractor) { LabelExtractors::GalaxyZoo.new(task_schema_lookup_key) }
+    let(:user_reduction_model) { described_class.new(raw_payload, label_extractor).run }
 
     it 'converts the raw reduction payload to a valid UserReduction model' do
       expect(user_reduction_model).to be_valid
@@ -56,7 +70,7 @@ RSpec.describe Import::UserReduction do
       staging_payload_metadata = raw_payload[:subject]['metadata'].dup
       staging_payload_metadata['!SDSS_ID'] = '1237663785278570672'
       staging_payload[:subject]['metadata'] = staging_payload_metadata.except('#name')
-      user_reduction_model_staging = described_class.new(staging_payload).run
+      user_reduction_model_staging = described_class.new(staging_payload, label_extractor).run
       expect(user_reduction_model_staging.unique_id).to match('1237663785278570672')
     end
 
@@ -76,7 +90,7 @@ RSpec.describe Import::UserReduction do
 
     it 'raises with an invalid payload' do
       expect {
-        described_class.new({}).run
+        described_class.new({}, label_extractor).run
       }.to raise_error(Import::UserReduction::InvalidPayload, 'missing workflow and/or subject_id')
     end
   end
