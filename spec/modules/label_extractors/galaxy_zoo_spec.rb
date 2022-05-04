@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe LabelExtractors::GalaxyZoo, :focus do
+RSpec.describe LabelExtractors::GalaxyZoo do
   let(:task_lookup_key) { 'T0' }
   let(:data_payload) do
     {
