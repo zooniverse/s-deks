@@ -5,7 +5,7 @@ module LabelExtractors
     class UnknownTaskKey < StandardError; end
     class UnknownLabelKey < StandardError; end
 
-    attr_reader :task_schema_lookup_key, :task_prefix_label
+    attr_reader :task_lookup_key, :task_prefix_label
 
     # TODO: add all GZ decision tree task label lookups here
     # staging: T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10
@@ -25,10 +25,10 @@ module LabelExtractors
     }.freeze
 
     # convert this and extract method to an instance vs static class method
-    # and use the injected task_schema_lookup_key
+    # and use the injected task_lookup_key
     # to determine which
-    def initialize(task_schema_lookup_key)
-      @task_schema_lookup_key = task_schema_lookup_key
+    def initialize(task_lookup_key)
+      @task_lookup_key = task_lookup_key
       @task_prefix_label = task_prefix
     end
 
@@ -53,14 +53,14 @@ module LabelExtractors
     private
 
     def task_prefix
-      prefix = TASK_LABEL_KEY_PREFIXES[task_schema_lookup_key]
-      raise UnknownTaskKey, "key not found: #{task_schema_lookup_key}" unless prefix
+      prefix = TASK_LABEL_KEY_PREFIXES[task_lookup_key]
+      raise UnknownTaskKey, "key not found: #{task_lookup_key}" unless prefix
 
       prefix
     end
 
     def data_payload_label(key)
-      label = TASK_KEY_DATA_LABELS.dig(task_schema_lookup_key, key)
+      label = TASK_KEY_DATA_LABELS.dig(task_lookup_key, key)
       raise UnknownLabelKey, "key not found: #{key}" unless label
 
       label

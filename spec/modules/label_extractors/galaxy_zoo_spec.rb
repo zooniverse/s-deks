@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe LabelExtractors::GalaxyZoo do
-  let(:task_schema_lookup_key) { 'T0' }
+RSpec.describe LabelExtractors::GalaxyZoo, :focus do
+  let(:task_lookup_key) { 'T0' }
   let(:data_payload) do
     {
       '0' => 3, # smooth
@@ -13,7 +13,7 @@ RSpec.describe LabelExtractors::GalaxyZoo do
   end
 
   describe '#extract' do
-    let(:extractor_instance) { described_class.new(task_schema_lookup_key) }
+    let(:extractor_instance) { described_class.new(task_lookup_key) }
     let(:extracted_labels) { extractor_instance.extract(data_payload) }
     let(:expected_labels) do
       {
