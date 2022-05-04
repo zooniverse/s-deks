@@ -108,7 +108,7 @@ RSpec.describe 'UserReductions', type: :request do
     end
   end
 
-  describe 'POST /user_reductions' do
+  describe 'POST /user_reductions/:task_schema_lookup_key' do
     let(:user_reduction_json_payload) do
       {
         user_reduction: {
@@ -133,7 +133,7 @@ RSpec.describe 'UserReductions', type: :request do
         }
       }.to_json
     end
-    let(:create_request) { post '/user_reductions', params: user_reduction_json_payload, headers: create_request_headers }
+    let(:create_request) { post '/user_reductions/galaxy_zoo_t0', params: user_reduction_json_payload, headers: create_request_headers }
 
     it 'returns the created response' do
       create_request

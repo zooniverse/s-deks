@@ -40,7 +40,10 @@ class UserReductionsController < ApplicationController
   end
 
   def create
-    user_reduction = Import::UserReduction.new(user_reduction_params).run
+    label_extractor = LabelExtractors::Finder.extractor_instance(task_schema_lookup_key_param)
+    # TODO pass this to the reduction importer to uniquely identify the task
+    # task_schema_lookup_key_param
+    user_reduction = Import::UserReduction.new(user_reduction_params, label_extractor).run
     render status: :created, json: user_reduction.to_json
   end
 
@@ -51,5 +54,9 @@ class UserReductionsController < ApplicationController
     # so we can allow an open schema of the payload body / what can be saved to the db
     # longer term if needed we can look at validating via a json schema if required
     params.permit(user_reduction: {})[:user_reduction]
+  end
+
+  def task_schema_lookup_key_param
+    params.permit(:task_schema_lookup_key)[:task_schema_lookup_key]
   end
 end
