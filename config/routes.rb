@@ -42,7 +42,13 @@ Rails.application.routes.draw do
 
   resources :training_data_exports, only: %i[index show create]
 
-  resources :user_reductions, only: %i[index show create]
+  resources :user_reductions, only: %i[index show] do
+    collection do
+      # encode the task schema lookup key via the URL
+      # define which task schema labels are extracted for incoming data payload
+      post ':task_schema_lookup_key', to: 'user_reductions#create'
+    end
+  end
 
   # all other routes go here
 end
