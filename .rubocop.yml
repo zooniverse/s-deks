@@ -20,6 +20,10 @@ Rails/UnknownEnv:
 RSpec/MultipleMemoizedHelpers:
   Enabled: false
 
+Style/BlockDelimiters:
+  Exclude:
+    - '**/*_spec.rb'
+
 AllCops:
   NewCops: enable
   TargetRailsVersion: 7
