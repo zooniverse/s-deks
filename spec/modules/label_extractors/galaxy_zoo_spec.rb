@@ -2,17 +2,49 @@
 
 require 'rails_helper'
 
-RSpec.describe LabelExtractors::GalaxyZoo do
-  let(:task_lookup_key) { 'T0' }
-  let(:data_payload) do
+RSpec.describe LabelExtractors::GalaxyZoo, :focus do
+  let(:data_lable_schema) do
     {
-      '0' => 3, # smooth
-      '1' => 9, # features or disk
-      '2' => 0  # star or artifact
+      'T0' => {
+        '0' => 'smooth',
+        '1' => 'featured-or-disk',
+        '2' => 'artifact'
+      },
+      'T1' => {
+        '0' => 'round',
+        '1' => 'in-between',
+        '2' => 'cigar-shaped'
+      }
+    }
+  end
+  let(:label_prefix_schema) do
+    {
+      'T0' => 'smooth-or-featured',
+      'T1' => 'how-rounded-'
     }
   end
 
+  describe '#label_prefixes' do
+    it 'has the correct schema label prefixes' do
+      expect(described_class.label_prefixes).to match(label_prefix_schema)
+    end
+  end
+
+  describe '#data_labels' do
+  it 'has the correct schema data labels' do
+      expect(described_class.data_labels).to match(data_lable_schema)
+    end
+  end
+
   describe '#extract' do
+    let(:task_lookup_key) { 'T0' }
+    let(:data_payload) do
+      {
+        '0' => 3, # smooth
+        '1' => 9, # features or disk
+        '2' => 0  # star or artifact
+      }
+    end
     let(:extractor_instance) { described_class.new(task_lookup_key) }
     let(:extracted_labels) { extractor_instance.extract(data_payload) }
     let(:expected_labels) do
