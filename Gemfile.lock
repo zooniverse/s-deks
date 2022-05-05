@@ -271,6 +271,7 @@ GEM
     strong_migrations (1.0.0)
       activerecord (>= 5.2)
     strscan (3.0.1)
+    test-prof (1.0.8)
     thor (1.2.1)
     timeout (0.2.0)
     tzinfo (2.0.4)
@@ -309,6 +310,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   strong_migrations
+  test-prof
   webmock
 
 BUNDLED WITH

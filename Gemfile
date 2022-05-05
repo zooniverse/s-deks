@@ -43,6 +43,10 @@ group :development, :test do
   gem 'rubocop-rspec', require: false
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   gem 'spring'
+  gem 'test-prof'
+  # add these gems for custom test system profilers
+  # gem 'ruby-prof' # https://test-prof.evilmartians.io/#/profilers/ruby_prof
+  # gem 'stackprof' # https://test-prof.evilmartians.io/#/profilers/stack_prof
 end
 
 group :test do
