@@ -48,9 +48,9 @@ RSpec.describe Import::UserReduction do
   describe '.run' do
     let(:expected_labels) do
       {
-        'smooth-or-featured_smooth' => 3,
-        'smooth-or-featured_featured-or-disk' => 9,
-        'smooth-or-featured_artifact' => 0
+        'smooth-or-featured-dr8_smooth' => 3,
+        'smooth-or-featured-dr8_featured-or-disk' => 9,
+        'smooth-or-featured-dr8_artifact' => 0
       }
     end
     let(:task_schema_lookup_key) { 'T0' }
