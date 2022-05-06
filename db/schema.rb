@@ -70,7 +70,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_05_06_161651) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "unique_id", null: false
-    t.string "task_key", null: false
+    t.string "task_key"
     t.index ["subject_id"], name: "index_reductions_on_subject_id"
     t.index ["workflow_id", "subject_id"], name: "index_reductions_on_workflow_id_and_subject_id", unique: true
     t.index ["zooniverse_subject_id"], name: "index_reductions_on_zooniverse_subject_id"
