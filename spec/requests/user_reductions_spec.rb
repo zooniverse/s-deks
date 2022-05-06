@@ -28,7 +28,7 @@ RSpec.describe 'UserReductions', type: :request do
         subject_id: subject_instance.id,
         workflow_id: context.workflow_id,
         labels: {},
-        unique_id: 'very_unique_id',
+        unique_id: 'very_unique_id'
       }
     )
   end
