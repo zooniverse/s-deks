@@ -45,4 +45,12 @@ Rails.application.configure do
 
   # Store uploaded files on local disk
   config.active_storage.service = :test
+
+  if ENV['DISABLE_TEST_LOGGING']
+    # rubocop:disable Rails/Output
+    puts 'Logs are being suppressed to speed up the test suite. ' \
+         'Remove DISABLE_TEST_LOGGING env var to add logging back.'
+    # rubocop:enable Rails/Output
+    config.log_level = :fatal
+  end
 end
