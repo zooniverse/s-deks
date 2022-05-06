@@ -26,19 +26,8 @@ RSpec.describe Import::Reduction do
           'created_at' => '2021-08-06T11:08:53.918Z',
           'updated_at' => '2021-08-06T11:08:53.918Z'
         },
-        # ??? Can we include a task mapping key here
-        # to link the reducation data payload
-        # to the target use case, e.g. `task_schema_key` (or something)
-        # to allow the caesar system to specify which label system (task)
-        # this data payload aligns to
-        # without this we have to use instrospection on the
-        # data payloads or arbitrary reducer_key values - not good
-        #
-        # i.e. we define the task schema and expose the key linkage points
-        # in code and re-use these in caesar
-
-        # encode this via the incoming URL query params
-
+        'task_key' => 'T0',
+        'reducer_key' => 'internal_caesar_id_not_used_here',
         'created_at' => '2021-08-06T11:08:54.000Z',
         'updated_at' => '2021-08-06T11:08:54.000Z'
       }
@@ -57,11 +46,8 @@ RSpec.describe Import::Reduction do
     let(:label_extractor) { LabelExtractors::GalaxyZoo.new(task_schema_lookup_key) }
     let(:reduction_model) { described_class.new(raw_payload, label_extractor).run }
 
-    it 'converts the raw reduction payload to a valid Reduction model' do
+    it 'creates a valid Reduction model with the correc lables', :aggregate_failures do
       expect(reduction_model).to be_valid
-    end
-
-    it 'extracts the labels correctly' do
       expect(reduction_model.labels).to match(expected_labels)
     end
 
@@ -91,7 +77,7 @@ RSpec.describe Import::Reduction do
     it 'raises with an invalid payload' do
       expect {
         described_class.new({}, label_extractor).run
-      }.to raise_error(Import::Reduction::InvalidPayload, 'missing workflow and/or subject_id')
+      }.to raise_error(Import::Reduction::InvalidPayload, 'missing workflow, subject_id or task_key')
     end
   end
 end

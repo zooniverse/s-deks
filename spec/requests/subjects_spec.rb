@@ -57,6 +57,7 @@ RSpec.describe 'Subjects', type: :request do
           workflow_id: context.workflow_id,
           labels: {},
           unique_id: 'very_unique_id',
+          task_key: 'T0'
         }
       )
     end

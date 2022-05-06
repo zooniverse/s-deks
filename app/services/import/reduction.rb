@@ -38,16 +38,17 @@ module Import
         zooniverse_subject_id: zooniverse_subject_id,
         workflow_id: workflow_id,
         labels: labels,
-        unique_id: unique_id
+        unique_id: unique_id,
+        task_key: task_key
       )
     end
 
     private
 
     def validate_payload
-      return if workflow_id && zooniverse_subject_id
+      return if workflow_id && zooniverse_subject_id && task_key
 
-      raise InvalidPayload, 'missing workflow and/or subject_id'
+      raise InvalidPayload, 'missing workflow, subject_id or task_key'
     end
 
     def context
@@ -84,6 +85,10 @@ module Import
       return unless payload['data']
 
       label_extractor.extract(payload['data'])
+    end
+
+    def task_key
+      payload['task_key']
     end
   end
 end

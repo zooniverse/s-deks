@@ -41,9 +41,9 @@ class ReductionsController < ApplicationController
 
   def create
     label_extractor = LabelExtractors::Finder.extractor_instance(task_schema_lookup_key_param)
-    # TODO pass this to the reduction importer to uniquely identify the task
-    # task_schema_lookup_key_param
-    reduction = Import::Reduction.new(reduction_params, label_extractor).run
+    # add the task lookup to the key payload
+    reduction_params_with_task_key = reduction_params.merge('task_key' => task_schema_lookup_key_param)
+    reduction = Import::Reduction.new(reduction_params_with_task_key, label_extractor).run
     render status: :created, json: reduction.to_json
   end
 

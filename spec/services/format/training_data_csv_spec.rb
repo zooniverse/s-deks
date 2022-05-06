@@ -27,7 +27,8 @@ RSpec.describe Format::TrainingDataCsv do
           'smooth-or-featured_artifact' => 0
         },
         unique_id: '8000_231121_468',
-        raw_payload: {}
+        raw_payload: {},
+        task_key: 'T0'
       }
     end
     let(:export_file) { formatter.run }

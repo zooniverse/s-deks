@@ -9,7 +9,8 @@ RSpec.describe Reduction, type: :model do
       workflow_id: 4,
       labels: { 'smooth-or-featured_smooth' => 1, 'smooth-or-featured_featured-or-disk' => 3 },
       unique_id: '8000_231121_468',
-      raw_payload: {}
+      raw_payload: {},
+      task_key: 'T0'
     }
   end
   let(:reduction) { described_class.new(attributes) }
