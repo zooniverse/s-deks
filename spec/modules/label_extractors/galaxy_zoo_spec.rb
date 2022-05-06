@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe LabelExtractors::GalaxyZoo, :focus do
-  let(:data_lable_schema) do
+RSpec.describe LabelExtractors::GalaxyZoo do
+  let(:data_label_schema) do
     {
       'T0' => {
         '0' => 'smooth',
@@ -84,7 +84,7 @@ RSpec.describe LabelExtractors::GalaxyZoo, :focus do
 
   describe '#data_labels' do
     it 'has the correct schema data labels' do
-      expect(described_class.data_labels).to match(data_lable_schema)
+      expect(described_class.data_labels).to match(data_label_schema)
     end
   end
 
@@ -93,7 +93,7 @@ RSpec.describe LabelExtractors::GalaxyZoo, :focus do
     let(:extractor_instance) { described_class.new('T0', data_release_suffix) }
     let(:expected_labels) { { 'smooth-or-featured-dr5_smooth' => 3 } }
 
-    it 'uses the overriden data release suffix in the derived lables' do
+    it 'uses the overriden data release suffix in the derived labels' do
       extracted_labels = extractor_instance.extract({ '0' => 3 })
       expect(extracted_labels).to match(expected_labels)
     end
@@ -101,37 +101,35 @@ RSpec.describe LabelExtractors::GalaxyZoo, :focus do
 
   # TODO: flesh this spec out to ensure it works for all lookups keys
   describe '#extract' do
-    let(:task_lookup_key) { 'T0' }
-    let(:data_payload) do
-      {
-        '0' => 3, # smooth
-        '1' => 9, # features or disk
-        '2' => 0  # star or artifact
-      }
-    end
-    let(:extractor_instance) { described_class.new(task_lookup_key) }
-    let(:expected_labels) do
-      {
-        'smooth-or-featured-dr8_smooth' => 3,
-        'smooth-or-featured-dr8_featured-or-disk' => 9,
-        'smooth-or-featured-dr8_artifact' => 0
-      }
-    end
+  # sample payload mimicing the various choices across all GZ decision tree tasks
+    # NOTE: length must not exceed the smallest schema choice list (or use custom data payloads matching each task)
+    let(:data_payload) { { '0' => 3, '1' => 9 } }
 
-    it 'converts the keys to labels list' do
-      extracted_labels = extractor_instance.extract(data_payload)
-      expect(extracted_labels).to match(expected_labels)
+    described_class.label_prefixes.each do |task_lookup_key, label_prefix|
+      # manually construct the expected lables for tests
+      def expected_labels(label_prefix, task_lookup_key, payload)
+        payload.transform_keys do |key|
+          "#{label_prefix}-dr8_#{data_label_schema.dig(task_lookup_key, key)}"
+        end
+      end
+
+      it 'correctly converts the payload label keys' do
+        extracted_labels = described_class.new(task_lookup_key).extract(data_payload)
+        expect(extracted_labels).to match(expected_labels(label_prefix, task_lookup_key, data_payload))
+      end
     end
 
     it 'raises an error if the payload data key is not known' do
       unknown_key_payload = data_payload.merge('3' => 0)
       expect {
-        extractor_instance.extract(unknown_key_payload)
+        # T0 has 3 choices (0, 1, 2)
+        described_class.new('T0').extract(unknown_key_payload)
       }.to raise_error(LabelExtractors::GalaxyZoo::UnknownLabelKey, 'key not found: 3')
     end
 
     it 'raises an error if the task key is not found in the known schema' do
       expect {
+        # T12 is unknonw in this schema
         described_class.new('T12').extract(data_payload)
       }.to raise_error(LabelExtractors::GalaxyZoo::UnknownTaskKey, 'key not found: T12')
     end
