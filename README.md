@@ -36,14 +36,14 @@ The KaDE service has a json API for the following resource
 
 All `GET /$resource/` list end points allow the use of `?page_size=100` query param to change the default number of returned objects.
 
-### User Reductions Resource
+### Reductions Resource
 
-#### List User Reduction resources
+#### List Reduction resources
 
-`GET /user_reductions/` List all user_reductions
-`GET /user_reductions/?zooniverse_subject_id=85095` Filter the list for user_reductions that match the zooniverse API ID
+`GET /reductions/` List all reductions
+`GET /reductions/?zooniverse_subject_id=85095` Filter the list for reductions that match the zooniverse API ID
 
-Returns a JSON payload listing the last 10 user_reductions by defualt resources
+Returns a JSON payload listing the last 10 reductions resources by default
 
 ``` javascript
 [
@@ -70,11 +70,11 @@ Returns a JSON payload listing the last 10 user_reductions by defualt resources
 ]
 ```
 
-#### Get the details of a User Reduction resource
+#### Get the details of a Reduction resource
 
-`GET /user_reductions/$id`
+`GET /s/$id`
 
-Returns a JSON payload describing the user reduction resource
+Returns a JSON payload describing the reduction resource
 
 ``` javascript
 {
@@ -99,19 +99,19 @@ Returns a JSON payload describing the user reduction resource
   }
 ```
 
-### Create a new User Reductions resource
+### Create a new Reductions resource
 
-This resulting user reduction resource represents the known aggregated state of a subject.
+This resulting reduction resource represents the known aggregated state of a subject.
 
 This end point is meant to be used by Caesar system to post aggregated subject reductions into this system.
 
-`POST /user_reductions/`
+`POST /reductions/`
 
-Requires a JSON payload for creating a User Reduction resource. The payload is static and derived from the Caesar system internals.
+Requires a JSON payload for creating a Reduction resource. The payload is static and derived from the Caesar system internals.
 
 ``` javascript
 {
-  'user_reduction': {
+  'reduction': {
     'id': 4,
     'reducible': {
       'id': 3,

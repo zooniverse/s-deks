@@ -51,9 +51,9 @@ RSpec.describe Subject, type: :model do
     end
   end
 
-  describe '.user_reductions' do
-    let(:user_reduction) do
-      UserReduction.create(
+  describe '.reductions' do
+    let(:reduction) do
+      Reduction.create(
         {
           zooniverse_subject_id: model.zooniverse_subject_id,
           subject_id: model.id,
@@ -67,15 +67,15 @@ RSpec.describe Subject, type: :model do
 
     before do
       model.save!
-      user_reduction
+      reduction
     end
 
     it 'correctly links the association' do
-      expect(model.user_reductions).to match_array(user_reduction)
+      expect(model.reductions).to match_array(reduction)
     end
 
     it 'raises an error when destroying' do
-      expect { model.destroy }.to raise_error(ActiveRecord::DeleteRestrictionError, 'Cannot delete record because of dependent user_reductions')
+      expect { model.destroy }.to raise_error(ActiveRecord::DeleteRestrictionError, 'Cannot delete record because of dependent reductions')
     end
   end
 

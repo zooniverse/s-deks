@@ -49,8 +49,8 @@ RSpec.describe 'Subjects', type: :request do
   end
 
   describe 'GET /subjects/:id' do
-    let(:linked_user_reduction) do
-      UserReduction.create(
+    let(:linked_reduction) do
+      Reduction.create(
         {
           zooniverse_subject_id: subject_instance.zooniverse_subject_id,
           subject_id: subject_instance.id,
@@ -81,9 +81,9 @@ RSpec.describe 'Subjects', type: :request do
     end
 
     it 'serializes the linked user_reduciton json data in the response body' do
-      linked_user_reduction
+      linked_reduction
       get_request
-      expect(json_parsed_response_body['user_reductions']).not_to be_empty
+      expect(json_parsed_response_body['reductions']).not_to be_empty
     end
 
     context 'with invalid authentication credentials' do

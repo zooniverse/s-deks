@@ -16,7 +16,7 @@ RSpec.describe Format::TrainingDataCsv do
     let(:reduction_subject) do
       Subject.create(zooniverse_subject_id: 1, context_id: 1, locations: subject_locations)
     end
-    let(:user_reduction_attributes) do
+    let(:reduction_attributes) do
       {
         subject_id: reduction_subject.id,
         zooniverse_subject_id: reduction_subject.zooniverse_subject_id,
@@ -33,7 +33,7 @@ RSpec.describe Format::TrainingDataCsv do
     let(:export_file) { formatter.run }
 
     before do
-      UserReduction.create(user_reduction_attributes)
+      Reduction.create(reduction_attributes)
     end
 
     it 'returns a temp file' do

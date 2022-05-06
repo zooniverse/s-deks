@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Import
-  class UserReduction
+  class Reduction
     class InvalidPayload < StandardError; end
 
     attr_accessor :payload, :label_extractor
@@ -32,7 +32,7 @@ module Import
       # use the top level model namespace
       #
       # TODO switch to an upsert here to avoid create errors (on more classification post retirement)
-      ::UserReduction.create!(
+      ::Reduction.create!(
         raw_payload: payload,
         subject_id: subject.id,
         zooniverse_subject_id: zooniverse_subject_id,

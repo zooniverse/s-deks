@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'UserReductions', type: :request do
+RSpec.describe 'Reductions', type: :request do
   fixtures :contexts
 
   let(:context) { Context.first }
@@ -14,15 +14,15 @@ RSpec.describe 'UserReductions', type: :request do
   end
   let(:create_request_headers) do
     json_headers_with_basic_auth(
-      Rails.application.config.user_reduction_basic_auth_username,
-      Rails.application.config.user_reduction_basic_auth_password
+      Rails.application.config.reduction_basic_auth_username,
+      Rails.application.config.reduction_basic_auth_password
     )
   end
   let(:subject_instance) do
     Subject.create(zooniverse_subject_id: 999, context_id: context.id)
   end
-  let(:user_reduction) do
-    UserReduction.create(
+  let(:reduction) do
+    Reduction.create(
       {
         zooniverse_subject_id: subject_instance.zooniverse_subject_id,
         subject_id: subject_instance.id,
@@ -37,9 +37,9 @@ RSpec.describe 'UserReductions', type: :request do
     subject_instance
   end
 
-  describe 'GET /user_reductions/:id' do
+  describe 'GET /reductions/:id' do
     let(:get_request) do
-      get "/user_reductions/#{user_reduction.id}", headers: non_create_request_headers
+      get "/reductions/#{reduction.id}", headers: non_create_request_headers
     end
 
     it 'returns the ok response' do
@@ -50,10 +50,10 @@ RSpec.describe 'UserReductions', type: :request do
     it 'serializes the json subject data in the response body' do
       get_request
       expected_attributes = {
-        'id' => user_reduction.id,
-        'zooniverse_subject_id' => user_reduction.zooniverse_subject_id,
-        'labels' => user_reduction.labels,
-        'unique_id' => user_reduction.unique_id
+        'id' => reduction.id,
+        'zooniverse_subject_id' => reduction.zooniverse_subject_id,
+        'labels' => reduction.labels,
+        'unique_id' => reduction.unique_id
       }
       expect(json_parsed_response_body).to include(expected_attributes)
     end
@@ -84,34 +84,34 @@ RSpec.describe 'UserReductions', type: :request do
     end
   end
 
-  describe 'GET /user_reductions/' do
+  describe 'GET /reductions/' do
     before do
-      user_reduction
+      reduction
     end
 
     it 'returns the ok response' do
-      get '/user_reductions/', headers: non_create_request_headers
+      get '/reductions/', headers: non_create_request_headers
       expect(response).to have_http_status(:ok)
     end
 
     it 'returns both subject records' do
-      get '/user_reductions/', headers: non_create_request_headers
+      get '/reductions/', headers: non_create_request_headers
       expect(json_parsed_response_body.length).to eq(1)
     end
 
     it 'filters via the ?zooniverse_subject_id param' do
-      other_user_reduction = UserReduction.create(
+      other_reduction = Reduction.create(
         { zooniverse_subject_id: 1001, subject_id: -1, workflow_id: context.workflow_id, unique_id: 'more-unique' }
       )
-      get "/user_reductions/?zooniverse_subject_id=#{other_user_reduction.zooniverse_subject_id}", headers: non_create_request_headers
+      get "/reductions/?zooniverse_subject_id=#{other_reduction.zooniverse_subject_id}", headers: non_create_request_headers
       expect(json_parsed_response_body.length).to eq(1)
     end
   end
 
-  describe 'POST /user_reductions/:task_schema_lookup_key' do
-    let(:user_reduction_json_payload) do
+  describe 'POST /reductions/:task_schema_lookup_key' do
+    let(:reduction_json_payload) do
       {
-        user_reduction: {
+        reduction: {
           id: 4,
           reducible: {
             id: context.workflow_id,
@@ -133,21 +133,21 @@ RSpec.describe 'UserReductions', type: :request do
         }
       }.to_json
     end
-    let(:create_request) { post '/user_reductions/galaxy_zoo_t0', params: user_reduction_json_payload, headers: create_request_headers }
+    let(:create_request) { post '/reductions/galaxy_zoo_t0', params: reduction_json_payload, headers: create_request_headers }
 
     it 'returns the created response' do
       create_request
       expect(response).to have_http_status(:created)
     end
 
-    it 'serailizes the created user_reduction in the response body as json' do
+    it 'serailizes the created reduction in the response body as json' do
       create_request
       expected_attributes = %w[id zooniverse_subject_id subject_id workflow_id labels raw_payload unique_id created_at updated_at]
       expect(json_parsed_response_body.keys).to match_array(expected_attributes)
     end
 
     context 'with unrwapped params' do
-      let(:user_reduction_json_payload) do
+      let(:reduction_json_payload) do
         {
           id: 4,
           reducible: {

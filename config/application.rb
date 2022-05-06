@@ -34,9 +34,9 @@ module Kade
     config.api_basic_auth_username = ENV.fetch('API_BASIC_AUTH_USERNAME', 'kade-user')
     config.api_basic_auth_password = ENV.fetch('API_BASIC_AUTH_PASSWORD', 'kade-password')
 
-    # UserReduction ingester basic auth scheme (Caesar etc)
-    config.user_reduction_basic_auth_username = ENV.fetch('REDUCTION_BASIC_AUTH_USERNAME', 'kade-user')
-    config.user_reduction_basic_auth_password = ENV.fetch('REDUCTION_BASIC_AUTH_PASSWORD', 'kade-password')
+    # Reduction ingester basic auth scheme (Caesar etc)
+    config.reduction_basic_auth_username = ENV.fetch('REDUCTION_BASIC_AUTH_USERNAME', 'kade-user')
+    config.reduction_basic_auth_password = ENV.fetch('REDUCTION_BASIC_AUTH_PASSWORD', 'kade-password')
 
     # Re Add session management for mounting sidekiq UI app
     #

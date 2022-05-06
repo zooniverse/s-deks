@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Import::UserReduction do
+RSpec.describe Import::Reduction do
   fixtures :contexts
 
   let(:context) { Context.first }
@@ -55,14 +55,14 @@ RSpec.describe Import::UserReduction do
     end
     let(:task_schema_lookup_key) { 'T0' }
     let(:label_extractor) { LabelExtractors::GalaxyZoo.new(task_schema_lookup_key) }
-    let(:user_reduction_model) { described_class.new(raw_payload, label_extractor).run }
+    let(:reduction_model) { described_class.new(raw_payload, label_extractor).run }
 
-    it 'converts the raw reduction payload to a valid UserReduction model' do
-      expect(user_reduction_model).to be_valid
+    it 'converts the raw reduction payload to a valid Reduction model' do
+      expect(reduction_model).to be_valid
     end
 
     it 'extracts the labels correctly' do
-      expect(user_reduction_model.labels).to match(expected_labels)
+      expect(reduction_model.labels).to match(expected_labels)
     end
 
     it 'extracts the name correctly for staging env' do
@@ -70,28 +70,28 @@ RSpec.describe Import::UserReduction do
       staging_payload_metadata = raw_payload[:subject]['metadata'].dup
       staging_payload_metadata['!SDSS_ID'] = '1237663785278570672'
       staging_payload[:subject]['metadata'] = staging_payload_metadata.except('#name')
-      user_reduction_model_staging = described_class.new(staging_payload, label_extractor).run
-      expect(user_reduction_model_staging.unique_id).to match('1237663785278570672')
+      reduction_model_staging = described_class.new(staging_payload, label_extractor).run
+      expect(reduction_model_staging.unique_id).to match('1237663785278570672')
     end
 
     it 'creates a placeholder backfilling subject' do
-      expect { user_reduction_model }.to change(Subject, :count).from(0).to(1)
+      expect { reduction_model }.to change(Subject, :count).from(0).to(1)
     end
 
     it 'correctly sets up the placeholder backfilling subject' do
       expected_subject_attributes = { 'zooniverse_subject_id' => zooniverse_subject_id, 'context_id' => context.id }
-      expect(user_reduction_model.subject.attributes).to include(expected_subject_attributes)
+      expect(reduction_model.subject.attributes).to include(expected_subject_attributes)
     end
 
     it 'correctly links existing known subjects' do
       subject = Subject.create(zooniverse_subject_id: zooniverse_subject_id, context_id: context.id)
-      expect(user_reduction_model.subject_id).to match(subject.id)
+      expect(reduction_model.subject_id).to match(subject.id)
     end
 
     it 'raises with an invalid payload' do
       expect {
         described_class.new({}, label_extractor).run
-      }.to raise_error(Import::UserReduction::InvalidPayload, 'missing workflow and/or subject_id')
+      }.to raise_error(Import::Reduction::InvalidPayload, 'missing workflow and/or subject_id')
     end
   end
 end

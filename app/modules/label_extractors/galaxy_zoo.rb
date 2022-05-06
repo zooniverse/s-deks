@@ -105,7 +105,7 @@ module LabelExtractors
       @data_release_suffix = data_release_suffix
     end
 
-    # extract the keys from the user_reduction data hash
+    # extract the keys from the reduction data payload hash
     # and convert the keys to the workflow question tasks
     #
     # e.g. workflow type (GZ) are question type 'decision tree' tasks

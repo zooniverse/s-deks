@@ -13,13 +13,13 @@ module Format
 
     def initialize(workflow_id)
       @workflow_id = workflow_id
-      @temp_file = Tempfile.new("user_reductions_workflow_id_#{workflow_id}.csv")
+      @temp_file = Tempfile.new("reductions_workflow_id_#{workflow_id}.csv")
     end
 
     def run
       csv << (FILE_HEADERS | LABEL_HEADERS)
-      user_reduction_scope.find_each do |user_reduction|
-        reduced_subject = user_reduction.subject
+      reduction_scope.find_each do |reduction|
+        reduced_subject = reduction.subject
         # if location subject data is available
         # raise short term so we understand frequent / how this happens
         # and long term maybe move to skipping?
@@ -31,11 +31,11 @@ module Format
           # each location is an object containing only 1 mimetype key and an image URL
           image_url = location.values.first
           csv << [
-            user_reduction.unique_id,
+            reduction.unique_id,
             Zoobot.container_image_path(image_url),
-            user_reduction.labels[LABEL_HEADERS[0]],
-            user_reduction.labels[LABEL_HEADERS[1]],
-            user_reduction.labels[LABEL_HEADERS[2]]
+            reduction.labels[LABEL_HEADERS[0]],
+            reduction.labels[LABEL_HEADERS[1]],
+            reduction.labels[LABEL_HEADERS[2]]
           ]
         end
       end
@@ -50,12 +50,12 @@ module Format
     end
 
     def dump_scope
-      UserReduction.where(workflow_id: workflow_id)
+      Reduction.where(workflow_id: workflow_id)
     end
 
     # avoid N+1 lookups here, preload the subject as required
-    def user_reduction_scope
-      UserReduction.where(workflow_id: workflow_id).preload(:subject)
+    def reduction_scope
+      Reduction.where(workflow_id: workflow_id).preload(:subject)
     end
   end
 end
