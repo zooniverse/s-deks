@@ -5,41 +5,28 @@ module LabelExtractors
     class UnknownTaskKey < StandardError; end
     class UnknownLabelKey < StandardError; end
 
-    attr_reader :task_lookup_key, :task_prefix_label
+    attr_reader :task_lookup_key, :task_prefix_label, :data_release_suffix
 
-    # TODO: add all GZ decision tree task label lookups here
-    # staging: T0, T1, T2, T3, T4, T5, T6, T7, T8, T9(== T10 prod), T10(== T11 prod)
-    # production: T0, T1, T2, T3, T4, T5, T6, T7, T8, T10 (last task - not used in training), T11
-    # T0
-    # 'smooth-or-featured-dr5': ['_smooth', '_featured-or-disk', '_artifact']
-    # T1
-    # 'how-rounded-dr5': ['_round', '_in-between', '_cigar-shaped']
-    # T2
-    # 'disk-edge-on-dr5': ['_yes', '_no']
-    # T3
-    # 'edge-on-bulge-dr5': ['_boxy', '_none', '_rounded']
-    # T4
-    # 'bar-dr5': ['_strong', '_weak', '_no']
-    # T5
-    # 'has-spiral-arms-dr5': ['_yes', '_no']
-    # T6
-    # 'spiral-winding-dr5': ['_tight', '_medium', '_loose']
-    # T7
-    # 'spiral-arm-count-dr5': ['_1', '_2', '_3', '_4', '_more-than-4', '_cant-tell']
-    # T8
-    # 'bulge-size-dr5': ['_dominant', '_large', '_moderate', '_small', '_none']
-    # T11 (T10 on staging)
-    # 'merging-dr5': ['_none', '_minor-disturbance', '_major-disturbance', '_merger']
-
-    # NOTE: as the workflow question task key's don't change often they
-    # have been hardcoded for now, can switch to dynamic lookup if needed
+    # GZ decision tree task schema and lable tables
     #
-    # use the known catalogue schema for Zoobot decals
+    # NOTE: staging is the same as prod but T10 maps to T11(prod) and T9 (last task) maps to T10(prod)
+    # this mapping is done via the caesar external effect url configs
+    # so T10 Reducer output sends to T11 schema mapping in KaDE
+    # see details below for production schema task mappings
+    #
+    # Derived to conform to the existing catalogue schema for Zoobot decals (dr5, dr8 and onwards)
     # https://github.com/mwalmsley/zoobot/blob/1a4f48105254b3073b6e3cb47014c6db938ba73f/zoobot/label_metadata.py#L32
     TASK_KEY_LABEL_PREFIXES = {
       'T0' => 'smooth-or-featured',
-      'T1' => 'how-rounded-',
-      # 'T' => '',
+      'T1' => 'how-rounded',
+      'T2' => 'disk-edge-on',
+      'T3' => 'edge-on-bulge',
+      'T4' => 'bar',
+      'T5' => 'has-spiral-arms',
+      'T6' => 'spiral-winding',
+      'T7' => 'spiral-arm-count',
+      'T8' => 'bulge-size',
+      'T11' => 'merging' # T10 is not used for training and no T9 in prod :shrug:
     }.freeze
     TASK_KEY_DATA_LABELS = {
       'T0' => {
@@ -51,8 +38,55 @@ module LabelExtractors
         '0' => 'round',
         '1' => 'in-between',
         '2' => 'cigar-shaped'
+      },
+      'T2' => {
+        '0' => 'yes',
+        '1' => 'no'
+      },
+      'T3' => {
+        '0' => 'rounded',
+        '1' => 'boxy',
+        '2' => 'none'
+      },
+      'T4' => {
+        '0' => 'no',
+        '1' => 'weak',
+        '2' => 'strong'
+      },
+      'T5' => {
+        '0' => 'yes',
+        '1' => 'no'
+      },
+      'T6' => {
+        '0' => 'tight',
+        '1' => 'medium',
+        '2' => 'loose'
+      },
+      'T7' => {
+        '0' => '1',
+        '1' => '2',
+        '2' => '3',
+        '3' => '5',
+        '4' => 'more-than-4',
+        '5' => 'cant-tell'
+      },
+      'T8' => {
+        '0' => 'none',
+        '1' => 'small',
+        '2' => 'moderate',
+        '3' => 'large',
+        '4' => 'dominant'
+      },
+      'T11' => {
+        '0' => 'merger',
+        '1' => 'major-disturbance',
+        '2' => 'minor-disturbance',
+        '3' => 'none'
       }
     }.freeze
+    # NOTE: we only use -dr8 for now, -dr5 is fininshed like -dr12 (gz 1 & 2)
+    # longer term maybe allow this to be set via ENV var
+    DEFAULT_DATA_RELEASE_SUFFIX = 'dr8'
 
     def self.label_prefixes
       TASK_KEY_LABEL_PREFIXES
@@ -65,9 +99,10 @@ module LabelExtractors
     # convert this and extract method to an instance vs static class method
     # and use the injected task_lookup_key
     # to determine which
-    def initialize(task_lookup_key)
+    def initialize(task_lookup_key, data_release_suffix = DEFAULT_DATA_RELEASE_SUFFIX)
       @task_lookup_key = task_lookup_key
       @task_prefix_label = task_prefix
+      @data_release_suffix = data_release_suffix
     end
 
     # extract the keys from the user_reduction data hash
@@ -82,11 +117,9 @@ module LabelExtractors
     # then combined with the label prefix used to identify the correlated task name for Zoobot
     def extract(data_hash)
       data_hash.transform_keys do |key|
-        # TODO: inject the data release (-dr5 / -dr8)
-        # catalogue identifier here
-        # NOTE: we only use -dr8 for now, -dr5 is fininshed like -dr12 (gz 1 & 2)
-        # e.g. -dr8 and allow this to be set via ENV var at boot / run time
-        "#{task_prefix_label}_#{data_payload_label(key)}"
+        # create the lable key used for column headers in the derived training catalogues
+        # note the hyphen and underscore formatting, see Zoobot lable schema for more details
+        "#{task_prefix_label}-#{data_release_suffix}_#{data_payload_label(key)}"
       end
     end
 
