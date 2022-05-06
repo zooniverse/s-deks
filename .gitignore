@@ -25,3 +25,5 @@
 # ignore rspec setups and artefacts
 .rspec
 spec/examples.txt
+
+catalogues/
