@@ -101,7 +101,7 @@ RSpec.describe LabelExtractors::GalaxyZoo do
 
   # TODO: flesh this spec out to ensure it works for all lookups keys
   describe '#extract' do
-  # sample payload mimicing the various choices across all GZ decision tree tasks
+    # sample payload mimicing the various choices across all GZ decision tree tasks
     # NOTE: length must not exceed the smallest schema choice list (or use custom data payloads matching each task)
     let(:data_payload) { { '0' => 3, '1' => 9 } }
 
