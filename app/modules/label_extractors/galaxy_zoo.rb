@@ -96,6 +96,17 @@ module LabelExtractors
       TASK_KEY_DATA_LABELS
     end
 
+    # provide a flat task question and answers list
+    def self.question_answers_schema
+      label_prefixes.map do |task_key, question_prefix|
+        data_labels[task_key].values.map do |answer_suffix|
+          "#{question_prefix}-#{DEFAULT_DATA_RELEASE_SUFFIX}_#{answer_suffix}"
+        end
+      end.flatten
+    end
+
+
+
     # convert this and extract method to an instance vs static class method
     # and use the injected task_lookup_key
     # to determine which

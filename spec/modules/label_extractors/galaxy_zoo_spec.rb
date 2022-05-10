@@ -88,6 +88,15 @@ RSpec.describe LabelExtractors::GalaxyZoo do
     end
   end
 
+  describe '#question_answers_schema' do
+    it 'returns the correct set of header' do
+      expected_column_headers = described_class.label_prefixes.map do |task_key, question_prefix|
+        described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}-dr8_#{answer_suffix}"}
+      end
+      expect(described_class.question_answers_schema).to match(expected_column_headers.flatten)
+    end
+  end
+
   context 'with a data release suffix override' do
     let(:data_release_suffix) { 'dr5' }
     let(:extractor_instance) { described_class.new('T0', data_release_suffix) }

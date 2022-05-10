@@ -16,4 +16,8 @@ module Zoobot
   def self.storage_path_key(workflow_id)
     "#{CONTAINER_PATH_PREFIX}/workflow-#{workflow_id}"
   end
+
+  def self.gz_label_column_headers
+    %w[id_str file_loc] | LabelExtractors::GalaxyZoo.question_answers_schema
+  end
 end

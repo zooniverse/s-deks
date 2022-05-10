@@ -34,4 +34,11 @@ RSpec.describe Zoobot do
       expect(extracted_path_key).to eq(expected_path_key)
     end
   end
+
+  describe '.gz_label_column_headers', :focus do
+    it 'returns the correct list' do
+      expected_column_headers = %w[id_str file_loc] | LabelExtractors::GalaxyZoo.question_answers_schema
+      expect(described_class.gz_label_column_headers).to eq(expected_column_headers)
+    end
+  end
 end
