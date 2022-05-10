@@ -5,19 +5,18 @@ require 'csv'
 module Format
   class TrainingDataCsv
     class MissingLocationData < StandardError; end
+    attr_reader :workflow_id, :temp_file, :column_headers, :label_column_headers
 
-    FILE_HEADERS = %w[id_str file_loc].freeze
-    LABEL_HEADERS = %w[smooth-or-featured_smooth smooth-or-featured_featured-or-disk smooth-or-featured_artifact].freeze
-
-    attr_reader :workflow_id, :temp_file
-
-    def initialize(workflow_id)
+    def initialize(workflow_id, column_headers)
       @workflow_id = workflow_id
       @temp_file = Tempfile.new("reductions_workflow_id_#{workflow_id}.csv")
+      @column_headers = column_headers
+      # remove the first 2 column headers (id_str & file_loc_path)
+      @label_column_headers = column_headers[2..-1]
     end
 
     def run
-      csv << (FILE_HEADERS | LABEL_HEADERS)
+      csv << column_headers
       reduction_scope.find_each do |reduction|
         reduced_subject = reduction.subject
         # if location subject data is available
@@ -33,9 +32,8 @@ module Format
           csv << [
             reduction.unique_id,
             Zoobot.container_image_path(image_url),
-            reduction.labels[LABEL_HEADERS[0]],
-            reduction.labels[LABEL_HEADERS[1]],
-            reduction.labels[LABEL_HEADERS[2]]
+            # fetch all the reduction's saved question:answer values preserving the empty columns
+            *reduction.labels.fetch_values(*label_column_headers) { |_key| nil }
           ]
         end
       end
