@@ -24,11 +24,18 @@ RSpec.describe Reduction, type: :model do
     expect(reduction).to be_invalid
   end
 
-  it 'is invalid for duplicate subjects for the same workflow' do
+  it 'allows duplicate subjects and workflow with different task keys' do
+    reduction.save!
+    dup = described_class.new(attributes)
+    dup.task_key = 'T1'
+    expect(dup.valid?).to be(true)
+  end
+
+  it 'is invalid for duplicate subjects, workflow and task keys' do
     reduction.save!
     dup = described_class.new(attributes)
     dup.valid?
-    expect(dup.errors[:zooniverse_subject_id]).to include('Reduction must be unique for the zooniverse subject and workflow')
+    expect(dup.errors[:zooniverse_subject_id]).to include('Reduction must be unique for the zooniverse subject, workflow and task key')
   end
 
   describe '.subject' do
