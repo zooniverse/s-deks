@@ -41,10 +41,37 @@ RSpec.describe Format::TrainingDataCsv do
       expect(formatter.run).to be_a(Tempfile)
     end
 
-    it 'returns the csv data in the temp file'do
+    it 'returns the csv data in the temp file' do
       expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/training_images/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
       results = File.read(export_file.path)
-      expect(results).to match(expected_output)
+      expect(results).to eq(expected_output)
+    end
+
+    context 'with multiple reductions for one subject' do
+      let(:another_task_reduction_attributes) do
+        {
+          subject_id: reduction_subject.id,
+          zooniverse_subject_id: reduction_subject.zooniverse_subject_id,
+          workflow_id: workflow_id,
+          labels: {
+            'how-rounded-dr8_round' => 1,
+            'how-rounded-dr8_in-between' => 5,
+            'how-rounded-dr8_cigar-shaped' => 3
+          },
+          unique_id: '8000_231121_468',
+          task_key: 'T1'
+        }
+      end
+
+      before do
+        Reduction.create(another_task_reduction_attributes)
+      end
+
+      it 'combines the reductions results into 1 row' do
+        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/training_images/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,1,5,3,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
+        results = File.read(export_file.path)
+        expect(results).to eq(expected_output)
+      end
     end
 
     context 'with a multi image subject' do
@@ -56,9 +83,9 @@ RSpec.describe Format::TrainingDataCsv do
       end
 
       it 'returns the multi image csv data in the temp file' do
-        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/training_images/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n8000_231121_468,/test/training_images/fdccb1cf-0fc9-49b5-b054-62c83bccb9cd.jpeg,3,9,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/training_images/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n8000_231121_468,/test/training_images/fdccb1cf-0fc9-49b5-b054-62c83bccb9cd.jpeg,3,9,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\n"
         results = File.read(export_file.path)
-        expect(results).to match(expected_output)
+        expect(results).to eq(expected_output)
       end
     end
 
