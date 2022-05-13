@@ -18,29 +18,24 @@ module Import
       # compose the Import::Subject service to find or create the subject
       subject = Import::Subject.new(zooniverse_subject_id, context).run
 
-      # TODO:
-      # 1. add task_key to Reduction model - allow us to identify which extracted payloads map to the tasks
-      # 2. switch to unique index on subject_id, workflow_id, task_key
-      # 3. add upsert vs create! (alternatively find or create!)
-      #
-      # ?? how to handle different reduction payloads for different tasks
-      # e.g. task1 needs a Reduction saved and so does task 2
-      # but both have different labels and payloads
-      # unique records via subject_id, workflow_id, task_key
-      # and then upserts on these key combos...
-
-      # use the top level model namespace
-      #
-      # TODO switch to an upsert here to avoid create errors (on more classification post retirement)
-      ::Reduction.create!(
-        raw_payload: payload,
-        subject_id: subject.id,
-        zooniverse_subject_id: zooniverse_subject_id,
-        workflow_id: workflow_id,
-        labels: labels,
-        unique_id: unique_id,
-        task_key: task_key
+      # upsert to avoid timing collisions from a sender system
+      # NOTE: the last sent payload wins but this should not be a problem as any
+      # classifications should update the sender system and it should then send again
+      # with the latest state
+      upsert_results = ::Reduction.upsert(
+        {
+          raw_payload: payload,
+          subject_id: subject.id,
+          zooniverse_subject_id: zooniverse_subject_id,
+          workflow_id: workflow_id,
+          labels: labels,
+          unique_id: unique_id,
+          task_key: task_key
+        },
+        unique_by: %i[workflow_id subject_id task_key]
       )
+      upserted_reduction_id = upsert_results.to_a.first['id']
+      ::Reduction.find(upserted_reduction_id)
     end
 
     private

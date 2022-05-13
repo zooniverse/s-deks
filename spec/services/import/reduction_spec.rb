@@ -7,32 +7,31 @@ RSpec.describe Import::Reduction do
 
   let(:context) { Context.first }
   let(:zooniverse_subject_id) { 999 }
-  let(:raw_payload) do
-    ActionController::Parameters.new(
-      {
-        'id' => 4,
-        'reducible' => {
-          'id' => context.workflow_id,
-          'type' => 'Workflow'
-        },
-        'data' => {
-          '0' => 3, # smooth
-          '1' => 9, # features or disk
-          '2' => 0  # star or artifact
-        },
-        subject: {
-          id: zooniverse_subject_id,
-          'metadata' => { '#name' => '8000_231121_468' },
-          'created_at' => '2021-08-06T11:08:53.918Z',
-          'updated_at' => '2021-08-06T11:08:53.918Z'
-        },
-        'task_key' => 'T0',
-        'reducer_key' => 'internal_caesar_id_not_used_here',
-        'created_at' => '2021-08-06T11:08:54.000Z',
-        'updated_at' => '2021-08-06T11:08:54.000Z'
-      }
-    )
+  let(:payload_data) do
+    {
+      'id' => 4,
+      'reducible' => {
+        'id' => context.workflow_id,
+        'type' => 'Workflow'
+      },
+      'data' => {
+        '0' => 3, # smooth
+        '1' => 9, # features or disk
+        '2' => 0  # star or artifact
+      },
+      subject: {
+        id: zooniverse_subject_id,
+        'metadata' => { '#name' => '8000_231121_468' },
+        'created_at' => '2021-08-06T11:08:53.918Z',
+        'updated_at' => '2021-08-06T11:08:53.918Z'
+      },
+      'task_key' => 'T0',
+      'reducer_key' => 'internal_caesar_id_not_used_here',
+      'created_at' => '2021-08-06T11:08:54.000Z',
+      'updated_at' => '2021-08-06T11:08:54.000Z'
+    }
   end
+  let(:raw_payload) { ActionController::Parameters.new(payload_data) }
 
   describe '.run' do
     let(:expected_labels) do
@@ -46,7 +45,7 @@ RSpec.describe Import::Reduction do
     let(:label_extractor) { LabelExtractors::GalaxyZoo.new(task_schema_lookup_key) }
     let(:reduction_model) { described_class.new(raw_payload, label_extractor).run }
 
-    it 'creates a valid Reduction model with the correc lables', :aggregate_failures do
+    it 'creates a valid Reduction model with the correct lables', :aggregate_failures do
       expect(reduction_model).to be_valid
       expect(reduction_model.labels).to match(expected_labels)
     end
@@ -78,6 +77,28 @@ RSpec.describe Import::Reduction do
       expect {
         described_class.new({}, label_extractor).run
       }.to raise_error(Import::Reduction::InvalidPayload, 'missing workflow, subject_id or task_key')
+    end
+
+    context 'with a existing duplicate reduction' do
+      let(:updated_payload_data) { payload_data.dup }
+      let(:updated_labels) do
+        {
+          'smooth-or-featured-dr8_smooth' => 4,
+          'smooth-or-featured-dr8_artifact' => 1,
+          'smooth-or-featured-dr8_featured-or-disk' => 10
+        }
+      end
+
+      before do
+        reduction_model
+        updated_payload_data['data'] = { '0' => 4, '1' => 10, '2' => 1 }
+      end
+
+      it 'upserts changed data', :aggregate_failures do
+        updated_reduction = described_class.new(ActionController::Parameters.new(updated_payload_data), label_extractor).run
+        expect(updated_reduction.labels).to match(updated_labels)
+        expect(updated_reduction.raw_payload['data']).to match(updated_payload_data['data'])
+      end
     end
   end
 end
