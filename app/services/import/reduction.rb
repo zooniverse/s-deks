@@ -22,8 +22,8 @@ module Import
       # NOTE: the last sent payload wins but this should not be a problem as any
       # classifications should update the sender system and it should then send again
       # with the latest state
-      upsert_results = ::Reduction.upsert(
-        {
+      upsert_results = ::Reduction.upsert_all(
+        [{
           raw_payload: payload,
           subject_id: subject.id,
           zooniverse_subject_id: zooniverse_subject_id,
@@ -31,8 +31,9 @@ module Import
           labels: labels,
           unique_id: unique_id,
           task_key: task_key
-        },
-        unique_by: %i[workflow_id subject_id task_key]
+        }],
+        unique_by: %i[workflow_id subject_id task_key],
+        update_only: %i[labels raw_payload]
       )
       upserted_reduction_id = upsert_results.to_a.first['id']
       ::Reduction.find(upserted_reduction_id)
