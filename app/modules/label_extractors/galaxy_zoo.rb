@@ -105,11 +105,6 @@ module LabelExtractors
       end.flatten
     end
 
-
-
-    # convert this and extract method to an instance vs static class method
-    # and use the injected task_lookup_key
-    # to determine which
     def initialize(task_lookup_key, data_release_suffix = DEFAULT_DATA_RELEASE_SUFFIX)
       @task_lookup_key = task_lookup_key
       @task_prefix_label = task_prefix
