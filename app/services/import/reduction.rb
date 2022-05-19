@@ -20,8 +20,8 @@ module Import
 
       # upsert to avoid timing collisions from a sender system
       # NOTE: the last sent payload wins but this should not be a problem as any
-      # classifications should update the sender system and it should then send again
-      # with the latest state
+      # classifications should update the sender system
+      # and it should then send again with the latest state
       upsert_results = ::Reduction.upsert_all(
         [{
           raw_payload: payload,
