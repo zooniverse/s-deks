@@ -2,7 +2,7 @@
 
 module Storage
   class TrainingDataSync
-    COPY_OPERATION_SUCCESS_CODE = 'success'
+    COPY_OPERATION_OK_CODES = %w[success pending].freeze
     PROD_CONTAINER_URL_PREFIX = 'https://panoptesuploads.blob.core.windows.net/public'
     STAGING_CONTAINER_URL_PREFIX = 'https://panoptesuploadsstaging.blob.core.windows.net/public'
 
@@ -13,7 +13,7 @@ module Storage
     end
 
     def run
-      return if image_url_blob_already_copied
+      return if image_url_blob_already_copied_or_pending
 
       _copy_id, _copy_status = blob_service_client.copy_blob_from_uri(
         Rails.env,
@@ -22,9 +22,12 @@ module Storage
       )
     end
 
-    def image_url_blob_already_copied
+    def image_url_blob_already_copied_or_pending
       response = blob_service_client.get_blob_properties(Rails.env, blob_destination_path)
-      response.properties[:copy_status] == COPY_OPERATION_SUCCESS_CODE
+      # skip requesting a copy operation if the blob is already copied or pending / scheduled for copy
+      # failure / aborts will return false and schedule a new copy
+      # https://docs.microsoft.com/en-us/rest/api/storageservices/Copy-Blob?redirectedfrom=MSDN#working-with-a-pending-copy-operation-version-2012-02-12-and-newer
+      COPY_OPERATION_OK_CODES.include?(response.properties[:copy_status])
     rescue Azure::Core::Http::HTTPError => _e
       # treat all errors as a failure and attempt to re-copy
       # we can refine this via the response status code

@@ -60,5 +60,29 @@ RSpec.describe Storage::TrainingDataSync do
         expect(blob_service_client_double).not_to have_received(:copy_blob_from_uri)
       end
     end
+
+    context 'when the blob is pending copy' do
+      let(:blob_copy_properties) do
+        {
+          blob_type: 'BlockBlob',
+          copy_id: '6569935c-a8a1-4f90-819a-e4258271e163',
+          copy_status: 'pending',
+          copy_source: src_image_url,
+          copy_progress: '0/551722',
+          copy_completion_time: nil,
+          copy_status_description: nil
+        }
+      end
+
+      before do
+        allow(blob_instance_double).to receive(:properties).and_return(blob_copy_properties)
+        allow(blob_service_client_double).to receive(:get_blob_properties).and_return(blob_instance_double)
+      end
+
+      it 'does not call the blob copy uri function' do
+        data_syncer.run
+        expect(blob_service_client_double).not_to have_received(:copy_blob_from_uri)
+      end
+    end
   end
 end
