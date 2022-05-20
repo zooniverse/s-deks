@@ -42,7 +42,7 @@ RSpec.describe LabelExtractors::GalaxyZoo do
         '0' => '1',
         '1' => '2',
         '2' => '3',
-        '3' => '5',
+        '3' => '4',
         '4' => 'more-than-4',
         '5' => 'cant-tell'
       },
