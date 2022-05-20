@@ -38,8 +38,10 @@ module Format
           csv << [
             grouped_reduction.unique_id,
             Zoobot.container_image_path(image_url),
-            # fetch all the reduction's saved question:answer values preserving the empty columns
-            *grouped_reduction.labels.fetch_values(*label_column_headers) { |_key| nil }
+            # fetch all the reduction's saved question:answer values
+            # ensure we add 0's to the missing column headers - Zoobot demands this!
+            # https://zoobot.readthedocs.io/guides/training_from_scratch.html#creating-a-catalog
+            *grouped_reduction.labels.fetch_values(*label_column_headers) { |_key| 0 }
           ]
         end
       end
