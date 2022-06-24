@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Zoobot
-  CONTAINER_TRAINING_PATH_PREFIX = 'training_images'
+  CONTAINER_TRAINING_PATH_PREFIX = ENV.fetch('TRAINING_PATH_PREFIX', 'training_images')
   CONTAINER_PATH_PREFIX = "/#{Rails.env}/training_catalogues"
 
   def self.training_image_path(image_url)
