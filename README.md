@@ -72,7 +72,7 @@ Returns a JSON payload listing the last 10 reductions resources by default
 
 #### Get the details of a Reduction resource
 
-`GET /s/$id`
+`GET /reductions/$id`
 
 Returns a JSON payload describing the reduction resource
 
