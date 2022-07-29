@@ -20,6 +20,7 @@ RUN bundle config --global jobs `cat /proc/cpuinfo | grep processor | wc -l | xa
     if echo "development test" | grep -w "$RAILS_ENV"; then \
     bundle install; \
     else \
+    # switch to new config syntax for non dev/test gem group installs
     bundle config set --local without 'development test'; \
     bundle install; \
     fi
