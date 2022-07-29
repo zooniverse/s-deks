@@ -19,13 +19,16 @@ ADD ./Gemfile.lock /rails_app/
 RUN bundle config --global jobs `cat /proc/cpuinfo | grep processor | wc -l | xargs -I % expr % - 1` && \
     if echo "development test" | grep -w "$RAILS_ENV"; then \
     bundle install; \
-    else bundle install --without development test; fi
+    else \
+    bundle config set --local without 'development test'; \
+    bundle install; \
+    fi
 
 ADD ./ /rails_app
 
 RUN if echo "staging production" | grep -w "$RAILS_ENV"; then \
-  bundle exec bootsnap precompile --gemfile app/ lib/; \
-  fi
+    bundle exec bootsnap precompile --gemfile app/ lib/; \
+    fi
 
 ARG REVISION=''
 ENV REVISION=$REVISION
