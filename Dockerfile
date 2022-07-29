@@ -23,6 +23,10 @@ RUN bundle config --global jobs `cat /proc/cpuinfo | grep processor | wc -l | xa
 
 ADD ./ /rails_app
 
+RUN if echo "staging production" | grep -w "$RAILS_ENV"; then \
+  bundle exec bootsnap precompile --gemfile app/ lib/; \
+  fi
+
 ARG REVISION=''
 ENV REVISION=$REVISION
 
