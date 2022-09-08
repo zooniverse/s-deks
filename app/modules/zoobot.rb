@@ -15,7 +15,7 @@ module Zoobot
   end
 
   def self.storage_path_key(workflow_id)
-    "#{CONTAINER_CATALOG_PATH_PREFIX}/workflow-#{workflow_id}"
+    "/#{CONTAINER_CATALOG_PATH_PREFIX}/workflow-#{workflow_id}"
   end
 
   def self.gz_label_column_headers
