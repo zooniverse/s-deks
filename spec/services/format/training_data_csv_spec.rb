@@ -42,7 +42,7 @@ RSpec.describe Format::TrainingDataCsv do
     end
 
     it 'returns the csv data in the temp file' do
-      expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
+      expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
       results = File.read(export_file.path)
       expect(results).to eq(expected_output)
     end
@@ -68,7 +68,10 @@ RSpec.describe Format::TrainingDataCsv do
       end
 
       it 'combines the reductions results into 1 row' do
-        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,1,5,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
+        expected_lines = [
+          '8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,9,0,1,5,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
+        ].join("\n")
+        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n#{expected_lines}\n"
         results = File.read(export_file.path)
         expect(results).to eq(expected_output)
       end
@@ -81,9 +84,15 @@ RSpec.describe Format::TrainingDataCsv do
           { 'image/jpeg': 'https://panoptes-uploads.zooniverse.org/subject_location/fdccb1cf-0fc9-49b5-b054-62c83bccb9cd.jpeg' }
         ]
       end
+      let(:expected_lines) do
+        [
+          '8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
+          '8000_231121_468,/test/fdccb1cf-0fc9-49b5-b054-62c83bccb9cd.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
+        ].join("\n")
+      end
 
       it 'returns the multi image csv data in the temp file' do
-        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n8000_231121_468,/test/fdccb1cf-0fc9-49b5-b054-62c83bccb9cd.jpeg,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
+        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n#{expected_lines}\n"
         results = File.read(export_file.path)
         expect(results).to eq(expected_output)
       end
