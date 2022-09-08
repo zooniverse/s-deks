@@ -90,17 +90,19 @@ RSpec.describe LabelExtractors::GalaxyZoo do
 
   describe '#question_answers_schema' do
     it 'returns the correct set of header' do
-      expected_column_headers = described_class.label_prefixes.map do |task_key, question_prefix|
-        described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}-dr8_#{answer_suffix}"}
+      expected_column_headers = %w[dr5 dr8].map do |data_catalog_release|
+        described_class.label_prefixes.map do |task_key, question_prefix|
+          described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}-#{data_catalog_release}_#{answer_suffix}"}
+        end
       end
       expect(described_class.question_answers_schema).to match(expected_column_headers.flatten)
     end
   end
 
-  context 'with a data release suffix override' do
-    let(:data_release_suffix) { 'dr5' }
+  context 'with a different current data release suffix override' do
+    let(:data_release_suffix) { 'dr12' }
     let(:extractor_instance) { described_class.new('T0', data_release_suffix) }
-    let(:expected_labels) { { 'smooth-or-featured-dr5_smooth' => 3 } }
+    let(:expected_labels) { { 'smooth-or-featured-dr12_smooth' => 3 } }
 
     it 'uses the overriden data release suffix in the derived labels' do
       extracted_labels = extractor_instance.extract({ '0' => 3 })

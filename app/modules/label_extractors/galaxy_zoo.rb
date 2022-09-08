@@ -84,9 +84,17 @@ module LabelExtractors
         '3' => 'none'
       }
     }.freeze
-    # NOTE: we only use -dr8 for now, -dr5 is fininshed like -dr12 (gz 1 & 2)
-    # longer term maybe allow this to be set via ENV var
+
+    # currently classified data is decals 8 -dr8 (this may change if a new mission comes along)
+    # this reflects the data coming from caesar payloads
+    # so we need to mark the extrated data column headers
+    # to align the extracted data values in the catalogue manifest for use in the zoobot training system
     DEFAULT_DATA_RELEASE_SUFFIX = 'dr8'
+
+    # Create the catalogue manifest columns that will be expected for zoobot training
+    # decals 5 data (-dr5) is used in zoobot main catalogue
+    # longer term we may include gz2 , e.g. -dr12 (gz 1 & 2)
+    CATALOG_DATA_RELEASE_SUFFIXES = %w[dr5 dr8]
 
     def self.label_prefixes
       TASK_KEY_LABEL_PREFIXES
@@ -96,11 +104,13 @@ module LabelExtractors
       TASK_KEY_DATA_LABELS
     end
 
-    # provide a flat task question and answers list
+    # provide a flat task question and answers list for the decals mission catalogues
     def self.question_answers_schema
-      label_prefixes.map do |task_key, question_prefix|
-        data_labels[task_key].values.map do |answer_suffix|
-          "#{question_prefix}-#{DEFAULT_DATA_RELEASE_SUFFIX}_#{answer_suffix}"
+      CATALOG_DATA_RELEASE_SUFFIXES.map do |data_release|
+        label_prefixes.map do |task_key, question_prefix|
+          data_labels[task_key].values.map do |answer_suffix|
+            "#{question_prefix}-#{data_release}_#{answer_suffix}"
+          end
         end
       end.flatten
     end
