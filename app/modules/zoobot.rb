@@ -6,13 +6,13 @@ module Zoobot
   end
 
   module Storage
-    AZ_CONTAINER_NAME = ENV.fetch('AZ_CONTAINER_NAME', 'training')
+    CONTAINER_NAME = ENV.fetch('AZURE_STORAGE_CONTAINER', 'training')
     CATALOGUE_PREFIX = "catalogues/#{Rails.env}"
-    CONTAINER_CATALOG_PATH_PREFIX = "#{AZ_CONTAINER_NAME}/#{CATALOGUE_PREFIX}"
+    CONTAINER_CATALOG_PATH_PREFIX = "#{CONTAINER_NAME}/#{CATALOGUE_PREFIX}"
     CONTAINER_IMAGE_PATH_PREFIX = "#{CATALOGUE_PREFIX}/images"
 
     def self.container_name
-      AZ_CONTAINER_NAME
+      CONTAINER_NAME
     end
 
     def self.training_image_path(image_url)
