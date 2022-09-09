@@ -16,14 +16,14 @@ module Storage
       return if image_url_blob_already_copied_or_pending
 
       _copy_id, _copy_status = blob_service_client.copy_blob_from_uri(
-        Zoobot::Storage.container_name,
+        blob_container_name,
         blob_destination_path,
         src_blob_uri_from_src_url
       )
     end
 
     def image_url_blob_already_copied_or_pending
-      response = blob_service_client.get_blob_properties(Rails.env, blob_destination_path)
+      response = blob_service_client.get_blob_properties(blob_container_name, blob_destination_path)
       # skip requesting a copy operation if the blob is already copied or pending / scheduled for copy
       # failure / aborts will return false and schedule a new copy
       # https://docs.microsoft.com/en-us/rest/api/storageservices/Copy-Blob?redirectedfrom=MSDN#working-with-a-pending-copy-operation-version-2012-02-12-and-newer
@@ -39,9 +39,13 @@ module Storage
 
     def blob_service_client
       @blob_service_client ||= Azure::Storage::Blob::BlobService.create(
-        storage_account_name: ENV['AZURE_STORAGE_ACCOUNT_NAME'],
-        storage_access_key: ENV['AZURE_STORAGE_ACCESS_KEY']
+        storage_account_name: ENV.fetch('AZURE_STORAGE_ACCOUNT_NAME'),
+        storage_access_key: ENV.fetch('AZURE_STORAGE_ACCESS_KEY')
       )
+    end
+
+    def blob_container_name
+      @blob_container_name ||= Zoobot::Storage.container_name
     end
 
     def blob_destination_path

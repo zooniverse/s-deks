@@ -11,6 +11,7 @@ RSpec.describe Storage::TrainingDataSync do
       'https://panoptesuploadsstaging.blob.core.windows.net/public/subject_location/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg'
     end
     let(:data_syncer) { described_class.new(src_image_url) }
+    let(:blob_container_name) { Zoobot::Storage.container_name }
     let(:blob_destination_path) { Zoobot::Storage.training_image_path(src_image_url) }
     let(:blob_service_client_double) { instance_double(Azure::Storage::Blob::BlobService) }
     let(:blob_instance_double) { instance_double(Azure::Storage::Blob::Blob) }
@@ -31,10 +32,15 @@ RSpec.describe Storage::TrainingDataSync do
         allow(blob_service_client_double).to receive(:get_blob_properties).and_raise(Azure::Core::Http::HTTPError, azure_blob_error)
       end
 
+      it 'checks that the blob exists before copying' do
+        data_syncer.run
+        expect(blob_service_client_double).to have_received(:get_blob_properties).with(blob_container_name, blob_destination_path)
+      end
+
       it 'copies the src file to the destination container' do
         data_syncer.run
         expect(blob_service_client_double).to have_received(:copy_blob_from_uri).with(
-          Zoobot::Storage.container_name,
+          blob_container_name,
           blob_destination_path,
           src_blob_uri
         )
