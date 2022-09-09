@@ -37,7 +37,7 @@ module Format
           image_url = location.values.first
           csv << [
             grouped_reduction.unique_id,
-            Zoobot.container_image_path(image_url),
+            Zoobot::Storage.container_image_path(image_url),
             # fetch all the reduction's saved question:answer values
             # ensure we add 0's to the missing column headers - Zoobot demands this!
             # https://zoobot.readthedocs.io/guides/training_from_scratch.html#creating-a-catalog

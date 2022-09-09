@@ -16,7 +16,7 @@ module Storage
       return if image_url_blob_already_copied_or_pending
 
       _copy_id, _copy_status = blob_service_client.copy_blob_from_uri(
-        Rails.env,
+        Zoobot::Storage.container_name,
         blob_destination_path,
         src_blob_uri_from_src_url
       )
@@ -45,7 +45,7 @@ module Storage
     end
 
     def blob_destination_path
-      @blob_destination_path ||= Zoobot.training_image_path(src_image_url)
+      @blob_destination_path ||= Zoobot::Storage.training_image_path(src_image_url)
     end
 
     # convert the public / CDN url to a blob storage conatiner URL

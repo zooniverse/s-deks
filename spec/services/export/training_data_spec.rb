@@ -6,7 +6,7 @@ RSpec.describe Export::TrainingData do
   describe '#run' do
     let(:workflow_id) { 10 }
     let(:file_time) { Time.now.iso8601 }
-    let(:storage_path) { "#{Zoobot.storage_path_key(workflow_id)}-#{file_time}.csv" }
+    let(:storage_path) { "#{Zoobot::Storage.path_key(workflow_id)}-#{file_time}.csv" }
     let(:storage_path_file_name) { "workflow-#{workflow_id}-#{file_time}.csv" }
     let(:storage_path_key) { "/training/catalogues/test/#{storage_path_file_name}" }
 

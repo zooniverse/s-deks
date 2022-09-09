@@ -39,6 +39,6 @@ class TrainingDataExportsController < ApplicationController
   def storage_path_key
     # use the timestamp here to ensure we have a unique export path
     # for active storage has_one_attached and the container files
-    "#{Zoobot.storage_path_key(training_data_export_params[:workflow_id])}-#{Time.now.iso8601}.csv"
+    "#{Zoobot::Storage.path_key(training_data_export_params[:workflow_id])}-#{Time.now.iso8601}.csv"
   end
 end
