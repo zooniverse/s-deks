@@ -1,19 +1,19 @@
 test:
   service: Disk
-  root: <%= Rails.root.join("tmp/storage/#{Rails.env}") %>
+  root: <%= Rails.root.join("tmp/storage/training") %>
 
 development:
   service: Disk
-  root: <%= Rails.root.join("tmp/storage/#{Rails.env}") %>
+  root: <%= Rails.root.join("tmp/storage/training") %>
 
 staging:
   service: AzureStorage
   storage_account_name: <%= ENV['AZURE_STORAGE_ACCOUNT_NAME'] %>
   storage_access_key: <%= ENV['AZURE_STORAGE_ACCESS_KEY'] %>
-  container: <%= ENV.fetch('AZURE_STORAGE_CONTAINER', 'staging') %>
+  container: <%= ENV.fetch('AZURE_STORAGE_CONTAINER', 'training') %>
 
 production:
   service: AzureStorage
   storage_account_name: <%= ENV['AZURE_STORAGE_ACCOUNT_NAME'] %>
   storage_access_key: <%= ENV['AZURE_STORAGE_ACCESS_KEY'] %>
-  container: <%= ENV.fetch('AZURE_STORAGE_CONTAINER', 'production') %>
+  container: <%= ENV.fetch('AZURE_STORAGE_CONTAINER', 'training') %>
