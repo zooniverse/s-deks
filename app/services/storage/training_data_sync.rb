@@ -39,8 +39,8 @@ module Storage
 
     def blob_service_client
       @blob_service_client ||= Azure::Storage::Blob::BlobService.create(
-        storage_account_name: ENV.fetch('AZURE_STORAGE_ACCOUNT_NAME'),
-        storage_access_key: ENV.fetch('AZURE_STORAGE_ACCESS_KEY')
+        storage_account_name: ENV.fetch('AZURE_STORAGE_ACCOUNT_NAME', ''),
+        storage_access_key: ENV.fetch('AZURE_STORAGE_ACCESS_KEY', '')
       )
     end
 
