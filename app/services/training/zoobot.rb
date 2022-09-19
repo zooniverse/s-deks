@@ -10,7 +10,8 @@ module Training
     end
 
     def run
-      bajor_client.train(manifest_path)
+      # store the batch job id to check the job status later
+      batch_job_id = bajor_client.train(manifest_path)
     end
   end
 end

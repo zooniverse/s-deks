@@ -10,11 +10,14 @@ module Bajor
     basic_auth ENV.fetch('BAJOR_BASIC_AUTH_USERNAME', 'bajor'), ENV.fetch('BAJOR_BASIC_AUTH_PASSWORD', 'bajor')
 
     def train(manifest_path)
-      self.class.post(
+      bajor_client_response = self.class.post(
         '/jobs/',
         body: { manifest_path: manifest_path }.to_json,
         headers: JSON_HEADERS
       )
+      # store the submitted job id to check the job status later
+      # via the bajor api, e.g. GET /jobs/:id
+      submitted_job_id = bajor_client_response[:id]
     end
   end
 end
