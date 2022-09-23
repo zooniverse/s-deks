@@ -7,7 +7,7 @@ RSpec.describe Bajor::Client do
   let(:bajor_client) { described_class.new }
   let(:catalogue_manifest_path) { 'training_catalogues/manifest_path.csv' }
   let(:bajor_host) { 'https://bajor.zooniverse.org'}
-  let(:request_url) { "#{bajor_host}/jobs/" }
+  let(:request_url) { "#{bajor_host}/training/jobs/" }
   let(:request_headers) do
     {
       'Accept' => 'application/json',

@@ -11,7 +11,7 @@ module Bajor
 
     def train(manifest_path)
       self.class.post(
-        '/jobs/',
+        '/training/jobs/',
         body: { manifest_path: manifest_path }.to_json,
         headers: JSON_HEADERS
       )
