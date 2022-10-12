@@ -10,8 +10,8 @@ module Bajor
     basic_auth ENV.fetch('BAJOR_BASIC_AUTH_USERNAME', 'bajor'), ENV.fetch('BAJOR_BASIC_AUTH_PASSWORD', 'bajor')
 
     def train(manifest_path)
-      bajor_client_response = self.class.post(
-        '/jobs/',
+      self.class.post(
+        '/training/jobs/',
         body: { manifest_path: manifest_path }.to_json,
         headers: JSON_HEADERS
       )
