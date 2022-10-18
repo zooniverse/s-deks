@@ -100,7 +100,6 @@ RSpec.describe 'PredictionJobs', type: :request do
 
     it 'creates a PredictionJob resource' do
       expect { create_request }.to change(PredictionJob, :count).by(1)
-      expect(response).to have_http_status(:created)
     end
 
     it 'returns the created response' do
