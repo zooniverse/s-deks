@@ -31,7 +31,8 @@ class PredictionJobsController < ApplicationController
     # use a service here to submit the job to bajor system
     prediction_job = Batch::Prediction::CreateJob.new(prediction_job).run
 
-    # kick off a job monitor here
+    # TODO: kick off a job monitor here that updates the prediction job resource
+    # and at the end will combine the data into a single csv / json file
     # Prediction::MonitorJob.new(prediction_job).run
 
     render status: :created, json: prediction_job.to_json
