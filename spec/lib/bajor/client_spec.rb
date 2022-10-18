@@ -5,9 +5,7 @@ require 'rails_helper'
 
 RSpec.describe Bajor::Client do
   let(:bajor_client) { described_class.new }
-  let(:catalogue_manifest_path) { 'training_catalogues/manifest_path.csv' }
   let(:bajor_host) { 'https://bajor.zooniverse.org'}
-  let(:request_url) { "#{bajor_host}/training/jobs/" }
   let(:request_headers) do
     {
       'Accept' => 'application/json',
@@ -17,11 +15,14 @@ RSpec.describe Bajor::Client do
       'User-Agent' => 'Ruby'
     }
   end
-  let(:request_body) {
-    { manifest_path: catalogue_manifest_path }
-  }
 
   describe 'train' do
+    let(:request_url) { "#{bajor_host}/training/jobs/" }
+    let(:catalogue_manifest_path) { 'training_catalogues/manifest_path.csv' }
+    let(:request_body) do
+      { manifest_path: catalogue_manifest_path }
+    end
+
     before do
       stub_request(:post, request_url)
         .with(
@@ -31,10 +32,6 @@ RSpec.describe Bajor::Client do
         .to_return(status: 201, body: '', headers: {content_type: 'application/json'})
     end
 
-    let(:train_payload) do
-      { body: { manifest_path: catalogue_manifest_path } }
-    end
-
     it 'correctly posts the manifest_path to bajor' do
       bajor_client.train(catalogue_manifest_path)
       expect(
@@ -42,5 +39,67 @@ RSpec.describe Bajor::Client do
       ).to have_been_made.once
     end
   end
-end
 
+  describe 'create_prediction_job', :focus do
+    let(:request_url) { "#{bajor_host}/prediction/jobs/" }
+    let(:manifest_url) { 'https://manifest-host.zooniverse.org/manifest.csv' }
+    let(:request_body) do
+      { manifest_url: manifest_url }
+    end
+    let(:job_id) { '3ed68115-dc36-4f66-838c-a52869031c9c' }
+    let(:bajor_response_body) do
+      {
+        'manifest_url' => manifest_url,
+        'id' => job_id,
+        'status' => {
+          'status' => 'submitted',
+          'message' => 'Job submitted successfully'
+        },
+        'run_opts' => ''
+      }
+    end
+    let(:request) do
+      stub_request(:post, request_url)
+        .with(
+          body: request_body,
+          headers: request_headers
+        )
+    end
+
+    context 'with a success response' do
+      before do
+        request.to_return(status: 201, body: bajor_response_body.to_json, headers: { content_type: 'application/json' })
+      end
+
+      it 'correctly posts the prediction job to bajor' do
+        bajor_client.create_prediction_job(manifest_url)
+        expect(
+          a_request(:post, request_url).with(body: request_body, headers: request_headers)
+        ).to have_been_made.once
+      end
+
+      it 'returns the submitted job id as a batch job service url' do
+        result = bajor_client.create_prediction_job(manifest_url)
+        expect(result).to eq("#{bajor_host}/prediction/job/#{job_id}")
+      end
+    end
+
+    context 'with a failed repsonse' do
+      let(:error_message) { 'Active Jobs are running in the batch system - please wait till they are fininshed processing.' }
+      let(:error_response) do
+        {
+          'state' => 'error',
+          'message' => error_message
+        }
+      end
+
+      before do
+        request.to_return(status: 409, body: error_response.to_json, headers: { content_type: 'application/json' })
+      end
+
+      it 'raises an error' do
+        expect { bajor_client.create_prediction_job(manifest_url) }.to raise_error(Bajor::Client::Error, error_message)
+      end
+    end
+  end
+end
