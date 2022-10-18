@@ -33,7 +33,7 @@ RSpec.describe Batch::Prediction::CreateJob do
       it 'updates the state tracking info on the prediction job resource' do
         expect {
           prediction_create_job.run
-        }.to change(prediction_job, :service_job_url).from(nil).to(job_service_url)
+        }.to change(prediction_job, :service_job_url).from('').to(job_service_url)
          .and change(prediction_job, :state).from('pending').to('submitted')
       end
     end
