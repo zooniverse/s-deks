@@ -1,0 +1,9 @@
+class AddBatchJobModel < ActiveRecord::Migration[7.0]
+  def change
+    create_table :prediction_jobs do |t|
+      t.text :job_url, null: false
+      t.text :manifest_url, null: false
+      t.timestamps
+    end
+  end
+end
