@@ -29,6 +29,7 @@ gem 'rails', '~> 7.0'
 # gem 'kredis'
 
 gem 'sidekiq'
+gem 'sidekiq-cron'
 gem 'strong_migrations'
 
 group :production, :staging do
