@@ -53,6 +53,7 @@ ActiveRecord::Schema[7.0].define(version: 2022_10_18_051630) do
   create_table "prediction_jobs", force: :cascade do |t|
     t.text "service_job_url"
     t.text "manifest_url", null: false
+    t.string "state", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

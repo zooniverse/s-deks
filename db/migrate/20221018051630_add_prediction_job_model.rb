@@ -3,6 +3,7 @@ class AddPredictionJobModel < ActiveRecord::Migration[7.0]
     create_table :prediction_jobs do |t|
       t.text :service_job_url
       t.text :manifest_url, null: false
+      t.string :state, null: false
       t.timestamps
     end
   end
