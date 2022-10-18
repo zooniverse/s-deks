@@ -9,6 +9,14 @@ class PredictionJobsController < ApplicationController
     password: Rails.application.config.api_basic_auth_password,
   )
 
+  def index
+    prediction_job_scope = PredictionJob.order(id: :desc).limit(params_page_size)
+    render(
+      status: :ok,
+      json: prediction_job_scope.as_json
+    )
+  end
+
   def create
     prediction_job = PredictionJob.create(manifest_url: prediction_job_params, state: :pending)
 
