@@ -40,7 +40,7 @@ RSpec.describe Bajor::Client do
     end
   end
 
-  describe 'create_prediction_job', :focus do
+  describe 'create_prediction_job' do
     let(:request_url) { "#{bajor_host}/prediction/jobs/" }
     let(:manifest_url) { 'https://manifest-host.zooniverse.org/manifest.csv' }
     let(:request_body) do

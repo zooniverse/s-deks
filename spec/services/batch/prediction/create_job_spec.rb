@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Batch::Prediction::CreateJob do
-  describe '#run', :focus do
+  describe '#run' do
     let(:manifest_url) { 'https://manifest-host.zooniverse.org/manifest.csv' }
     let(:prediction_job) do
       PredictionJob.new(manifest_url: manifest_url, state: :pending)
