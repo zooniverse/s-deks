@@ -6,7 +6,7 @@ class PredictionJobsController < ApplicationController
 
   http_basic_authenticate_with(
     name: Rails.application.config.api_basic_auth_username,
-    password: Rails.application.config.api_basic_auth_password,
+    password: Rails.application.config.api_basic_auth_password
   )
 
   def index
