@@ -50,5 +50,7 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :prediction_jobs, only: %i[index show create]
+
   # all other routes go here
 end
