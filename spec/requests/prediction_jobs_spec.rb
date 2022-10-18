@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'PredictionJobs', type: :request, focus: true do
+RSpec.describe 'PredictionJobs', type: :request do
   let(:request_headers) do
     json_headers_with_basic_auth(
       Rails.application.config.api_basic_auth_username,
@@ -14,52 +14,48 @@ RSpec.describe 'PredictionJobs', type: :request, focus: true do
     PredictionJob.create(manifest_url: manifest_url, state: :pending)
   end
 
-  # describe 'GET /reductions/:id' do
-  #   let(:get_request) do
-  #     get "/reductions/#{reduction.id}", headers: non_create_request_headers
-  #   end
+  describe 'GET /prediction_jobs/:id' do
+    let(:get_request) do
+      get "/prediction_jobs/#{prediction_job.id}", headers: request_headers
+    end
 
-  #   it 'returns the ok response' do
-  #     get_request
-  #     expect(response).to have_http_status(:ok)
-  #   end
+    it 'returns the ok response' do
+      get_request
+      expect(response).to have_http_status(:ok)
+    end
 
-  #   it 'serializes the json subject data in the response body' do
-  #     get_request
-  #     expected_attributes = {
-  #       'id' => reduction.id,
-  #       'zooniverse_subject_id' => reduction.zooniverse_subject_id,
-  #       'labels' => reduction.labels,
-  #       'unique_id' => reduction.unique_id
-  #     }
-  #     expect(json_parsed_response_body).to include(expected_attributes)
-  #   end
+    it 'serializes the correct resource response body' do
+      get_request
+      expected_attributes = {
+        'id' => prediction_job.id,
+        'state' => prediction_job.state,
+        'manifest_url' => prediction_job.manifest_url,
+        'service_job_url' => '',
+        'message' => ''
+      }
+      expect(json_parsed_response_body).to include(expected_attributes)
+    end
 
-  #   it 'serializes the linked subject json data in the response body' do
-  #     get_request
-  #     expect(json_parsed_response_body['subject']).not_to be_empty
-  #   end
+    context 'with invalid authentication credentials' do
+      let(:request_headers) do
+        json_headers_with_basic_auth('unknown', 'credentials')
+      end
 
-  #   context 'with invalid authentication credentials' do
-  #     let(:non_create_request_headers) do
-  #       json_headers_with_basic_auth('unknown', 'credentials')
-  #     end
+      it 'returns unauthorized response' do
+        get_request
+        expect(response.status).to eq(401)
+      end
+    end
 
-  #     it 'returns unauthorized response' do
-  #       get_request
-  #       expect(response.status).to eq(401)
-  #     end
-  #   end
+    context 'without an authorization header' do
+      let(:request_headers) { json_headers }
 
-  #   context 'without an authorization header' do
-  #     let(:non_create_request_headers) { json_headers }
-
-  #     it 'returns unauthorized response' do
-  #       get_request
-  #       expect(response.status).to eq(401)
-  #     end
-  #   end
-  # end
+      it 'returns unauthorized response' do
+        get_request
+        expect(response.status).to eq(401)
+      end
+    end
+  end
 
   describe 'GET /prediction_jobs/' do
     before do

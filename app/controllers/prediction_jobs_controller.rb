@@ -17,6 +17,14 @@ class PredictionJobsController < ApplicationController
     )
   end
 
+  def show
+    prediction_job = PredictionJob.find(params[:id])
+    render(
+      status: :ok,
+      json: prediction_job.as_json
+    )
+  end
+
   def create
     prediction_job = PredictionJob.create(manifest_url: prediction_job_params, state: :pending)
 
