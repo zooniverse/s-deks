@@ -36,8 +36,9 @@ class RetrainZoobotJob
   end
 
   def find_recent_training_data_export(workflow_id)
-    # training_data_export.finished!
-    # add an index to the training_data_export resource for this query
+    # this query is supported by a compond unique index on
+    # the [id workflow_id state] columns that results in a
+    # backwards Index Scan to find the most recent finished record we have for this workflow
     recent_training_data_export = TrainingDataExport.where(workflow_id: workflow_id, state: :finished).order(id: :desc).first
 
     # return nil if the training data export is not recently finished with fresh data
