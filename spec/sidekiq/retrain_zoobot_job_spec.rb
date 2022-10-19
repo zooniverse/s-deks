@@ -38,5 +38,17 @@ RSpec.describe RetrainZoobotJob, type: :job do
       job.perform(workflow_id)
       expect(batch_training_create_job_double).to have_received(:run).once
     end
+
+    context 'with existing training data exports' do
+      it 'finds and reuses the existing training data export created less than 12 hours ago' do
+        training_data_export = TrainingDataExport.create!(workflow_id: workflow_id, created_at: 11.hours.ago, storage_path: 'test', state: :finished)
+        expect(job.find_recent_training_data_export(workflow_id)).to eq(training_data_export)
+      end
+
+      it 'does not find or reus and existing training data export created more than 12 hours ago' do
+        TrainingDataExport.create!(workflow_id: workflow_id, created_at: (12.hours + 1.minute).ago, storage_path: 'test', state: :finished)
+        expect(job.find_recent_training_data_export(workflow_id)).to be_nil
+      end
+    end
   end
 end
