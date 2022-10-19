@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bajor/client'
+
 module Batch
   module Training
     class CreateJob
