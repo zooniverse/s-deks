@@ -22,9 +22,16 @@ RSpec.describe TrainingDataExport, type: :model do
     expect(model).to be_invalid
   end
 
-  describe '.file' do
+  describe '#file' do
     it 'has the active storage association' do
       expect(model.file).not_to be_nil
+    end
+  end
+
+  describe '.storage_path' do
+    it 'returns a known path for blob storage location' do
+      expected_path = %r{/training/catalogues/test/workflow-1-.*\.csv}
+      expect(described_class.storage_path(attributes[:workflow_id])).to match(expected_path)
     end
   end
 end
