@@ -124,6 +124,8 @@ spec:
           command: ["bundle", "exec", "sidekiq"]
           envFrom:
           - secretRef:
+              name: kade-staging-env-vars
+          - secretRef:
               name: kade-common-env-vars
           - secretRef:
               name: kade-staging-sidekiq-db
