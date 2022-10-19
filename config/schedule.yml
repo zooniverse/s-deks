@@ -2,6 +2,6 @@
 
 zoobot_training_job:
   cron: "1 0 * * 0" # sunday 1 min past midnight https://crontab.guru/#1_0_*_*_0
-  class: 'ZoobotTrainer'
-  queue:
+  class: 'RetrainZoobotJob'
+  queue: 'high'
   description: 'Scheduled Worker to re-train GZ Zoobot on latest data'
