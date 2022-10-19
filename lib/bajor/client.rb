@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'httparty'
+
 module Bajor
   class Client
     class Error < StandardError; end
