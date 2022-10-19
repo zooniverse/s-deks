@@ -21,7 +21,7 @@ module Bajor
       )
 
       # bajor returns 201 on successful submission
-      raise_error(bajor_response['message']) if bajor_response.code != 201
+      raise_error(bajor_response) if bajor_response.code != 201
 
       # return a bajor job tracking service URL
       bajor_training_job_tracking_url(bajor_response['id'])
@@ -35,7 +35,7 @@ module Bajor
       )
 
       # bajor returns 201 on successful submission
-      raise_error(bajor_response['message']) if bajor_response.code != 201
+      raise_error(bajor_response) if bajor_response.code != 201
 
       # return a bajor job tracking service URL
       bajor_prediction_job_tracking_url(bajor_response['id'])
@@ -43,7 +43,12 @@ module Bajor
 
     private
 
-    def raise_error(msg)
+    def raise_error(bajor_response)
+      # bajor may return a json object with message body
+      msg = bajor_response['message']
+      # failing that let's try and craft a decent error message from the httparty response error
+      msg ||= "Failed with response code: #{bajor_response.response.code} - #{bajor_response.response.message}"
+
       # most likely a 409 conflict error (limit of active jobs reached)
       # but could be a missing URL or service issue error (500) etc
       raise(Error, msg)
