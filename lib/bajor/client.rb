@@ -9,7 +9,7 @@ module Bajor
     include HTTParty
     JSON_HEADERS = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }.freeze
 
-    base_uri ENV.fetch('BAJOR_API_URL', 'https://bajor.zooniverse.org')
+    base_uri ENV.fetch('BAJOR_API_URL', 'https://bajor-staging.zooniverse.org')
 
     basic_auth ENV.fetch('BAJOR_BASIC_AUTH_USERNAME', 'bajor'), ENV.fetch('BAJOR_BASIC_AUTH_PASSWORD', 'bajor')
 
