@@ -6,6 +6,7 @@ env:
   DATABASE_URL: postgresql://kade:kade@localhost/gh_ci_test
   RAILS_ENV: test
   DISABLE_TEST_LOGGING: test
+  CI: true
 jobs:
   test:
     name: Run Tests
