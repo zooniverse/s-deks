@@ -26,7 +26,10 @@ class PredictionJobsController < ApplicationController
   end
 
   def create
-    prediction_job = PredictionJob.create(manifest_url: prediction_job_params, state: :pending)
+    prediction_job = PredictionJob.create!(
+      manifest_url: prediction_job_params[:manifest_url],
+      state: :pending
+    )
 
     # use a service here to submit the job to bajor system
     prediction_job = Batch::Prediction::CreateJob.new(prediction_job).run

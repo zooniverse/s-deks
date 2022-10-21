@@ -94,6 +94,12 @@ RSpec.describe 'PredictionJobs', type: :request do
       expect { create_request }.to change(PredictionJob, :count).by(1)
     end
 
+    it 'creates the PredictionJob resource correctly' do
+      allow(PredictionJob).to receive(:create!)
+      create_request
+      expect(PredictionJob).to have_received(:create!).with(manifest_url: manifest_url, state: :pending)
+    end
+
     it 'returns the created response' do
       create_request
       expect(response).to have_http_status(:created)
