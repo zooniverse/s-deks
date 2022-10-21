@@ -19,4 +19,15 @@ RSpec.describe PredictionJob, type: :model do
     model.manifest_url = nil
     expect(model).to be_invalid
   end
+
+  it 'only allows specific state values', :aggregate_failures do
+    %w[pending submitted failed completed].each do |state|
+      model.state = state
+      expect(model).to be_valid
+    end
+    model.state = nil
+    expect(model).to be_valid
+    model.state = :finished
+    expect(model).to be_invalid
+  end
 end
