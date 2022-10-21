@@ -14,9 +14,7 @@ gem 'bootsnap', require: false
 
 gem 'httparty'
 
-# gem 'panoptes-client', '~> 1.1'
-# switch this back to ^ once the relax farday-panoptes PR is merged and published
-gem 'panoptes-client', github: 'zooniverse/panoptes-client.rb', branch: 'relax-faraday-panoptes-constraint'
+gem 'panoptes-client'
 gem 'pg'
 gem 'puma'
 
