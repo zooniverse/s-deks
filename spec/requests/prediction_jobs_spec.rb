@@ -83,7 +83,7 @@ RSpec.describe 'PredictionJobs', type: :request do
       { prediction_job: unwrapped_payload }.to_json
     end
     let(:create_request) { post '/prediction_jobs', params: json_payload, headers: request_headers }
-    let(:prediciton_job_result) { PredictionJob.new }
+    let(:prediciton_job_result) { PredictionJob.new(id: -1) }
 
     before do
       create_job_service_double = instance_double(Batch::Prediction::CreateJob, run: prediciton_job_result)
@@ -109,6 +109,12 @@ RSpec.describe 'PredictionJobs', type: :request do
       create_request
       expected_attributes = %w[created_at id manifest_url message results_url service_job_url state updated_at]
       expect(json_parsed_response_body.keys).to match_array(expected_attributes)
+    end
+
+    it 'queues a PredictionJobMonitorJob in the background' do
+      allow(PredictionJobMonitorJob).to receive(:perform_in)
+      create_request
+      expect(PredictionJobMonitorJob).to have_received(:perform_in).with(10.minutes, prediciton_job_result.id)
     end
 
     context 'with unrwapped params' do
