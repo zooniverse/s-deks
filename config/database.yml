@@ -17,3 +17,7 @@ test:
 staging:
   <<: *default
   database: kade_staging
+
+production:
+  <<: *default
+  database: kade_production
