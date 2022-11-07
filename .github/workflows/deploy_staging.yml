@@ -43,7 +43,7 @@ jobs:
     uses: zooniverse/ci-cd/.github/workflows/deploy_app.yaml@main
     needs: [build_and_push_image, db_migration_staging]
     with:
-      app_name: kade-staging-app
+      app_name: kade
       repo_name: kade
       commit_id: ${{ github.sha }}
       environment: staging

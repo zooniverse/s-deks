@@ -1,36 +1,36 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: kade-staging-shared
+  name: kade-production-shared
 data:
-  NEW_RELIC_APP_NAME: 'KaDE Staging'
+  NEW_RELIC_APP_NAME: 'KaDE Production'
   NEW_RELIC_LOG_LEVEL: info
   NEW_RELIC_MONITOR_MODE: 'true'
   PORT: '80'
-  RAILS_ENV: 'staging'
+  RAILS_ENV: 'production'
   RAILS_LOG_TO_STDOUT: 'true'
-  RAILS_MAX_THREADS: '2'
-  REDIS_URL: 'redis://kade-staging-redis:6379/0'
-  TRAINING_PATH_PREFIX: '/mnt/batch/tasks/fsmounts/training/catalogues/staging/images'
+  RAILS_MAX_THREADS: '5'
+  REDIS_URL: 'redis://kade-production-redis:6379/0'
+  TRAINING_PATH_PREFIX: '/mnt/batch/tasks/fsmounts/training/catalogues/production/images'
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kade-staging-app
+  name: kade-production-app
   labels:
-    app: kade-staging-app
+    app: kade-production-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: kade-staging-app
+      app: kade-production-app
   template:
     metadata:
       labels:
-        app: kade-staging-app
+        app: kade-production-app
     spec:
       containers:
-        - name: kade-staging-app
+        - name: kade-production-app
           image: ghcr.io/zooniverse/kade:__IMAGE_TAG__
           resources:
             requests:
@@ -65,32 +65,32 @@ spec:
               httpHeaders:
                  - name: X-Forwarded-Proto
                    value: https
-            # start checking for readiness after 20s (to serve traffic)
-            initialDelaySeconds: 20
+            # start checking for readiness after 10s (to serve traffic)
+            initialDelaySeconds: 10
             # allow a longer response time than 1s
             timeoutSeconds: 10
           env:
-          - name: REVISION
-            value: '__IMAGE_TAG__'
-          - name: HONEYBADGER_REVISION
-            value: '__IMAGE_TAG__'
+            - name: REVISION
+              value: '__IMAGE_TAG__'
+            - name: HONEYBADGER_REVISION
+              value: '__IMAGE_TAG__'
           envFrom:
-          - secretRef:
-              name: kade-staging-env-vars
-          - secretRef:
+            - secretRef:
+              name: kade-production-env-vars
+            - secretRef:
               name: kade-common-env-vars
-          - secretRef:
-              name: kade-staging-app-db
-          - configMapRef:
-              name: kade-staging-shared
+            - secretRef:
+              name: kade-production-app-db
+            - configMapRef:
+              name: kade-production-shared
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: kade-staging-app
+  name: kade-production-app
 spec:
   selector:
-    app: kade-staging-app
+    app: kade-production-app
   ports:
     - protocol: TCP
       port: 80
@@ -99,52 +99,53 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kade-staging-sidekiq
+  name: kade-production-sidekiq
   labels:
-    app: kade-staging-sidekiq
+    app: kade-production-sidekiq
 spec:
   selector:
     matchLabels:
-      app: kade-staging-sidekiq
+      app: kade-production-sidekiq
   template:
     metadata:
       labels:
-        app: kade-staging-sidekiq
+        app: kade-production-sidekiq
     spec:
       containers:
-        - name: kade-staging-sidekiq
+        - name: kade-production-sidekiq
           image: ghcr.io/zooniverse/kade:__IMAGE_TAG__
           resources:
             requests:
               memory: "500Mi"
               cpu: "100m"
             limits:
-              memory: "1000Mi"
-              cpu: "1000m"
+              memory: "2000Mi"
+              cpu: "2000m"
           command: ["bundle", "exec", "sidekiq"]
+          env:
+          - name: PG_STATEMENT_TIMEOUT
+            value: '300000'
           envFrom:
           - secretRef:
-              name: kade-staging-env-vars
+              name: kade-production-env-vars
           - secretRef:
               name: kade-common-env-vars
-          - secretRef:
-              name: kade-staging-sidekiq-db
           - configMapRef:
-              name: kade-staging-shared
+              name: kade-production-shared
           volumeMounts:
           - mountPath: /tmp
-            name: kade-staging-sidekiq-data
+            name: kade-production-sidekiq-data
       volumes:
-        - name: kade-staging-sidekiq-data
+        - name: kade-production-sidekiq-data
           hostPath:
             # directory location on host node temp disk
-            path: /mnt/kade-staging-sidekiq-data
+            path: /mnt/kade-production-sidekiq-data
             type: DirectoryOrCreate
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: kade-staging-ingress
+  name: kade-production-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -153,24 +154,24 @@ metadata:
 spec:
   tls:
   - hosts:
-    - kade-staging.zooniverse.org
+    - kade.zooniverse.org
     secretName: zooniverse-org-tls
   rules:
-  - host: kade-staging.zooniverse.org
+  - host: kade.zooniverse.org
     http:
       paths:
       - pathType: Prefix
         path: /
         backend:
           service:
-            name: kade-staging-app
+            name: kade-production-app
             port:
               number: 80
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: kade-staging-redis
+  name: kade-production-redis
 spec:
   accessModes:
     - ReadWriteOnce
@@ -182,20 +183,20 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kade-staging-redis
+  name: kade-production-redis
   labels:
-    app: kade-staging-redis
+    app: kade-production-redis
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: kade-staging-redis
+      app: kade-production-redis
   template:
     metadata:
       labels:
-        app: kade-staging-redis
+        app: kade-production-redis
     spec:
       tolerations:
       - key: "servicelife"
@@ -219,22 +220,22 @@ spec:
               mountPath: /host-sys
           command: ["sh", "-c", "echo never >/host-sys/kernel/mm/transparent_hugepage/enabled"]
       containers:
-        - name: kade-staging-redis
+        - name: kade-production-redis
           image: redis:6.2
           resources:
             requests:
               memory: "100Mi"
               cpu: "10m"
             limits:
-              memory: "100Mi"
-              cpu: "500m"
+              memory: "500Mi"
+              cpu: "1000m"
           volumeMounts:
-          - name: kade-staging-redis-data
+          - name: kade-production-redis-data
             mountPath: "/data"
       volumes:
-        - name: kade-staging-redis-data
+        - name: kade-production-redis-data
           persistentVolumeClaim:
-            claimName: kade-staging-redis
+            claimName: kade-production-redis
         - name: host-sys
           hostPath:
             path: /sys
@@ -242,10 +243,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kade-staging-redis
+  name: kade-production-redis
 spec:
   selector:
-    app: kade-staging-redis
+    app: kade-production-redis
   ports:
     - protocol: TCP
       port: 6379

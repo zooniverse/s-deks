@@ -2,6 +2,9 @@ default: &default
   adapter: postgresql
   pool: <%= ENV.fetch('RAILS_MAX_THREADS', 5) %>
   url: <%= ENV.fetch('DATABASE_URL', 'postgresql://kade:kade@localhost') %>
+  variables:
+    # default 30s for the DB query exectution - override this via env vars
+    statement_timeout: <%= ENV.fetch('PG_STATEMENT_TIMEOUT', 30000).to_i %>
 
 development:
   <<: *default
@@ -17,3 +20,7 @@ test:
 staging:
   <<: *default
   database: kade_staging
+
+production:
+  <<: *default
+  database: kade_production
