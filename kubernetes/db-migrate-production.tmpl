@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: __JOB_NAME__
+spec:
+  template:
+    spec:
+      containers:
+      - name: kade-migrate-db-production
+        image: ghcr.io/zooniverse/kade:__IMAGE_TAG__
+        command: ["bundle", "exec", "rails", "db:migrate"]
+        env:
+          - name: REVISION
+            value: '__IMAGE_TAG__'
+          - name: HONEYBADGER_REVISION
+            value: '__IMAGE_TAG__'
+        envFrom:
+        - secretRef:
+            name: kade-common-env-vars
+        - secretRef:
+              name: kade-production-app-db
+        - configMapRef:
+            name: kade-production-shared
+      restartPolicy: Never
+  backoffLimit: 1
