@@ -154,7 +154,7 @@ spec:
   tls:
   - hosts:
     - kade-staging.zooniverse.org
-    secretName: kade-staging-tls-secret
+    secretName: zooniverse-org-tls
   rules:
   - host: kade-staging.zooniverse.org
     http:
@@ -166,18 +166,6 @@ spec:
             name: kade-staging-app
             port:
               number: 80
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: kade-staging-tls-secret
-spec:
-  issuerRef:
-    name: letsencrypt-prod
-    kind: ClusterIssuer
-  secretName: kade-staging-tls-secret
-  dnsNames:
-    - kade-staging.zooniverse.org
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
