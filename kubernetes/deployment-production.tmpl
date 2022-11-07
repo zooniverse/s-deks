@@ -1,0 +1,253 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kade-production-shared
+data:
+  NEW_RELIC_APP_NAME: 'KaDE Production'
+  NEW_RELIC_LOG_LEVEL: info
+  NEW_RELIC_MONITOR_MODE: 'true'
+  PORT: '80'
+  RAILS_ENV: 'production'
+  RAILS_LOG_TO_STDOUT: 'true'
+  RAILS_MAX_THREADS: '5'
+  REDIS_URL: 'redis://kade-production-redis:6379/0'
+  TRAINING_PATH_PREFIX: '/mnt/batch/tasks/fsmounts/training/catalogues/production/images'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kade-production-app
+  labels:
+    app: kade-production-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kade-production-app
+  template:
+    metadata:
+      labels:
+        app: kade-production-app
+    spec:
+      containers:
+        - name: kade-production-app
+          image: ghcr.io/zooniverse/kade:__IMAGE_TAG__
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "500m"
+            limits:
+              memory: "1000Mi"
+              cpu: "1000m"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+              httpHeaders:
+                 - name: X-Forwarded-Proto
+                   value: https
+            # wait 6 * 10 seconds(default periodSeconds) for the container to start
+            # after this succeeds once the liveness probe takes over
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+              httpHeaders:
+                 - name: X-Forwarded-Proto
+                   value: https
+            # allow a longer response time than 1s
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+              httpHeaders:
+                 - name: X-Forwarded-Proto
+                   value: https
+            # start checking for readiness after 10s (to serve traffic)
+            initialDelaySeconds: 10
+            # allow a longer response time than 1s
+            timeoutSeconds: 10
+          env:
+            - name: REVISION
+              value: '__IMAGE_TAG__'
+            - name: HONEYBADGER_REVISION
+              value: '__IMAGE_TAG__'
+          envFrom:
+            - secretRef:
+              name: kade-production-env-vars
+            - secretRef:
+              name: kade-common-env-vars
+            - secretRef:
+              name: kade-production-app-db
+            - configMapRef:
+              name: kade-production-shared
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kade-production-app
+spec:
+  selector:
+    app: kade-production-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kade-production-sidekiq
+  labels:
+    app: kade-production-sidekiq
+spec:
+  selector:
+    matchLabels:
+      app: kade-production-sidekiq
+  template:
+    metadata:
+      labels:
+        app: kade-production-sidekiq
+    spec:
+      containers:
+        - name: kade-production-sidekiq
+          image: ghcr.io/zooniverse/kade:__IMAGE_TAG__
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "100m"
+            limits:
+              memory: "2000Mi"
+              cpu: "2000m"
+          command: ["bundle", "exec", "sidekiq"]
+          env:
+          - name: PG_STATEMENT_TIMEOUT
+            value: '300000'
+          envFrom:
+          - secretRef:
+              name: kade-production-env-vars
+          - secretRef:
+              name: kade-common-env-vars
+          - configMapRef:
+              name: kade-production-shared
+          volumeMounts:
+          - mountPath: /tmp
+            name: kade-production-sidekiq-data
+      volumes:
+        - name: kade-production-sidekiq-data
+          hostPath:
+            # directory location on host node temp disk
+            path: /mnt/kade-production-sidekiq-data
+            type: DirectoryOrCreate
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kade-production-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/proxy-body-size: 20m
+spec:
+  tls:
+  - hosts:
+    - kade.zooniverse.org
+    secretName: zooniverse-org-tls
+  rules:
+  - host: kade.zooniverse.org
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: kade-production-app
+            port:
+              number: 80
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kade-production-redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: azurefile
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kade-production-redis
+  labels:
+    app: kade-production-redis
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kade-production-redis
+  template:
+    metadata:
+      labels:
+        app: kade-production-redis
+    spec:
+      tolerations:
+      - key: "servicelife"
+        operator: "Equal"
+        value: "longlife"
+        effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: servicelife
+                operator: In
+                values:
+                - longlife
+      initContainers:
+        - name: disable-thp
+          image: busybox
+          volumeMounts:
+            - name: host-sys
+              mountPath: /host-sys
+          command: ["sh", "-c", "echo never >/host-sys/kernel/mm/transparent_hugepage/enabled"]
+      containers:
+        - name: kade-production-redis
+          image: redis:6.2
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "10m"
+            limits:
+              memory: "500Mi"
+              cpu: "1000m"
+          volumeMounts:
+          - name: kade-production-redis-data
+            mountPath: "/data"
+      volumes:
+        - name: kade-production-redis-data
+          persistentVolumeClaim:
+            claimName: kade-production-redis
+        - name: host-sys
+          hostPath:
+            path: /sys
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kade-production-redis
+spec:
+  selector:
+    app: kade-production-redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
