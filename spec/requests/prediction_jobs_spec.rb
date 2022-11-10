@@ -111,10 +111,18 @@ RSpec.describe 'PredictionJobs', type: :request do
       expect(json_parsed_response_body.keys).to match_array(expected_attributes)
     end
 
-    it 'queues a PredictionJobMonitorJob in the background' do
+    it 'queues a PredictionJobMonitorJob in the background if job submitted successfully' do
+      allow(prediciton_job_result).to receive(:submitted?).and_return(true)
       allow(PredictionJobMonitorJob).to receive(:perform_in)
       create_request
       expect(PredictionJobMonitorJob).to have_received(:perform_in).with(10.minutes, prediciton_job_result.id)
+    end
+
+    it 'does not queue a PredictionJobMonitorJob in the background if job fails to submit' do
+      allow(prediciton_job_result).to receive(:submitted?).and_return(false)
+      allow(PredictionJobMonitorJob).to receive(:perform_in)
+      create_request
+      expect(PredictionJobMonitorJob).not_to have_received(:perform_in)
     end
 
     context 'with unrwapped params' do

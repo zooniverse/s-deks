@@ -38,7 +38,8 @@ class PredictionJobsController < ApplicationController
 
     # kick off a job monitor here that updates the
     # prediction job resource with the job tasks results
-    PredictionJobMonitorJob.perform_in(PREDICTION_JOB_MONITOR.minutes, prediction_job.id)
+    PredictionJobMonitorJob.perform_in(PREDICTION_JOB_MONITOR.minutes, prediction_job.id) if prediction_job.submitted?
+
 
     render status: :created, json: prediction_job.to_json
   end
