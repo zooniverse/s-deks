@@ -8,6 +8,10 @@ class PredictionJob < ApplicationRecord
     state == 'completed'
   end
 
+  def submitted?
+    state == 'submitted'
+  end
+
   def job_id
     File.basename(service_job_url)
   end
