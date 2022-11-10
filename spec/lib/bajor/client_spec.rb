@@ -5,7 +5,7 @@ require 'rails_helper'
 
 RSpec.describe Bajor::Client do
   let(:bajor_client) { described_class.new }
-  let(:bajor_host) { 'https://bajor-staging.zooniverse.org' }
+  let(:bajor_host) { 'https://bajor.zooniverse.org' }
   let(:request_headers) do
     {
       'Accept' => 'application/json',
