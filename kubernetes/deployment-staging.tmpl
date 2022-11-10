@@ -74,6 +74,8 @@ spec:
             value: '__IMAGE_TAG__'
           - name: HONEYBADGER_REVISION
             value: '__IMAGE_TAG__'
+          - name: BAJOR_API_URL
+            value: ''https://bajor-staging.zooniverse.org'
           envFrom:
           - secretRef:
               name: kade-staging-env-vars
