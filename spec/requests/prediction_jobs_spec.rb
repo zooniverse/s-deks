@@ -83,11 +83,12 @@ RSpec.describe 'PredictionJobs', type: :request do
       { prediction_job: unwrapped_payload }.to_json
     end
     let(:create_request) { post '/prediction_jobs', params: json_payload, headers: request_headers }
+    let(:submissions_job_service_double) { instance_double(PredictionJobSubmissionJob) }
     let(:prediciton_job_result) { PredictionJob.new(id: -1) }
 
     before do
-      create_job_service_double = instance_double(Batch::Prediction::CreateJob, run: prediciton_job_result)
-      allow(Batch::Prediction::CreateJob).to receive(:new).and_return(create_job_service_double)
+      allow(submissions_job_service_double).to receive(:perform).and_return(prediciton_job_result)
+      allow(PredictionJobSubmissionJob).to receive(:new).and_return(submissions_job_service_double)
     end
 
     it 'creates a PredictionJob resource' do
@@ -95,7 +96,7 @@ RSpec.describe 'PredictionJobs', type: :request do
     end
 
     it 'creates the PredictionJob resource correctly' do
-      allow(PredictionJob).to receive(:create!)
+      allow(PredictionJob).to receive(:create!).and_return(prediciton_job_result)
       create_request
       expect(PredictionJob).to have_received(:create!).with(manifest_url: manifest_url, state: :pending)
     end
@@ -111,18 +112,21 @@ RSpec.describe 'PredictionJobs', type: :request do
       expect(json_parsed_response_body.keys).to match_array(expected_attributes)
     end
 
-    it 'queues a PredictionJobMonitorJob in the background if job submitted successfully' do
-      allow(prediciton_job_result).to receive(:submitted?).and_return(true)
-      allow(PredictionJobMonitorJob).to receive(:perform_in)
+    it 'attempts to submit the job in the request' do
       create_request
-      expect(PredictionJobMonitorJob).to have_received(:perform_in).with(10.minutes, prediciton_job_result.id)
+      expect(submissions_job_service_double).to have_received(:perform)
     end
 
-    it 'does not queue a PredictionJobMonitorJob in the background if job fails to submit' do
-      allow(prediciton_job_result).to receive(:submitted?).and_return(false)
-      allow(PredictionJobMonitorJob).to receive(:perform_in)
-      create_request
-      expect(PredictionJobMonitorJob).not_to have_received(:perform_in)
+    context 'when the job fails to submit to the prediction service' do
+      before do
+        allow(submissions_job_service_double).to receive(:perform).and_raise(PredictionJobSubmissionJob::Failure)
+      end
+
+      it 'backgrounds the job submission if there is a failure' do
+        allow(PredictionJobSubmissionJob).to receive(:perform_async)
+        create_request
+        expect(PredictionJobSubmissionJob).to have_received(:perform_async)
+      end
     end
 
     context 'with unrwapped params' do

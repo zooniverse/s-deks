@@ -4,8 +4,6 @@ class PredictionJobsController < ApplicationController
   # as we're running in API mode we need to include basic auth
   include ActionController::HttpAuthentication::Basic::ControllerMethods
 
-  PREDICTION_JOB_MONITOR = ENV.fetch('PREDICTION_JOB_MONITOR', 10).to_i
-
   http_basic_authenticate_with(
     name: Rails.application.config.api_basic_auth_username,
     password: Rails.application.config.api_basic_auth_password
@@ -33,13 +31,13 @@ class PredictionJobsController < ApplicationController
       state: :pending
     )
 
-    # use a service here to submit the job to bajor system
-    prediction_job = Batch::Prediction::CreateJob.new(prediction_job).run
-
-    # kick off a job monitor here that updates the
-    # prediction job resource with the job tasks results
-    PredictionJobMonitorJob.perform_in(PREDICTION_JOB_MONITOR.minutes, prediction_job.id) if prediction_job.submitted?
-
+    begin
+      # attempt to submit the job directly
+      prediction_job = PredictionJobSubmissionJob.new.perform(prediction_job.id)
+    rescue PredictionJobSubmissionJob::Failure => _e
+      # schedule the job submission in the background
+      prediction_job = PredictionJobSubmissionJob.perform_async(prediction_job.id)
+    end
 
     render status: :created, json: prediction_job.to_json
   end
