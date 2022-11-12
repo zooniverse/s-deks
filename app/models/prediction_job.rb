@@ -12,6 +12,10 @@ class PredictionJob < ApplicationRecord
     state == 'submitted'
   end
 
+  def failed?
+    state == 'failed'
+  end
+
   def job_id
     File.basename(service_job_url)
   end
