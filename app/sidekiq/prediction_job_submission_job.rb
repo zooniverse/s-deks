@@ -5,6 +5,10 @@ class PredictionJobSubmissionJob
 
   include Sidekiq::Job
 
+  # attempt to submit the job over ~5 hours
+  # https://github.com/mperham/sidekiq/wiki/Error-Handling#automatic-job-retry
+  sidekiq_options retry: 10
+
   PREDICTION_JOB_MONITOR = ENV.fetch('PREDICTION_JOB_MONITOR', 10).to_i
 
   def perform(prediction_job_id)
