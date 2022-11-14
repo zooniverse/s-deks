@@ -6,7 +6,7 @@ module LabelExtractors
     class UknownTaskKey < StandardError; end
 
     def self.extractor_instance(task_schema_lookup_key)
-      schema_name_and_task = /(.+)_(.+)/.match(task_schema_lookup_key)
+      schema_name_and_task = /\A(.+)_(.+)\z/.match(task_schema_lookup_key)
       schema_klass = "LabelExtractors::#{schema_name_and_task[1].camelize}".constantize
       task_key = schema_name_and_task[2].upcase
       schema_klass.new(task_key)
