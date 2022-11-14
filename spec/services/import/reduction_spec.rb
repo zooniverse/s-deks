@@ -21,7 +21,7 @@ RSpec.describe Import::Reduction do
       },
       subject: {
         id: zooniverse_subject_id,
-        'metadata' => { '#name' => '8000_231121_468' },
+        'metadata' => { 'id' => '442940' },
         'created_at' => '2021-08-06T11:08:53.918Z',
         'updated_at' => '2021-08-06T11:08:53.918Z'
       },
@@ -50,15 +50,6 @@ RSpec.describe Import::Reduction do
       expect(reduction_model.labels).to match(expected_labels)
     end
 
-    it 'extracts the name correctly for staging env' do
-      staging_payload = raw_payload.dup
-      staging_payload_metadata = raw_payload[:subject]['metadata'].dup
-      staging_payload_metadata['!SDSS_ID'] = '1237663785278570672'
-      staging_payload[:subject]['metadata'] = staging_payload_metadata.except('#name')
-      reduction_model_staging = described_class.new(staging_payload, label_extractor).run
-      expect(reduction_model_staging.unique_id).to match('1237663785278570672')
-    end
-
     it 'creates a placeholder backfilling subject' do
       expect { reduction_model }.to change(Subject, :count).from(0).to(1)
     end
@@ -77,6 +68,29 @@ RSpec.describe Import::Reduction do
       expect {
         described_class.new({}, label_extractor).run
       }.to raise_error(Import::Reduction::InvalidPayload, 'missing workflow, subject_id or task_key')
+    end
+
+    describe 'extracting the unique identifier from subject metadata' do
+      it 'extracts the name correctly for cosmic dawn mission data' do
+        reduction_model_staging = described_class.new(raw_payload, label_extractor).run
+        expect(reduction_model_staging.unique_id).to match('442940')
+      end
+
+      it 'extracts the name correctly for decals mission data' do
+        raw_payload[:subject]['metadata']['#name'] = '8000_231121_468'
+        raw_payload[:subject]['metadata'].delete('id')
+        reduction_model_staging = described_class.new(raw_payload, label_extractor).run
+        expect(reduction_model_staging.unique_id).to match('8000_231121_468')
+      end
+
+      it 'extracts the name correctly for staging env' do
+        staging_payload = raw_payload.dup
+        staging_payload_metadata = raw_payload[:subject]['metadata'].dup
+        staging_payload_metadata['!SDSS_ID'] = '1237663785278570672'
+        staging_payload[:subject]['metadata'] = staging_payload_metadata.except('id')
+        reduction_model_staging = described_class.new(staging_payload, label_extractor).run
+        expect(reduction_model_staging.unique_id).to match('1237663785278570672')
+      end
     end
 
     context 'with a existing duplicate reduction' do

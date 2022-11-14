@@ -66,6 +66,11 @@ module Import
     end
 
     def unique_id
+      # cosmic dawn metadata
+      unique_id = payload.dig('subject', 'metadata', 'id')
+      return unique_id if unique_id
+
+      # decals metadata
       unique_id = payload.dig('subject', 'metadata', '#name')
       return unique_id if unique_id
 
