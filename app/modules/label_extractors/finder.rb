@@ -2,17 +2,21 @@
 
 module LabelExtractors
   class Finder
-    class UknownExtractor < StandardError; end
-    class UknownTaskKey < StandardError; end
+    class UnknownExtractor < StandardError; end
+    class UnknownTaskKey < StandardError; end
+
+    # hard code Galaxy Zoo for now as these will fail due to missing constant lookup
+    # long term we can add these back in and make the lookup dynamic
+    EXTRACTOR_SCHEMA_CLASS_REGEX = /\Agalaxy_zoo_(decals|cosmic_dawn)_(.+)\z/.freeze
 
     def self.extractor_instance(task_schema_lookup_key)
-      schema_name_and_task = /\A(.+)_(.+)\z/.match(task_schema_lookup_key)
-      schema_klass = "LabelExtractors::#{schema_name_and_task[1].camelize}".constantize
+      # simulate a regex lookup failure with the || [nil, task_schema_lookup_key] as it'll raise a NameError when trying to constantize
+      schema_name_and_task = EXTRACTOR_SCHEMA_CLASS_REGEX.match(task_schema_lookup_key) || [nil, task_schema_lookup_key]
+      schema_klass = "LabelExtractors::GalaxyZoo::#{schema_name_and_task[1].camelize}".constantize
       task_key = schema_name_and_task[2].upcase
       schema_klass.new(task_key)
-
     rescue NameError => _e
-      raise UknownExtractor, "no extractor class found for '#{schema_name_and_task[1]}'"
+      raise UnknownExtractor, "no extractor class found for '#{schema_name_and_task[1]}'"
     end
   end
 end
