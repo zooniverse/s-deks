@@ -36,9 +36,9 @@ RSpec.describe Import::Reduction do
   describe '.run' do
     let(:expected_labels) do
       {
-        'smooth-or-featured-dr8_smooth' => 3,
-        'smooth-or-featured-dr8_featured-or-disk' => 9,
-        'smooth-or-featured-dr8_artifact' => 0
+        'smooth-or-featured_smooth' => 3,
+        'smooth-or-featured_featured-or-disk' => 9,
+        'smooth-or-featured_problem' => 0
       }
     end
     let(:task_schema_lookup_key) { 'T0' }
@@ -83,9 +83,9 @@ RSpec.describe Import::Reduction do
       let(:updated_payload_data) { payload_data.dup }
       let(:updated_labels) do
         {
-          'smooth-or-featured-dr8_smooth' => 4,
-          'smooth-or-featured-dr8_artifact' => 1,
-          'smooth-or-featured-dr8_featured-or-disk' => 10
+          'smooth-or-featured_smooth' => 4,
+          'smooth-or-featured_problem' => 1,
+          'smooth-or-featured_featured-or-disk' => 10
         }
       end
 
