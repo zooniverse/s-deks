@@ -42,7 +42,7 @@ RSpec.describe Import::Reduction do
       }
     end
     let(:task_schema_lookup_key) { 'T0' }
-    let(:label_extractor) { LabelExtractors::GalaxyZoo.new(task_schema_lookup_key) }
+    let(:label_extractor) { LabelExtractors::GalaxyZoo::CosmicDawn.new(task_schema_lookup_key) }
     let(:reduction_model) { described_class.new(raw_payload, label_extractor).run }
 
     it 'creates a valid Reduction model with the correct lables', :aggregate_failures do

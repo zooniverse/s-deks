@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Zoobot do
   describe '.gz_label_column_headers' do
     it 'returns the correct list' do
-      expected_column_headers = %w[id_str file_loc] | LabelExtractors::GalaxyZoo.question_answers_schema
+      expected_column_headers = %w[id_str file_loc] | LabelExtractors::GalaxyZoo::CosmicDawn.question_answers_schema
       expect(described_class.gz_label_column_headers).to eq(expected_column_headers)
     end
   end

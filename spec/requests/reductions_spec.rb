@@ -136,7 +136,7 @@ RSpec.describe 'Reductions', type: :request do
     let(:reduction_json_payload) do
       { reduction: unwrapped_reduction_payload }.to_json
     end
-    let(:create_request) { post '/reductions/galaxy_zoo_t0', params: reduction_json_payload, headers: create_request_headers }
+    let(:create_request) { post '/reductions/galaxy_zoo_cosmic_dawn_t0', params: reduction_json_payload, headers: create_request_headers }
 
     it 'returns the created response' do
       create_request
