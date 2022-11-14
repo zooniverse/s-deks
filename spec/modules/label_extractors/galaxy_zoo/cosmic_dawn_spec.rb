@@ -146,14 +146,14 @@ RSpec.describe LabelExtractors::GalaxyZoo::CosmicDawn do
       expect {
         # T0 has 3 choices (0, 1, 2)
         described_class.new('T0').extract(unknown_key_payload)
-      }.to raise_error(LabelExtractors::GalaxyZoo::CosmicDawn::UnknownLabelKey, 'key not found: 3')
+      }.to raise_error(LabelExtractors::GalaxyZoo::UnknownLabelKey, 'key not found: 3')
     end
 
     it 'raises an error if the task key is not found in the known schema' do
       expect {
         # T16 is unknown in this schema
         described_class.new('T16').extract(data_payload)
-      }.to raise_error(LabelExtractors::GalaxyZoo::CosmicDawn::UnknownTaskKey, 'key not found: T16')
+      }.to raise_error(LabelExtractors::GalaxyZoo::UnknownTaskKey, 'key not found: T16')
     end
   end
 end

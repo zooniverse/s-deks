@@ -3,8 +3,6 @@
 module LabelExtractors
   module GalaxyZoo
     class CosmicDawn
-      class UnknownTaskKey < StandardError; end
-      class UnknownLabelKey < StandardError; end
 
       attr_reader :task_lookup_key, :task_prefix_label
 

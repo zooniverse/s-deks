@@ -134,14 +134,14 @@ RSpec.describe LabelExtractors::GalaxyZoo::Decals do
       expect {
         # T0 has 3 choices (0, 1, 2)
         described_class.new('T0').extract(unknown_key_payload)
-      }.to raise_error(LabelExtractors::GalaxyZoo::Decals::UnknownLabelKey, 'key not found: 3')
+      }.to raise_error(LabelExtractors::GalaxyZoo::UnknownLabelKey, 'key not found: 3')
     end
 
     it 'raises an error if the task key is not found in the known schema' do
       expect {
         # T12 is unknonw in this schema
         described_class.new('T12').extract(data_payload)
-      }.to raise_error(LabelExtractors::GalaxyZoo::Decals::UnknownTaskKey, 'key not found: T12')
+      }.to raise_error(LabelExtractors::GalaxyZoo::UnknownTaskKey, 'key not found: T12')
     end
   end
 end
