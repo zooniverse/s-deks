@@ -22,9 +22,9 @@ RSpec.describe Format::TrainingDataCsv do
         zooniverse_subject_id: reduction_subject.zooniverse_subject_id,
         workflow_id: workflow_id,
         labels: {
-          'smooth-or-featured-dr8_smooth' => 3,
-          'smooth-or-featured-dr8_featured-or-disk' => 9,
-          'smooth-or-featured-dr8_artifact' => 0
+          'smooth-or-featured_smooth' => 3,
+          'smooth-or-featured_featured-or-disk' => 9,
+          'smooth-or-featured_problem' => 0
         },
         unique_id: '8000_231121_468',
         raw_payload: {},
@@ -42,7 +42,7 @@ RSpec.describe Format::TrainingDataCsv do
     end
 
     it 'returns the csv data in the temp file' do
-      expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
+      expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
       results = File.read(export_file.path)
       expect(results).to eq(expected_output)
     end
@@ -54,9 +54,9 @@ RSpec.describe Format::TrainingDataCsv do
           zooniverse_subject_id: reduction_subject.zooniverse_subject_id,
           workflow_id: workflow_id,
           labels: {
-            'how-rounded-dr8_round' => 1,
-            'how-rounded-dr8_in-between' => 5,
-            'how-rounded-dr8_cigar-shaped' => 3
+            'how-rounded_round' => 1,
+            'how-rounded_in-between' => 5,
+            'how-rounded_cigar-shaped' => 3
           },
           unique_id: '8000_231121_468',
           task_key: 'T1'
@@ -69,7 +69,7 @@ RSpec.describe Format::TrainingDataCsv do
 
       it 'combines the reductions results into 1 row' do
         expected_lines = [
-          '8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,9,0,1,5,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
+          '8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,1,5,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
         ].join("\n")
         expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n#{expected_lines}\n"
         results = File.read(export_file.path)
@@ -86,8 +86,8 @@ RSpec.describe Format::TrainingDataCsv do
       end
       let(:expected_lines) do
         [
-          '8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
-          '8000_231121_468,/test/fdccb1cf-0fc9-49b5-b054-62c83bccb9cd.jpeg,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
+          '8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
+          '8000_231121_468,/test/fdccb1cf-0fc9-49b5-b054-62c83bccb9cd.jpeg,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
         ].join("\n")
       end
 
