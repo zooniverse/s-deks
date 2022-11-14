@@ -89,11 +89,16 @@ module Bajor
     end
 
     def bajor_training_job_tracking_url(submitted_job_id)
-      "#{self.class.base_uri}/training/job/#{submitted_job_id}"
+      "#{bajor_service_host}/training/job/#{submitted_job_id}"
     end
 
     def bajor_prediction_job_tracking_url(submitted_job_id)
-      "#{self.class.base_uri}/prediction/job/#{submitted_job_id}"
+      "#{bajor_service_host}/prediction/job/#{submitted_job_id}"
+    end
+
+    def bajor_service_host
+      service_host_suffix = Rails.env.staging? ? '-staging' : ''
+      "https://bajor#{service_host_suffix}.zooniverse.org"
     end
   end
 end
