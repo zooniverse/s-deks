@@ -7,8 +7,11 @@ module Bajor
     class Error < StandardError; end
     class PredictionJobTaskError < StandardError; end
 
-    include HTTParty
     JSON_HEADERS = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }.freeze
+
+    include HTTParty
+
+    default_timeout 15
 
     base_uri ENV.fetch('BAJOR_API_URL', 'https://bajor.zooniverse.org')
 
