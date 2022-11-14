@@ -2,7 +2,8 @@
 
 module Zoobot
   def self.gz_label_column_headers
-    %w[id_str file_loc] | LabelExtractors::GalaxyZoo.question_answers_schema
+    # as data sets change, switch to different mission label extractors, e.g. Decals is older
+    %w[id_str file_loc] | LabelExtractors::GalaxyZoo::CosmicDawn.question_answers_schema
   end
 
   module Storage
