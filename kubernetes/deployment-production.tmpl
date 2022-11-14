@@ -74,6 +74,8 @@ spec:
             value: '__IMAGE_TAG__'
           - name: HONEYBADGER_REVISION
             value: '__IMAGE_TAG__'
+          - name: BAJOR_API_URL
+            value: 'http://bajor-production-app'
           envFrom:
           - secretRef:
               name: kade-production-env-vars
@@ -125,6 +127,12 @@ spec:
           env:
           - name: PG_STATEMENT_TIMEOUT
             value: '300000'
+          - name: REVISION
+            value: '__IMAGE_TAG__'
+          - name: HONEYBADGER_REVISION
+            value: '__IMAGE_TAG__'
+          - name: BAJOR_API_URL
+            value: 'http://bajor-production-app'
           envFrom:
           - secretRef:
               name: kade-production-env-vars

@@ -75,7 +75,7 @@ spec:
           - name: HONEYBADGER_REVISION
             value: '__IMAGE_TAG__'
           - name: BAJOR_API_URL
-            value: 'https://bajor-staging.zooniverse.org'
+            value: 'http://bajor-staging-app'
           envFrom:
           - secretRef:
               name: kade-staging-env-vars
@@ -124,6 +124,13 @@ spec:
               memory: "1000Mi"
               cpu: "1000m"
           command: ["bundle", "exec", "sidekiq"]
+          env:
+          - name: REVISION
+            value: '__IMAGE_TAG__'
+          - name: HONEYBADGER_REVISION
+            value: '__IMAGE_TAG__'
+          - name: BAJOR_API_URL
+            value: 'http://bajor-staging-app'
           envFrom:
           - secretRef:
               name: kade-staging-env-vars
