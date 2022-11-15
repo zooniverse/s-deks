@@ -5,3 +5,4 @@ zoobot_training_job:
   class: 'RetrainZoobotJob'
   queue: 'high'
   description: 'Scheduled Worker to re-train GZ Zoobot on latest data'
+  status: 'disabled' # currently disable until we have transfer learning in place
