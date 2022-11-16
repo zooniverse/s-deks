@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  caesar-scripts:
+    build:
+      context:  ./
+      dockerfile: Dockerfile
+    env_file:
+      - env.list
+    volumes:
+      - ./:/usr/src/app
+
