@@ -15,7 +15,7 @@
 .ruby-*
 
 # ignore any env secrets files
-.env
+.env*
 
 # ignore the annoying mac finder metadata file
 .DS_Store
