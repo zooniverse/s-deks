@@ -1,6 +1,7 @@
 import logging
 import argparse
 import os
+import sys
 from panoptes_client import Workflow, Caesar, Panoptes
 
 
@@ -12,70 +13,73 @@ def workflow_exists_in_caesar():
         logger.info('Workflow exists in Caesar!')
         return True
 
-
 def create_workflow_extractors():
-  # currently all extractors are 'question' type, if this changes we can add them here for task key lookup tuple
-    known_keys = {'T0':True,'T1':True,'T2':True,'T3':True,'T4':True,'T5':True,'T6':True,'T7':True,'T8':True,'T11':True,'T12':True,'T13':True,'T14':True,'T15':True}
-
     extractors = caesar.get_workflow_extractors(zoo_api_workflow.id)
     if extractors:
       task_keys_to_setup = []
       for extractor in extractors:
-          if not known_keys.get(extractor['key'], None):
+          if not GZ_DECISION_TREE_TASK_KEYS.get(extractor['key'], None):
               # collect all unknown extractor keys so we can set them up
               task_keys_to_setup.append(extractor['key'])
-              # are more sophisticated check would involve looking into the config
+              # a more sophisticated check would involve looking into the config
               # to make sure it's correct but we don't need this now
               # e.g.
               # extractor['config']['task_key'] == 'T0'
               # extractor['config']['if_missing'] == 'reject'
     else:
-      task_keys_to_setup = known_keys.keys()
+      task_keys_to_setup = GZ_DECISION_TREE_TASK_KEYS.keys()
 
     task_extractor_type = 'question'
     extractor_config_attrs = {'if_missing': 'reject'}
 
-    import pdb
-    pdb.set_trace()
-
     for extractor_key in task_keys_to_setup:
-      caesar.validate_extractor_type(task_extractor_type)
       logger.info('Adding extractor for task key: %s' % extractor_key)
+      # https://panoptes-python-client.readthedocs.io/en/latest/_modules/panoptes_client/caesar.html#Caesar.create_workflow_extractor
       caesar.create_workflow_extractor(zoo_api_workflow.id, extractor_key, task_extractor_type, task_key=extractor_key, other_extractor_attributes=extractor_config_attrs)
 
     logger.info('Workflow extractors setup')
 
+def create_workflow_reducers():
+    reducers = caesar.get_workflow_reducers(zoo_api_workflow.id)
+    if reducers:
+      count_reducer_tasks_to_setup = []
+      sum_reducer_tasks_to_setup = []
+      for reducer in reducers:
+        if reducer['key'].endswith('_count') and (not COUNT_REDUCER_KEYS.get(reducer['key'], None)):
+            # collect all unknown extractor keys so we can set them up
+            count_reducer_tasks_to_setup.append(reducer['key'])
+        elif reducer['key'].endswith('_sum') and (not SUM_REDUCER_KEYS.get(reducer['key'], None)):
+            # collect all unknown extractor keys so we can set them up
+            sum_reducer_tasks_to_setup.append(reducer['key'])
 
-# def create_workflow_extractors():
-#   if workflow_extractors_exist():
-#       logger.info('All Extrators already exist for this workflow!')
-#       return
-#   else:
-#       logger.info('Extractors')
+    else:
+      # set all the sum and count reducers up :)
+      count_reducer_tasks_to_setup = COUNT_REDUCER_KEYS.keys()
+      sum_reducer_tasks_to_setup = SUM_REDUCER_KEYS.keys()
 
+    for task in count_reducer_tasks_to_setup:
+        # https://panoptes-python-client.readthedocs.io/en/latest/_modules/panoptes_client/caesar.html
+        # setup the 'count' reducer with key {$task_key}_count
+        logger.info(f'Adding reducer for task key: {task}')
+        reducer_filter_attrs = {'empty_extracts': 'ignore_empty','extractor_keys': [COUNT_REDUCER_KEYS[task]], 'repeated_classifications': 'keep_first'}
+        caesar.create_workflow_reducer(zoo_api_workflow.id, 'count', task, other_reducer_attributes={'filters': reducer_filter_attrs})
+    for task in sum_reducer_tasks_to_setup:
+        # setup the 'stats' reducer with key {$task_key}_sum
+        logger.info(f'Adding reducer for task key: {task}')
+        reducer_filter_attrs = {'empty_extracts': 'ignore_empty','extractor_keys': [SUM_REDUCER_KEYS[task]], 'repeated_classifications': 'keep_first'}
+        caesar.create_workflow_reducer(zoo_api_workflow.id, 'stats', task, other_reducer_attributes={'filters': reducer_filter_attrs})
 
-    # question_extractor_attributes = {
-    #     'if_missing': question_extractor_if_missing,
-    #     **other_question_extractor_attrib
-    # }
-
-    # alice_extractor_attributes = {
-    #     'url': f'https://aggregation-caesar.zooniverse.org/extractors/line_text_extractor?task={alice_task_key}',
-    #     **other_alice_extractor_attrib
-    # }
+    logger.info('Workflow reducers setup')
 
 if __name__ == '__main__':
     """
     Setup a an Active Learning Loop workflow for Caesar
     For the Cosmic Dawn Survey dataset
     """
-
-    logger = logging.getLogger('panoptes_client')
-    logger.setLevel(logging.INFO)
-    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    # handler = logging.StreamHandler(sys.stdout)
-    # handler.setFormatter(formatter)
-    # logger.addHandler(handler)
+    FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
+    # set level to DEBUG to get the panoptes network traffic
+    logging.basicConfig(level=logging.INFO, format=FORMAT, force=True)
+    logger = logging.getLogger('setup_caesar')
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', dest='caesar_env', type=str, choices=['production', 'staging'], default='production')
@@ -101,6 +105,13 @@ if __name__ == '__main__':
 
     caesar = Caesar(endpoint=caesar_endpoint)
 
+    # currently all extractors are 'question' type, if this changes we can add them here for task key lookup tuple
+    GZ_DECISION_TREE_TASK_KEYS = {'T0':True,'T1':True,'T2':True,'T3':True,'T4':True,'T5':True,'T6':True,'T7':True,'T8':True,'T11':True,'T12':True,'T13':True,'T14':True,'T15':True}
+    # setup known count reducer keys
+    COUNT_REDUCER_KEYS = {f'{task_key}_count': task_key for task_key in GZ_DECISION_TREE_TASK_KEYS}
+    # setup known sum reducer keys
+    SUM_REDUCER_KEYS = {f'{task_key}_sum': task_key for task_key in GZ_DECISION_TREE_TASK_KEYS}
+
     # lookup the worklfow
     zoo_api_workflow = Workflow.find(args.workflow_id)
     if not zoo_api_workflow:
@@ -111,6 +122,8 @@ if __name__ == '__main__':
     if workflow_exists_in_caesar():
         logger.info('Proceeding to create the extractors')
         create_workflow_extractors()
+        logger.info('Proceeding to create the reducers')
+        create_workflow_reducers()
 
     else:
        # longer term this could be automated but I think it's better to not create workflows in caesar
