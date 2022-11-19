@@ -109,6 +109,8 @@ module LabelExtractors
         }
       }.freeze
 
+      DATA_RELEASE_SUFFIX = 'cd'
+
       def self.label_prefixes
         TASK_KEY_LABEL_PREFIXES
       end
@@ -121,7 +123,7 @@ module LabelExtractors
       def self.question_answers_schema
         label_prefixes.map do |task_key, question_prefix|
           data_labels[task_key].values.map do |answer_suffix|
-            "#{question_prefix}_#{answer_suffix}"
+            "#{question_prefix}-#{DATA_RELEASE_SUFFIX}_#{answer_suffix}"
           end
         end.flatten
       end
@@ -144,8 +146,8 @@ module LabelExtractors
       def extract(data_hash)
         data_hash.transform_keys do |key|
           # create the lable key used for column headers in the derived training catalogues
-          # note the hyphen and underscore formatting, see Zoobot lable schema for more details
-          "#{task_prefix_label}_#{data_payload_label(key)}"
+          # note the hyphen and underscore formatting, see Zoobot label schema for more details
+          "#{task_prefix_label}-#{DATA_RELEASE_SUFFIX}_#{data_payload_label(key)}"
         end
       end
 

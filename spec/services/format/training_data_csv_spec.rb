@@ -22,9 +22,9 @@ RSpec.describe Format::TrainingDataCsv do
         zooniverse_subject_id: reduction_subject.zooniverse_subject_id,
         workflow_id: workflow_id,
         labels: {
-          'smooth-or-featured_smooth' => 3,
-          'smooth-or-featured_featured-or-disk' => 9,
-          'smooth-or-featured_problem' => 0
+          'smooth-or-featured-cd_smooth' => 3,
+          'smooth-or-featured-cd_featured-or-disk' => 9,
+          'smooth-or-featured-cd_problem' => 0
         },
         unique_id: '8000_231121_468',
         raw_payload: {},
@@ -54,9 +54,9 @@ RSpec.describe Format::TrainingDataCsv do
           zooniverse_subject_id: reduction_subject.zooniverse_subject_id,
           workflow_id: workflow_id,
           labels: {
-            'how-rounded_round' => 1,
-            'how-rounded_in-between' => 5,
-            'how-rounded_cigar-shaped' => 3
+            'how-rounded-cd_round' => 1,
+            'how-rounded-cd_in-between' => 5,
+            'how-rounded-cd_cigar-shaped' => 3
           },
           unique_id: '8000_231121_468',
           task_key: 'T1'

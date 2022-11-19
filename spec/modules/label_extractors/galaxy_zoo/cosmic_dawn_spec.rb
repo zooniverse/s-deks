@@ -116,7 +116,7 @@ RSpec.describe LabelExtractors::GalaxyZoo::CosmicDawn do
   describe '#question_answers_schema' do
     it 'returns the correct set of header' do
       expected_column_headers = described_class.label_prefixes.map do |task_key, question_prefix|
-        described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}_#{answer_suffix}"}
+        described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}-cd_#{answer_suffix}"}
       end
       expect(described_class.question_answers_schema).to match(expected_column_headers.flatten)
     end
@@ -131,7 +131,7 @@ RSpec.describe LabelExtractors::GalaxyZoo::CosmicDawn do
       # manually construct the expected lables for tests
       def expected_labels(label_prefix, task_lookup_key, payload)
         payload.transform_keys do |key|
-          "#{label_prefix}_#{data_label_schema.dig(task_lookup_key, key)}"
+          "#{label_prefix}-cd_#{data_label_schema.dig(task_lookup_key, key)}"
         end
       end
 
