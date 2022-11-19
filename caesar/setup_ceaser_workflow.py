@@ -149,6 +149,8 @@ if __name__ == '__main__':
         KADE_ENDPOINT = 'https://kade-staging.zooniverse.org'
 
     # Login to gain access to Zooniverse APIs
+    # you muse be a project owner or collaborator or use 'admin' login mode
+    # https://panoptes-python-client.readthedocs.io/en/latest/panoptes_client.html#panoptes_client.panoptes.Panoptes.connect
     if args.non_interactive_login:
       Panoptes.connect(username=os.environ.get('USERNAME', ''), password=os.environ.get('PASSWORD', ''), endpoint=panoptes_endpoint)
     else:
