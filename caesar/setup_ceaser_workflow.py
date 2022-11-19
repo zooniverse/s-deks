@@ -1,7 +1,7 @@
 import logging
 import argparse
 import os
-import sys
+import json
 from panoptes_client import Workflow, Caesar, Panoptes
 
 
@@ -34,7 +34,7 @@ def create_workflow_extractors():
       # https://panoptes-python-client.readthedocs.io/en/latest/_modules/panoptes_client/caesar.html#Caesar.create_workflow_extractor
       caesar.create_workflow_extractor(zoo_api_workflow.id, extractor_key, task_extractor_type, task_key=extractor_key, other_extractor_attributes=extractor_config_attrs)
 
-    logger.info('Workflow extractors setup')
+    logger.info('Extractors are setup')
 
 def create_workflow_reducers():
     reducers = caesar.get_workflow_reducers(zoo_api_workflow.id)
@@ -65,7 +65,49 @@ def create_workflow_reducers():
         reducer_filter_attrs = {'empty_extracts': 'ignore_empty','extractor_keys': [SUM_REDUCER_KEYS[task]], 'repeated_classifications': 'keep_first'}
         caesar.create_workflow_reducer(zoo_api_workflow.id, 'stats', task, other_reducer_attributes={'filters': reducer_filter_attrs})
 
-    logger.info('Workflow reducers setup')
+    logger.info('Reducers are setup')
+
+
+def create_workflow_subject_rules_and_effects():
+    # no caeasr api to get workflow subject rules
+    rules = caesar.http_get(f'workflows/{zoo_api_workflow.id}/subject_rules')[0]
+    if rules:
+      existing_subject_rule_conditions = [rule['condition']['operations'][0] for rule in rules if rule.get('condition').get('operations')]
+      existing_subject_rules = [rule_condition['key'].split('.')[0] for rule_condition in existing_subject_rule_conditions if rule_condition['key'].endswith('_count.classifications')]
+      subject_rules_keys_to_setup = list(set(COUNT_REDUCER_KEYS.keys()) - set(existing_subject_rules))
+    else:
+      # set all the subject rules up :)
+      subject_rules_keys_to_setup = COUNT_REDUCER_KEYS.keys()
+
+    for subject_rule_key in subject_rules_keys_to_setup:
+        rule_condition_list = ['gte', ['lookup', f'{subject_rule_key}.classifications', 0], ['const', NUM_CLASSIFICATIONS_BEFORE_SEND_TO_KADE]]
+        rule_condition_string = json.dumps(rule_condition_list)
+        # run the create here
+        # save the resulting id of the subject rule
+        # create the subject linked rule effect here to send the data to kade
+        created_subject_rule = caesar.create_workflow_rule(zoo_api_workflow.id, 'subject', rule_condition_string)
+        created_subject_rule_id = created_subject_rule['id']
+
+        # find the task_id for the for use in combining with the sum reducer outputs that send data to KaDE
+        subject_rule_task_key = subject_rule_key.split('_')[0]
+
+        # create the subject rule effect (send to KaDE) config
+        effect_config = {
+            'url': f'{KADE_ENDPOINT}/reductions/galaxy_zoo_cosmic_dawn_{subject_rule_task_key.lower()}',
+            'reducer_key': f'{subject_rule_task_key}_sum',
+            'password': KADE_API_BASIC_AUTH_PASSWORD,
+            'username': KADE_API_BASIC_AUTH_USERNAME
+        }
+        # can't use the `create_workflow_rule_effect` till the python client allows them as valid ones
+        # https://github.com/zooniverse/panoptes-python-client/pull/293
+        # caesar.create_workflow_rule_effect(zoo_api_workflow.id, 'subject', created_subject_rule_id, 'external_with_basic_auth', effect_config))
+        # in the meantime we use the client implementation code
+        payload = { 'subject_rule_effect': { 'action': 'external_with_basic_auth', 'config': effect_config } }
+        request_url = f'workflows/{zoo_api_workflow.id}/subject_rules/{created_subject_rule_id}/subject_rule_effects'
+        caesar.http_post(request_url, json=payload)[0]
+
+    logger.info('Subject Rules and effects are setup')
+
 
 if __name__ == '__main__':
     """
@@ -81,15 +123,28 @@ if __name__ == '__main__':
     parser.add_argument('--env', dest='caesar_env', type=str, choices=['production', 'staging'], default='production')
     parser.add_argument('--workflow-id', dest='workflow_id', type=str, required=True)
     parser.add_argument('--env-credentials', dest='non_interactive_login', action='store_true')
+    parser.add_argument('--kade-api-password', dest='kade_api_password', type=str, default=None)
+    parser.add_argument('--kade-api-username', dest='kade_api_username', type=str, default=None)
 
     args = parser.parse_args()
+
+    KADE_API_BASIC_AUTH_PASSWORD = args.kade_api_password or os.environ.get('KADE_BASIC_AUTH_PASSWORD', None)
+    if not KADE_API_BASIC_AUTH_PASSWORD:
+        logger.error('No KaDE API basic auth password found. Set this up via the cmd switch or the KADE_BASIC_AUTH_PASSWORD env var')
+        exit(1)
+    KADE_API_BASIC_AUTH_USERNAME = args.kade_api_username or os.environ.get('KADE_BASIC_AUTH_USERNAME', None)
+    if not KADE_API_BASIC_AUTH_USERNAME:
+        logger.error('No KaDE API basic auth username found. Set this up via the cmd switch or the KADE_BASIC_AUTH_USERNAME env var')
+        exit(1)
 
     if args.caesar_env == 'production':
         caesar_endpoint = 'https://caesar.zooniverse.org'
         panoptes_endpoint = 'https://www.zooniverse.org'
+        KADE_ENDPOINT = 'https://kade.zooniverse.org'
     else:
         caesar_endpoint = 'https://caesar-staging.zooniverse.org'
         panoptes_endpoint = 'https://panoptes-staging.zooniverse.org'
+        KADE_ENDPOINT = 'https://kade-staging.zooniverse.org'
 
     # Login to gain access to Zooniverse APIs
     if args.non_interactive_login:
@@ -107,6 +162,12 @@ if __name__ == '__main__':
     COUNT_REDUCER_KEYS = {f'{task_key}_count': task_key for task_key in GZ_DECISION_TREE_TASK_KEYS}
     # setup known sum reducer keys
     SUM_REDUCER_KEYS = {f'{task_key}_sum': task_key for task_key in GZ_DECISION_TREE_TASK_KEYS}
+    # number of classifications before we send data to KaDE
+    # as 40 is the current retirement rule on GZ 21802 workflow
+    # we use 35 classifications here as by then we should have a good picture on the subject
+    # and each new classification will send data to kade till retirement
+    # finally - these numbers can be easily adjusted post setup in the caesar UI system, https://caesar.zooniverse.org/workflows
+    NUM_CLASSIFICATIONS_BEFORE_SEND_TO_KADE = 35 if args.caesar_env == 'production' else 1
 
     # lookup the worklfow
     zoo_api_workflow = Workflow.find(args.workflow_id)
@@ -120,22 +181,11 @@ if __name__ == '__main__':
         create_workflow_extractors()
         logger.info('Proceeding to create the reducers')
         create_workflow_reducers()
+        logger.info('Proceeding to create subject rules and effects')
+        create_workflow_subject_rules_and_effects()
 
     else:
        # longer term this could be automated but I think it's better to not create workflows in caesar
        # and ensure a human intervenes to set this up and allow the rest of the resources to be created
        # i.e. make sure this behaviour what is wanted!
        raise Exception('Workflow does not exist in Caesar! please visit caesar and set it up first!')
-
-
-
-
-
-    # TODO: ensure we can override the endpoint to hit staging / production via function arg
-
-    # ensure the workflow exists
-    # create the extractors
-    # then the reducers
-    # then the subject rules
-    # then the subject rule effects (these post data to KaDE)
-
