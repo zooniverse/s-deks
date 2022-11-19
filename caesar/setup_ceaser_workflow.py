@@ -16,16 +16,13 @@ def workflow_exists_in_caesar():
 def create_workflow_extractors():
     extractors = caesar.get_workflow_extractors(zoo_api_workflow.id)
     if extractors:
-      task_keys_to_setup = []
-      for extractor in extractors:
-          if not GZ_DECISION_TREE_TASK_KEYS.get(extractor['key'], None):
-              # collect all unknown extractor keys so we can set them up
-              task_keys_to_setup.append(extractor['key'])
-              # a more sophisticated check would involve looking into the config
-              # to make sure it's correct but we don't need this now
-              # e.g.
-              # extractor['config']['task_key'] == 'T0'
-              # extractor['config']['if_missing'] == 'reject'
+      existing_extractors = [extractor['key'] for extractor in extractors]
+      task_keys_to_setup = list(set(GZ_DECISION_TREE_TASK_KEYS.keys()) - set(existing_extractors))
+      # a more sophisticated check would involve looking into the config
+      # to make sure it's correct but we don't need this now
+      # e.g.
+      # extractor['config']['task_key'] == 'T0'
+      # extractor['config']['if_missing'] == 'reject'
     else:
       task_keys_to_setup = GZ_DECISION_TREE_TASK_KEYS.keys()
 
@@ -44,14 +41,13 @@ def create_workflow_reducers():
     if reducers:
       count_reducer_tasks_to_setup = []
       sum_reducer_tasks_to_setup = []
-      for reducer in reducers:
-        if reducer['key'].endswith('_count') and (not COUNT_REDUCER_KEYS.get(reducer['key'], None)):
-            # collect all unknown extractor keys so we can set them up
-            count_reducer_tasks_to_setup.append(reducer['key'])
-        elif reducer['key'].endswith('_sum') and (not SUM_REDUCER_KEYS.get(reducer['key'], None)):
-            # collect all unknown extractor keys so we can set them up
-            sum_reducer_tasks_to_setup.append(reducer['key'])
-
+      # these checks could be more sophisticated but will work of key name presence for now
+      # count reducers
+      existing_count_reducers = [reducer['key'] for reducer in reducers if reducer['key'].endswith('_count')]
+      count_reducer_tasks_to_setup = list(set(COUNT_REDUCER_KEYS.keys()) - set(existing_count_reducers))
+      # sum reducers
+      existing_sum_reducers = [reducer['key'] for reducer in reducers if reducer['key'].endswith('_sum')]
+      sum_reducer_tasks_to_setup = list(set(SUM_REDUCER_KEYS.keys()) - set(existing_sum_reducers))
     else:
       # set all the sum and count reducers up :)
       count_reducer_tasks_to_setup = COUNT_REDUCER_KEYS.keys()
