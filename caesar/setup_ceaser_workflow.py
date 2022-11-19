@@ -85,6 +85,7 @@ def create_workflow_subject_rules_and_effects():
         # run the create here
         # save the resulting id of the subject rule
         # create the subject linked rule effect here to send the data to kade
+        logger.info(f'Adding subject rule for task key: {subject_rule_key}')
         created_subject_rule = caesar.create_workflow_rule(zoo_api_workflow.id, 'subject', rule_condition_string)
         created_subject_rule_id = created_subject_rule['id']
 
@@ -104,6 +105,7 @@ def create_workflow_subject_rules_and_effects():
         # in the meantime we use the client implementation code
         payload = { 'subject_rule_effect': { 'action': 'external_with_basic_auth', 'config': effect_config } }
         request_url = f'workflows/{zoo_api_workflow.id}/subject_rules/{created_subject_rule_id}/subject_rule_effects'
+        logger.info(f'Adding rule effect for subject rule id: {created_subject_rule_id}')
         caesar.http_post(request_url, json=payload)[0]
 
     logger.info('Subject Rules and effects are setup')
