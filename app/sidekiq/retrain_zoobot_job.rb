@@ -8,8 +8,7 @@ class RetrainZoobotJob
   def perform(workflow_id = nil)
     # allow the workflow_id to be optional and default a known value
     # GZ staging test project - https://caesar-staging.zooniverse.org/workflows/3598
-    #
-    # TODO: change this to the production workflow id when it's setup
+    # GZ production project   - https://caesar.zooniverse.org/workflows/21802
     workflow_id ||= ENV.fetch('ZOOBOT_GZ_WORKFLOW_ID', 3598)
 
     # see if we have a recent re-usable data export instead of making one each time
