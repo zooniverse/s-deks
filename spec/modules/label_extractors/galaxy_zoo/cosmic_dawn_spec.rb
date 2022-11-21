@@ -69,7 +69,7 @@ RSpec.describe LabelExtractors::GalaxyZoo::CosmicDawn do
       },
       'T14' => {
         '0' => 'star',
-        '1' => 'non-star',
+        '1' => 'artifact',
         '2' => 'zoom'
       },
       'T15' => {
