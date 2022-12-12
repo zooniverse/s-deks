@@ -22,8 +22,8 @@ module PredictionResults
       # paritions the data by specified probability threshold
       RemoteFile::Reader.stream_to_tempfile(prediction_job.results_url) do |results_file|
         # read the prediciton json data from the tempfile
-        prediction_data_results = JSON.parse(results_file.read, symbolize_names: true)
-        @prediction_data = prediction_data_results[:data]
+        prediction_data_results = JSON.parse(results_file.read)
+        @prediction_data = prediction_data_results['data']
         partition_results
         move_over_threshold_subjects_to_active_set
         add_random_under_threshold_subjects_to_active_set
@@ -31,12 +31,22 @@ module PredictionResults
     end
 
     def partition_results
+      prediction_data.each do |subject_id, probability|
+        @over_threshold_subject_ids << subject_id if probability >= probability_threshold
+        @under_threshold_subject_ids << subject_id if probability < probability_threshold
+      end
     end
 
     def move_over_threshold_subjects_to_active_set
+      bulk_job_args = over_threshold_subject_ids.map { |subject_id| [subject_id, subject_set_id] }
+      AddSubjectToSubjectSetJob.perform_bulk(bulk_job_args)
     end
 
     def add_random_under_threshold_subjects_to_active_set
+      num_random_subject_ids_to_sample = (under_threshold_subject_ids.count * randomisation_factor).to_i
+      random_under_threshold_subject_ids = under_threshold_subject_ids.sample(num_random_subject_ids_to_sample)
+      bulk_job_args = random_under_threshold_subject_ids.map { |subject_id| [subject_id, subject_set_id] }
+      AddSubjectToSubjectSetJob.perform_bulk(bulk_job_args)
     end
   end
 end

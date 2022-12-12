@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'remote_file/reader'
 
-RSpec.describe PredictionResults::Process, focus: true do
+RSpec.describe PredictionResults::Process do
   let(:confidence_threshold) { 0.8 }
   let(:remote_file) do
     # build a fake file we double as a result of the downloader
@@ -61,35 +61,48 @@ RSpec.describe PredictionResults::Process, focus: true do
   end
 
   describe '#partition_results' do
+    before do
+      process_results_service.prediction_data = prediction_results_data
+    end
+
     it 'correctly splits the results data via the probability_thresold', :aggregate_failures do
       process_results_service.partition_results
       expect(process_results_service.over_threshold_subject_ids).to match_array([over_threshold_subject_id])
       expect(process_results_service.under_threshold_subject_ids).to match_array([under_threshold_subject_id])
     end
 
-    it 'allows the probability_thresold to be set a runtime', :aggregate_failures do
-      process_results_service.probability_threshold = 1
+    it 'allows the probability_thresold to be set a runtime', :aggregate_failures  do
+      process_results_service.probability_threshold = 1.0
       process_results_service.partition_results
-      expect(process_results_service.over_threshold_subject_ids).to match_array([over_threshold_subject_id, under_threshold_subject_id])
-      expect(process_results_service.under_threshold_subject_ids).to be_empty
+      expect(process_results_service.under_threshold_subject_ids).to match_array([over_threshold_subject_id, under_threshold_subject_id])
+      expect(process_results_service.over_threshold_subject_ids).to be_empty
     end
   end
 
   describe '#move_over_threshold_subjects_to_active_set' do
-    it 'calls the AddSubjectToSubjectSet worker correctly' do
-      allow(AddSubjectToSubjectSet).to receive(:perform_async)
+    before do
+      # ensure we have over threshold subjects to move
       process_results_service.over_threshold_subject_ids = [over_threshold_subject_id]
+    end
+
+    it 'calls the AddSubjectToSubjectSet worker correctly' do
+      allow(AddSubjectToSubjectSetJob).to receive(:perform_bulk)
       process_results_service.move_over_threshold_subjects_to_active_set
-      expect(AddSubjectToSubjectSet).to have_received(:perform_bulk).with([over_threshold_subject_id, active_subject_set_id])
+      expect(AddSubjectToSubjectSetJob).to have_received(:perform_bulk).with([[over_threshold_subject_id, active_subject_set_id]])
     end
   end
 
   describe '#add_random_under_threshold_subjects_to_active_set' do
-    it 'calls the AddSubjectToSubjectSet worker with the sampled under threshold data' do
-      allow(AddSubjectToSubjectSet).to receive(:perform_async)
+    before do
+      # ensure we add all the under threshold subjects to the active set
+      process_results_service.randomisation_factor = 1.0
       process_results_service.under_threshold_subject_ids = [under_threshold_subject_id]
+    end
+
+    it 'calls the AddSubjectToSubjectSet worker with the sampled under threshold data' do
+      allow(AddSubjectToSubjectSetJob).to receive(:perform_bulk)
       process_results_service.add_random_under_threshold_subjects_to_active_set
-      expect(AddSubjectToSubjectSet).to have_received(:perform_bulk).with([under_threshold_subject_id, active_subject_set_id])
+      expect(AddSubjectToSubjectSetJob).to have_received(:perform_bulk).with([[under_threshold_subject_id, active_subject_set_id]])
     end
   end
 end
