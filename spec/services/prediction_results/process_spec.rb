@@ -11,7 +11,7 @@ RSpec.describe PredictionResults::Process do
   end
   let(:results_url) { 'https://fake.com/results.json' }
   let(:active_subject_set_id) { 1 }
-  let(:process_results_service) { described_class.new(results_url, active_subject_set_id) }
+  let(:process_results_service) { described_class.new(results_url: results_url, subject_set_id: active_subject_set_id) }
   let(:over_threshold_subject_id) { 1 }
   let(:under_threshold_subject_id) { 2 }
   # schema is from the bajor api prediction jobs results

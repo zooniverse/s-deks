@@ -8,7 +8,7 @@ module PredictionResults
                   :over_threshold_subject_ids, :under_threshold_subject_ids,
                   :randomisation_factor, :prediction_data
 
-    def initialize(results_url, subject_set_id, probability_threshold: 0.8, randomisation_factor: 0.1)
+    def initialize(results_url:, subject_set_id:, probability_threshold: 0.8, randomisation_factor: 0.1)
       @results_url = results_url
       @subject_set_id = subject_set_id
       @probability_threshold = probability_threshold
