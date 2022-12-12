@@ -4,12 +4,12 @@ require 'remote_file/reader'
 
 module PredictionResults
   class Process
-    attr_accessor :prediction_job, :subject_set_id, :probability_threshold,
+    attr_accessor :results_url, :subject_set_id, :probability_threshold,
                   :over_threshold_subject_ids, :under_threshold_subject_ids,
                   :randomisation_factor, :prediction_data
 
-    def initialize(prediction_job, subject_set_id, probability_threshold: 0.8, randomisation_factor: 0.1)
-      @prediction_job = prediction_job
+    def initialize(results_url, subject_set_id, probability_threshold: 0.8, randomisation_factor: 0.1)
+      @results_url = results_url
       @subject_set_id = subject_set_id
       @probability_threshold = probability_threshold
       @randomisation_factor = randomisation_factor
@@ -20,7 +20,7 @@ module PredictionResults
 
     def run
       # paritions the data by specified probability threshold
-      RemoteFile::Reader.stream_to_tempfile(prediction_job.results_url) do |results_file|
+      RemoteFile::Reader.stream_to_tempfile(results_url) do |results_file|
         # read the prediciton json data from the tempfile
         prediction_data_results = JSON.parse(results_file.read)
         @prediction_data = prediction_data_results['data']

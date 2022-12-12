@@ -9,9 +9,9 @@ RSpec.describe PredictionResults::Process do
     # build a fake file we double as a result of the downloader
     Tempfile.new('remote-file-test')
   end
-  let(:prediction_job) { PredictionJob.new }
+  let(:results_url) { 'https://fake.com/results.json' }
   let(:active_subject_set_id) { 1 }
-  let(:process_results_service) { described_class.new(prediction_job, active_subject_set_id) }
+  let(:process_results_service) { described_class.new(results_url, active_subject_set_id) }
   let(:over_threshold_subject_id) { 1 }
   let(:under_threshold_subject_id) { 2 }
   # schema is from the bajor api prediction jobs results
@@ -37,7 +37,7 @@ RSpec.describe PredictionResults::Process do
   describe '.run' do
     it 'downloads the remote results file for processing' do
       process_results_service.run
-      expect(RemoteFile::Reader).to have_received(:stream_to_tempfile).with(prediction_job.results_url)
+      expect(RemoteFile::Reader).to have_received(:stream_to_tempfile).with(results_url)
     end
 
     it 'partitions the results data' do
