@@ -58,9 +58,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_12_120636) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "results_url", default: "", null: false
-    t.bigint "subject_set_id"
-    t.decimal "probability_threshold"
-    t.decimal "randomisation_factor"
+    t.bigint "subject_set_id", null: false
+    t.decimal "probability_threshold", null: false
+    t.decimal "randomisation_factor", null: false
   end
 
   create_table "predictions", force: :cascade do |t|
