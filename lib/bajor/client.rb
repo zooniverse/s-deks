@@ -63,10 +63,9 @@ module Bajor
         job_results_env_setting = bajor_response['common_environment_settings'].find do |env_setting|
           env_setting['name'] == 'PREDICTIONS_JOB_RESULTS_DIR'
         end
-        # construct the prediction job results url
-        # TODO: this will most likely change format but will do for now
+        # construct the prediction job results url - this could move to the bajor create prediction job api response
         job_results_path_suffix = job_results_env_setting['value']
-        "#{BAJOR_PREDICTION_BLOB_STORE_HOST_CONTAINER_URL}/#{job_results_path_suffix}/predictions.csv"
+        "#{BAJOR_PREDICTION_BLOB_STORE_HOST_CONTAINER_URL}/#{job_results_path_suffix}/predictions.json"
       elsif all_tasks_results.any?('failure') # one of the tasks failed :(
         message = "One or more prediction job tasks failed - see job log details from: #{self.class.base_uri}/prediction/job/#{job_id}"
         raise(PredictionJobTaskError, message)
