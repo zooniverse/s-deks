@@ -87,6 +87,8 @@ RSpec.describe 'PredictionJobs', type: :request do
     let(:prediciton_job_result) { PredictionJob.new(id: -1) }
 
     before do
+      allow(ENV).to receive(:fetch).and_call_original # ensure we preserve the behavious of other ENV vars
+      allow(ENV).to receive(:fetch).with('PREDICTION_JOB_SUBJECT_SET_ID_DEFAULT').and_return('1')
       allow(submissions_job_service_double).to receive(:perform).and_return(prediciton_job_result)
       allow(PredictionJobSubmissionJob).to receive(:new).and_return(submissions_job_service_double)
     end
@@ -95,10 +97,11 @@ RSpec.describe 'PredictionJobs', type: :request do
       expect { create_request }.to change(PredictionJob, :count).by(1)
     end
 
-    it 'creates the PredictionJob resource correctly' do
+    it 'creates the PredictionJob resource with default values' do
       allow(PredictionJob).to receive(:create!).and_return(prediciton_job_result)
       create_request
-      expect(PredictionJob).to have_received(:create!).with(manifest_url: manifest_url, state: :pending)
+      expected_attributes = { manifest_url: manifest_url, state: :pending, probability_threshold: 0.8, randomisation_factor: 0.1, subject_set_id: '1'}.stringify_keys
+      expect(PredictionJob).to have_received(:create!).with(expected_attributes)
     end
 
     it 'returns the created response' do
@@ -126,6 +129,26 @@ RSpec.describe 'PredictionJobs', type: :request do
         allow(PredictionJobSubmissionJob).to receive(:perform_async)
         create_request
         expect(PredictionJobSubmissionJob).to have_received(:perform_async)
+      end
+    end
+
+    context 'with optional params' do
+      let(:unwrapped_payload) do
+        {
+          manifest_url: manifest_url,
+          probability_threshold: 0.8,
+          randomisation_factor: 0.1,
+          subject_set_id: '1'
+        }
+      end
+      let(:expected_params) do
+        { manifest_url: manifest_url, state: :pending, probability_threshold: 0.8, randomisation_factor: 0.1, subject_set_id: '1' }.stringify_keys
+      end
+
+      it 'creates the prediction job with the optional params' do
+        allow(PredictionJob).to receive(:create!).and_return(prediciton_job_result)
+        create_request
+        expect(PredictionJob).to have_received(:create!).with(expected_params)
       end
     end
 
