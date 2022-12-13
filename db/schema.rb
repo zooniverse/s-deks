@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_12_120636) do
+ActiveRecord::Schema[7.0].define(version: 2022_12_13_121522) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -58,9 +58,9 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_12_120636) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "results_url", default: "", null: false
-    t.bigint "subject_set_id"
-    t.float "probability_threshold"
-    t.float "randomisation_factor"
+    t.bigint "subject_set_id", null: false
+    t.float "probability_threshold", null: false
+    t.float "randomisation_factor", null: false
   end
 
   create_table "predictions", force: :cascade do |t|
