@@ -10,6 +10,8 @@ RSpec.describe AddSubjectToSubjectSetJob, type: :job do
     let(:panoptes_client_double) { instance_double(Panoptes::Client) }
 
     before do
+      allow(ENV).to receive(:fetch).with('PANOPTES_OAUTH_CLIENT_ID').and_return('fake-client-id')
+      allow(ENV).to receive(:fetch).with('PANOPTES_OAUTH_CLIENT_SECRET').and_return('fake-client-sekreto')
       allow(panoptes_client_double).to receive(:add_subjects_to_subject_set)
       allow(Panoptes::Client).to receive(:new).and_return(panoptes_client_double)
     end
