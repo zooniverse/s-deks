@@ -199,7 +199,7 @@ RSpec.describe Bajor::Client do
         }
       end
       let(:results_url) do
-        'https://kadeactivelearning.blob.core.windows.net/predictions/jobs/2022-10-21T07:39_64bf4fab-ed6d-4f9a-b8ae-004086e3676f/results/predictions.csv'
+        'https://kadeactivelearning.blob.core.windows.net/predictions/jobs/2022-10-21T07:39_64bf4fab-ed6d-4f9a-b8ae-004086e3676f/results/predictions.json'
       end
       let(:request) do
         stub_request(:get, request_url).with(headers: request_headers)
