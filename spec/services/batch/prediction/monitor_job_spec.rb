@@ -9,7 +9,10 @@ RSpec.describe Batch::Prediction::MonitorJob do
       PredictionJob.new(
         service_job_url: 'https://bajor-staging.zooniverse.org/prediction/job/64bf4fab-ed6d-4f9a-b8ae-004086e3676f',
         manifest_url: manifest_url,
-        state: :submitted
+        state: :submitted,
+        subject_set_id: 1,
+        probability_threshold: 0.5,
+        randomisation_factor: 0.5
       )
     end
     let(:bajor_client_double) { instance_double(Bajor::Client) }

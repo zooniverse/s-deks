@@ -6,7 +6,13 @@ RSpec.describe Batch::Prediction::CreateJob do
   describe '#run' do
     let(:manifest_url) { 'https://manifest-host.zooniverse.org/manifest.csv' }
     let(:prediction_job) do
-      PredictionJob.new(manifest_url: manifest_url, state: :pending)
+      PredictionJob.new(
+        manifest_url: manifest_url,
+        state: :pending,
+        subject_set_id: 1,
+        probability_threshold: 0.5,
+        randomisation_factor: 0.5
+      )
     end
     let(:bajor_client_double) { instance_double(Bajor::Client) }
     let(:prediction_create_job) { described_class.new(prediction_job, bajor_client_double) }

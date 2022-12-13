@@ -8,7 +8,10 @@ RSpec.describe PredictionJobSubmissionJob, type: :job do
       PredictionJob.create(
         service_job_url: 'https://bajor-staging.zooniverse.org/prediction/job/64bf4fab-ed6d-4f9a-b8ae-004086e3676f',
         manifest_url: 'https://manifest-host/manifest.csv',
-        state: :pending
+        state: :pending,
+        subject_set_id: 1,
+        probability_threshold: 0.5,
+        randomisation_factor: 0.5
       )
     end
 

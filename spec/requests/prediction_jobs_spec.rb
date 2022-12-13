@@ -11,7 +11,7 @@ RSpec.describe 'PredictionJobs', type: :request do
   end
   let(:manifest_url) { 'https://manifest-host.zooniverse.org/manifest.csv' }
   let(:prediction_job) do
-    PredictionJob.create(manifest_url: manifest_url, state: :pending)
+    PredictionJob.create(manifest_url: manifest_url, state: :pending, subject_set_id: 1, probability_threshold: 0.5, randomisation_factor: 0.5)
   end
 
   describe 'GET /prediction_jobs/:id' do
