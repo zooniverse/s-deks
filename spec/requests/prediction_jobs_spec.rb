@@ -86,9 +86,11 @@ RSpec.describe 'PredictionJobs', type: :request do
     let(:submissions_job_service_double) { instance_double(PredictionJobSubmissionJob) }
     let(:prediciton_job_result) { PredictionJob.new(id: -1) }
 
+    fixtures :contexts
+
     before do
       allow(ENV).to receive(:fetch).and_call_original # ensure we preserve the behavious of other ENV vars
-      allow(ENV).to receive(:fetch).with('PREDICTION_JOB_SUBJECT_SET_ID_DEFAULT').and_return('1')
+      allow(ENV).to receive(:fetch).with('ZOOBOT_GZ_CONTEXT_ID').and_return('1')
       allow(submissions_job_service_double).to receive(:perform).and_return(prediciton_job_result)
       allow(PredictionJobSubmissionJob).to receive(:new).and_return(submissions_job_service_double)
     end
@@ -100,7 +102,7 @@ RSpec.describe 'PredictionJobs', type: :request do
     it 'creates the PredictionJob resource with default values' do
       allow(PredictionJob).to receive(:create!).and_return(prediciton_job_result)
       create_request
-      expected_attributes = { manifest_url: manifest_url, state: :pending, probability_threshold: 0.8, randomisation_factor: 0.1, subject_set_id: '1'}.stringify_keys
+      expected_attributes = { manifest_url: manifest_url, state: :pending, probability_threshold: 0.8, randomisation_factor: 0.1, subject_set_id: 55}.stringify_keys
       expect(PredictionJob).to have_received(:create!).with(expected_attributes)
     end
 

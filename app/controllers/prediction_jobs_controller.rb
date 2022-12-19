@@ -54,8 +54,9 @@ class PredictionJobsController < ApplicationController
   def create_params_with_defaults
     prediction_job_params.with_defaults(
       state: :pending,
-      # subject_set_id default must be set for each environment
-      subject_set_id: ENV.fetch('PREDICTION_JOB_SUBJECT_SET_ID_DEFAULT'),
+      # use the project context default active subject_set_id for each env
+      subject_set_id: Context.find(ENV.fetch('ZOOBOT_GZ_CONTEXT_ID')).active_subject_set_id,
+      # NOTE: the below defaults could also move to the context model as required
       # threshold on subjects 80% predicted not likely to be smooth
       probability_threshold: ENV.fetch('PREDICTION_JOB_PROBABILITY_THRESHOLD_DEFAULT', '0.8').to_f,
       # attempt to add 10% of the 'smooth' prediction subjects for some randomisation of the data (avoid overfitting the model etc)
