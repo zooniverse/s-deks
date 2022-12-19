@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Context, type: :model do
   let(:attributes) do
-    { project_id: 1, workflow_id: 1 }
+    { project_id: 1, workflow_id: 1, active_subject_set_id: 1 }
   end
   let(:context) { described_class.new(attributes) }
 
