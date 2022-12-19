@@ -230,3 +230,69 @@ Returns a JSON payload describing the subject resource
   ]
 }
 ```
+
+### Prediction Jobs Resource
+
+#### List Prediction Jobs resources
+
+`GET /prediction_jobs/` List all prediction jobs
+
+Returns a JSON payload listing the last 10 prediciton jobs resources
+
+``` javascript
+[
+  {
+    'id': 10,
+    'service_job_url': 'https://bajor.zooniverse.org/prediction/job/job-id',
+    'manifest_url': 'https://container.blob.core.windows.net/predictions/catalogues/production/export-1.json',
+    'state': 'completed',
+    'message': '',
+    'created_at': '2022-11-25T10:55:00.551Z',
+    'updated_at': '2022-11-25T11:09:19.891Z',
+    'results_url': 'https://container.blob.core.windows.net/predictions/jobs/job_id/results/predictions.csv',
+    'subject_set_id': 110267,
+    'probability_threshold': 0.8,
+    'randomisation_factor': 0.1
+  }
+]
+```
+
+#### Get the details of a Prediction Job resource
+
+`GET /prediction_job/$id`
+
+Returns a JSON payload describing the prediction job resource
+
+``` javascript
+{
+    'id': 10,
+    'service_job_url': 'https://bajor.zooniverse.org/prediction/job/job-id',
+    'manifest_url': 'https://container.blob.core.windows.net/predictions/catalogues/production/export-1.json',
+    'state': 'completed',
+    'message': '',
+    'created_at': '2022-11-25T10:55:00.551Z',
+    'updated_at': '2022-11-25T11:09:19.891Z',
+    'results_url': 'https://container.blob.core.windows.net/predictions/jobs/job_id/results/predictions.csv',
+    'subject_set_id': 110267,
+    'probability_threshold': 0.8,
+    'randomisation_factor': 0.1
+  }
+```
+
+### Create a new Prediction Job resource
+
+This resulting prediction job resource represents a submitted for processing prediction job.
+
+This end point is meant to be used by authenticated clients that want to schedule prediction jobs.
+
+`POST /prediction_jobs/`
+
+Requires a JSON payload for creating a Prediction Job resource.
+
+``` javascript
+{
+  'prediction_job': {
+    'manifest_url': 'https://example.com/hosted-manifest.csv'
+  }
+}
+```
