@@ -16,15 +16,6 @@ RSpec.describe RetrainZoobotJob, type: :job do
       allow(Batch::Training::CreateJob).to receive(:new).and_return(batch_training_create_job_double)
     end
 
-    # allow the job to load the default workflow id from the env
-    it 'defaults the workflow_id to a known env var' do
-      default_workflow_id = 3598
-      storage_path = TrainingDataExport.storage_path(default_workflow_id)
-      allow(TrainingDataExport).to receive(:create!).and_return(TrainingDataExport.new)
-      job.perform
-      expect(TrainingDataExport).to have_received(:create!).with(storage_path: storage_path, workflow_id: default_workflow_id)
-    end
-
     it 'creates the training data export resource' do
       expect { job.perform(workflow_id) }.to change(TrainingDataExport, :count).by(1)
     end
@@ -37,6 +28,23 @@ RSpec.describe RetrainZoobotJob, type: :job do
     it 'runs the batch training create job service' do
       job.perform(workflow_id)
       expect(batch_training_create_job_double).to have_received(:run).once
+    end
+
+    describe 'allow the job to load the default context workflow id' do
+      fixtures :contexts
+      let(:context) { Context.first }
+      let(:workflow_id) { context.workflow_id }
+      let(:storage_path) { TrainingDataExport.storage_path(workflow_id) }
+
+      before do
+        allow(ENV).to receive(:fetch).with('ZOOBOT_GZ_CONTEXT_ID').and_return(context.id)
+      end
+
+      it 'defaults the workflow_id to a known env var' do
+        allow(TrainingDataExport).to receive(:create!).and_return(TrainingDataExport.new)
+        job.perform
+        expect(TrainingDataExport).to have_received(:create!).with(storage_path: storage_path, workflow_id: workflow_id)
+      end
     end
 
     context 'with existing training data exports' do
