@@ -9,7 +9,7 @@ class RetrainZoobotJob
     # allow the workflow_id to be optional and default a known value
     # GZ staging test project - https://caesar-staging.zooniverse.org/workflows/3598
     # GZ production project   - https://caesar.zooniverse.org/workflows/21802
-    workflow_id ||= ENV.fetch('ZOOBOT_GZ_WORKFLOW_ID', 3598)
+    workflow_id ||= Context.find(ENV.fetch('ZOOBOT_GZ_CONTEXT_ID')).workflow_id
 
     # see if we have a recent re-usable data export instead of making one each time
     # the data should be similar and the window period is configurable
