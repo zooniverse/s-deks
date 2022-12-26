@@ -85,7 +85,7 @@ GEM
     crack (0.4.5)
       rexml
     crass (1.0.6)
-    debug (1.7.0)
+    debug (1.7.1)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
     deprecate (0.0.0)
@@ -133,8 +133,8 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
-    io-console (0.5.11)
-    irb (1.6.0)
+    io-console (0.6.0)
+    irb (1.6.2)
       reline (>= 0.3.0)
     json (2.6.3)
     jwt (1.5.6)
@@ -219,7 +219,7 @@ GEM
     redis-client (0.11.2)
       connection_pool
     regexp_parser (2.6.1)
-    reline (0.3.1)
+    reline (0.3.2)
       io-console (~> 0.5)
     rexml (3.2.5)
     rspec-core (3.11.0)
