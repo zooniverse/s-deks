@@ -66,16 +66,19 @@ module Import
     end
 
     def unique_id
-      # cosmic dawn metadata
-      unique_id = payload.dig('subject', 'metadata', 'id')
+      subject_metadata = payload.dig('subject', 'metadata')
+      return unless subject_metadata
+
+      # cosmic dawn metadata - may be marked as hidden (!id) or private (#id) metadata
+      unique_id = subject_metadata['id'] || subject_metadata['!id'] || subject_metadata['#id']
       return unique_id if unique_id
 
       # decals metadata
-      unique_id = payload.dig('subject', 'metadata', '#name')
+      unique_id = subject_metadata['#name']
       return unique_id if unique_id
 
       # staging has older data with different subject metadata - fallback to handling this special env case
-      payload.dig('subject', 'metadata', '!SDSS_ID') if Rails.env.staging? || Rails.env.test?
+      subject_metadata['!SDSS_ID'] if Rails.env.staging? || Rails.env.test?
     end
 
     # use a custom label extractor (injected at run time)

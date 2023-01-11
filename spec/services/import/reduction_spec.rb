@@ -71,9 +71,25 @@ RSpec.describe Import::Reduction do
     end
 
     describe 'extracting the unique identifier from subject metadata' do
-      it 'extracts the name correctly for cosmic dawn mission data' do
-        reduction_model_staging = described_class.new(raw_payload, label_extractor).run
-        expect(reduction_model_staging.unique_id).to match('442940')
+      context 'cosmic dawn mission' do
+        it 'extracts the name correctly from normal id' do
+          reduction_model_staging = described_class.new(raw_payload, label_extractor).run
+          expect(reduction_model_staging.unique_id).to match('442940')
+        end
+
+        it 'extracts the name correctly from hidden id' do
+          raw_payload[:subject]['metadata']['!id'] = 'hidden-44294'
+          raw_payload[:subject]['metadata'].delete('id')
+          reduction_model_staging = described_class.new(raw_payload, label_extractor).run
+          expect(reduction_model_staging.unique_id).to match('hidden-44294')
+        end
+
+        it 'extracts the name correctly from private id' do
+          raw_payload[:subject]['metadata']['#id'] = 'private-44294'
+          raw_payload[:subject]['metadata'].delete('id')
+          reduction_model_staging = described_class.new(raw_payload, label_extractor).run
+          expect(reduction_model_staging.unique_id).to match('private-44294')
+        end
       end
 
       it 'extracts the name correctly for decals mission data' do
