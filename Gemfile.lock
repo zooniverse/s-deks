@@ -267,7 +267,7 @@ GEM
     sidekiq-cron (1.9.1)
       fugit (~> 1.8)
       sidekiq (>= 4.2.1)
-    spring (4.1.0)
+    spring (4.1.1)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
     strong_migrations (1.4.1)
