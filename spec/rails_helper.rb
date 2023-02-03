@@ -16,6 +16,10 @@ Dir[Rails.root.join('spec/support/*.rb')].sort.each { |f| require f }
 # requiring is the same as WebMock.disable_net_connect!
 require 'webmock/rspec'
 
+# disable the Sidekiq logger in test env
+Sidekiq.configure_client do |config|
+  config.logger = Rails.logger if Rails.env.test?
+end
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
