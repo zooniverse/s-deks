@@ -26,6 +26,7 @@ module PredictionResults
         @prediction_data = prediction_data_results['data']
         partition_results
         move_over_threshold_subjects_to_active_set
+        remove_under_threshold_subjects_from_active_set
         add_random_under_threshold_subjects_to_active_set
       end
     end
@@ -44,6 +45,11 @@ module PredictionResults
     def move_over_threshold_subjects_to_active_set
       bulk_job_args = over_threshold_subject_ids.map { |subject_id| [subject_id, subject_set_id] }
       AddSubjectToSubjectSetJob.perform_bulk(bulk_job_args)
+    end
+
+    def remove_under_threshold_subjects_from_active_set
+      bulk_job_args = under_threshold_subject_ids.map { |subject_id| [subject_id, subject_set_id] }
+      RemoveSubjectFromSubjectSetJob.perform_bulk(bulk_job_args)
     end
 
     def add_random_under_threshold_subjects_to_active_set

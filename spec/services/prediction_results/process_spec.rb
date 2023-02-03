@@ -53,6 +53,12 @@ RSpec.describe PredictionResults::Process do
       expect(process_results_service).to have_received(:move_over_threshold_subjects_to_active_set)
     end
 
+    it 'removes subjects under the researcher defined probability threshold from the active set' do
+      allow(process_results_service).to receive(:remove_under_threshold_subjects_from_active_set)
+      process_results_service.run
+      expect(process_results_service).to have_received(:remove_under_threshold_subjects_from_active_set)
+    end
+
     it 'adds random subjects under the probability threshold to the active set' do
       # this ensures we add variety to volunteers and keep 'normal' data in the training set so we don't overfit the model
       allow(process_results_service).to receive(:add_random_under_threshold_subjects_to_active_set)
@@ -90,6 +96,19 @@ RSpec.describe PredictionResults::Process do
       allow(AddSubjectToSubjectSetJob).to receive(:perform_bulk)
       process_results_service.move_over_threshold_subjects_to_active_set
       expect(AddSubjectToSubjectSetJob).to have_received(:perform_bulk).with([[over_threshold_subject_id, active_subject_set_id]])
+    end
+  end
+
+  describe '#remove_under_threshold_subjects_from_active_set' do
+    before do
+      # ensure we have under threshold subjects to remove
+      process_results_service.under_threshold_subject_ids = [under_threshold_subject_id]
+    end
+
+    it 'calls the RemoveSubjectFromSubjectSet worker correctly' do
+      allow(RemoveSubjectFromSubjectSetJob).to receive(:perform_bulk)
+      process_results_service.remove_under_threshold_subjects_from_active_set
+      expect(RemoveSubjectFromSubjectSetJob).to have_received(:perform_bulk).with([[under_threshold_subject_id, active_subject_set_id]])
     end
   end
 
