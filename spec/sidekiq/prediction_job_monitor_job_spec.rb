@@ -49,6 +49,19 @@ RSpec.describe PredictionJobMonitorJob, type: :job do
       end
     end
 
+    context 'when the monitor job returns a failure :(' do
+      before do
+        allow(prediction_job_monitor_results).to receive(:completed?).and_return(false)
+        allow(prediction_job_monitor_results).to receive(:failed?).and_return(true)
+      end
+
+      it 'does not reschedule the monitor job' do
+        allow(described_class).to receive(:perform_in)
+        job.perform(prediction_job.id)
+        expect(described_class).not_to have_received(:perform_in)
+      end
+    end
+
     context 'when the prediction job has been already completed' do
       before do
         prediction_job.update_column(:state, 'completed')

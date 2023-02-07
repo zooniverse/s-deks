@@ -13,12 +13,14 @@ class PredictionJobMonitorJob
 
     prediction_job = Batch::Prediction::MonitorJob.new(prediction_job).run
 
+    # avoid rescheduling the job if it's failed
+    return if prediction_job.failed?
+
     if prediction_job.completed?
       ProcessPredictionResultsJob.perform_async(prediction_job.id)
-      return # don't reschedule this job if it's done
+    else
+      # reschedule this job to run again in 1 minute
+      PredictionJobMonitorJob.perform_in(MONITOR_JOB_RESCHEDULE_DELAY.minute, prediction_job.id)
     end
-
-    # reschedule this job to run again in 1 minute
-    PredictionJobMonitorJob.perform_in(MONITOR_JOB_RESCHEDULE_DELAY.minute, prediction_job.id)
   end
 end
