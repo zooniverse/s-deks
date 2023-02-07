@@ -18,7 +18,7 @@ RSpec.describe AddSubjectToSubjectSetJob, type: :job do
 
     it 'calls the api client to add the subject to the subject set' do
       job.perform(subject_id, subject_set_id)
-      expect(panoptes_client_double).to have_received(:add_subjects_to_subject_set).with(subject_set_id, subject_id)
+      expect(panoptes_client_double).to have_received(:add_subjects_to_subject_set).with(subject_set_id, [subject_id])
     end
   end
 end
