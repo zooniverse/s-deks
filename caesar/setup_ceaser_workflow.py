@@ -168,10 +168,11 @@ if __name__ == '__main__':
     SUM_REDUCER_KEYS = {f'{task_key}_sum': task_key for task_key in GZ_DECISION_TREE_TASK_KEYS}
     # number of classifications before we send data to KaDE
     # as 40 is the current retirement rule on GZ 21802 workflow
-    # we use 35 classifications here as by then we should have a good picture on the subject
-    # and each new classification will send data to kade till retirement
+    # we use 3 classifications here as by then we should have
+    # enough information to augment the trained ML system
+    # each new classification will send data to kade till retirement
     # finally - these numbers can be easily adjusted post setup in the caesar UI system, https://caesar.zooniverse.org/workflows
-    NUM_CLASSIFICATIONS_BEFORE_SEND_TO_KADE = 35 if args.caesar_env == 'production' else 1
+    NUM_CLASSIFICATIONS_BEFORE_SEND_TO_KADE = 3 if args.caesar_env == 'production' else 1
 
     # lookup the worklfow
     zoo_api_workflow = Workflow.find(args.workflow_id)
