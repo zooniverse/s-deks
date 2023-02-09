@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_12_19_065413) do
+ActiveRecord::Schema[7.0].define(version: 2023_02_09_070510) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -107,6 +107,17 @@ ActiveRecord::Schema[7.0].define(version: 2022_12_19_065413) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["id", "workflow_id", "state"], name: "index_training_data_exports_on_id_and_workflow_id_and_state", unique: true
+  end
+
+  create_table "training_jobs", force: :cascade do |t|
+    t.text "service_job_url", default: ""
+    t.text "manifest_url", null: false
+    t.text "results_url", default: "", null: false
+    t.string "state", null: false
+    t.bigint "workflow_id", null: false
+    t.text "message", default: "", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
