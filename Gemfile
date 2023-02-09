@@ -3,6 +3,8 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
+gem 'async-http-faraday'
+
 # used for Azure active storage
 gem 'azure-storage-blob'
 
