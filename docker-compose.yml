@@ -23,14 +23,14 @@ services:
       - gem_cache:/usr/local/bundle
     ports:
       - 3001:3000
+    env_file:
+      - env.list
     environment:
       - DATABASE_URL=postgresql://kade:kade@pg
       - REDIS_URL=redis://redis:6379/0
       - RAILS_LOG_TO_STDOUT=true
       - RAILS_MAX_THREADS=2
       - REVISION=c079966-fake-revision
-      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
-      - AZURE_STORAGE_ACCESS_KEY=${AZURE_STORAGE_ACCESS_KEY}
     links:
       - redis:redis
       - postgres:pg
@@ -41,14 +41,14 @@ services:
       - ./:/rails_app
       - gem_cache:/usr/local/bundle
     command: ["bundle", "exec", "sidekiq"]
+    env_file:
+      - env.list
     environment:
       - SIDEKIQ_VERBOSE=true
       - DATABASE_URL=postgresql://kade:kade@pg
       - REDIS_URL=redis://redis:6379/0
       - RAILS_MAX_THREADS=1
       - RAILS_LOG_TO_STDOUT=true
-      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME}
-      - AZURE_STORAGE_ACCESS_KEY=${AZURE_STORAGE_ACCESS_KEY}
     links:
       - redis:redis
       - postgres:pg
