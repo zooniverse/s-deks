@@ -6,6 +6,7 @@ module Bajor
   class Client
     class Error < StandardError; end
     class PredictionJobTaskError < StandardError; end
+    class TrainingJobTaskError < StandardError; end
 
     JSON_HEADERS = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }.freeze
 
@@ -17,7 +18,7 @@ module Bajor
 
     basic_auth ENV.fetch('BAJOR_BASIC_AUTH_USERNAME', 'bajor'), ENV.fetch('BAJOR_BASIC_AUTH_PASSWORD', 'bajor')
 
-    BAJOR_PREDICTION_BLOB_STORE_HOST_CONTAINER_URL = 'https://kadeactivelearning.blob.core.windows.net/predictions'
+    BAJOR_BLOB_STORE_HOST_CONTAINER_URL = 'https://kadeactivelearning.blob.core.windows.net/'
 
     def create_training_job(manifest_path)
       bajor_response = self.class.post(
@@ -67,10 +68,42 @@ module Bajor
         end
         # construct the prediction job results url - this could move to the bajor create prediction job api response
         job_results_path_suffix = job_results_env_setting['value']
-        "#{BAJOR_PREDICTION_BLOB_STORE_HOST_CONTAINER_URL}/#{job_results_path_suffix}/predictions.json"
+        "#{BAJOR_BLOB_STORE_HOST_CONTAINER_URL}/predictions/#{job_results_path_suffix}/predictions.json"
       elsif all_tasks_results.any?('failure') # one of the tasks failed :(
         message = "One or more prediction job tasks failed - see job log details from: #{self.class.base_uri}/prediction/job/#{job_id}"
         raise(PredictionJobTaskError, message)
+      elsif all_tasks_results.any?(&:nil?) # tasks are still running
+        nil
+      end
+    end
+
+    def training_job_results(job_id)
+      bajor_response = self.class.get("/training/job/#{job_id}", headers: JSON_HEADERS)
+
+      # bajor returns 200 on successful submission
+      # anything else here will raise for notification at the callsite
+      raise_error(bajor_response) if bajor_response.code != 200
+
+      # loop over the task responses to collect the task results
+      all_tasks_results = bajor_response['tasks'].map do |task|
+        task.dig('execution_info', 'result')
+      end
+
+      if all_tasks_results.all?('success') # all tasks done and all good
+        job_results_env_setting = bajor_response['common_environment_settings'].find do |env_setting|
+          env_setting['name'] == 'TRAINING_JOB_RESULTS_DIR'
+        end
+        # construct the training job results directory url
+        # this doesn't include a model checkpoint file path
+        # as we don't know the specific file name as it's constructed by the training system
+        # including values like loss and epoch
+        # see https://github.com/zooniverse/bajor/blob/66380956513db525b96e352557a35ae2e0b7e76d/azure/batch/scripts/train_model_finetune_on_catalog.py#L70
+        # so using the directory here is good enough for now
+        job_results_path_suffix = job_results_env_setting['value']
+        "#{BAJOR_BLOB_STORE_HOST_CONTAINER_URL}/training/#{job_results_path_suffix}/"
+      elsif all_tasks_results.any?('failure') # one of the tasks failed :(
+        message = "One or more prediction job tasks failed - see job log details from: #{self.class.base_uri}/training/job/#{job_id}"
+        raise(TrainingJobTaskError, message)
       elsif all_tasks_results.any?(&:nil?) # tasks are still running
         nil
       end
