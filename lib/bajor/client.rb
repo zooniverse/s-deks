@@ -22,6 +22,8 @@ module Bajor
     def create_training_job(manifest_path)
       bajor_response = self.class.post(
         '/training/jobs/',
+        # NOTE: Here we can augment the batch job run options via bajor
+        # via the `run_opts: '--wandb --debug'` etc, these could be set via ENV
         body: { manifest_path: manifest_path }.to_json,
         headers: JSON_HEADERS
       )
