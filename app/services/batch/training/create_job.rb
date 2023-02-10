@@ -5,15 +5,23 @@ require 'bajor/client'
 module Batch
   module Training
     class CreateJob
-      attr_accessor :manifest_path, :bajor_client
+      attr_accessor :training_job, :bajor_client
 
-      def initialize(manifest_path, bajor_client = Bajor::Client.new)
-        @manifest_path = manifest_path
+      def initialize(training_job, bajor_client = Bajor::Client.new)
+        @training_job = training_job
         @bajor_client = bajor_client
       end
 
       def run
-        bajor_client.create_training_job(manifest_path)
+        begin
+          bajor_job_url = bajor_client.create_training_job(training_job.manifest_path)
+          training_job.update(state: :submitted, service_job_url: bajor_job_url, message: '')
+        rescue Bajor::Client::Error => e
+          # mark the jobs as failed and record the client error message
+          training_job.update(state: :failed, message: e.message)
+        end
+        # return the training job as a result object
+        training_job
       end
     end
   end
