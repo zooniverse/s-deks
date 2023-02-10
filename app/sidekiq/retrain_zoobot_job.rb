@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 class RetrainZoobotJob
+  class Failure < StandardError; end
+
   include Sidekiq::Job
 
   RECENT_TRAINING_EXPORT_WINDOW = ENV.fetch('RECENT_TRAINING_EXPORT_WINDOW', 12).to_i
+  STORAGE_URL_PREFIX = 'https://kadeactivelearning.blob.core.windows.net'
+  TRAINING_JOB_MONITOR = ENV.fetch('TRAINING_JOB_MONITOR', 10).to_i
 
   def perform(workflow_id = nil)
     # allow the workflow_id to be optional and default a known value
@@ -26,12 +30,22 @@ class RetrainZoobotJob
       Export::TrainingData.new(training_data_export).run
     end
 
-    # submit the export training data manifest to the batch training service
-    blob_storage_manifest_path = training_data_export.storage_path_key
-    Batch::Training::CreateJob.new(blob_storage_manifest_path).run
+    # create a new training job record to track the batch training job
+    training_job = create_training_job(training_data_export.storage_path_key, workflow_id)
+    # submit the export training job to the batch training service
+    # this updates the training job state
+    training_job = Batch::Training::CreateJob.new(training_job).run
 
-    # TODO: kick off a job monitor here to check the status of the batch training job
-    # and report back to the user when the training job has completed / failed
+    # raise a failure here to rely on sidekiq to retry the job
+    # and notify us that there are issues with job submission
+    # Note: if this gets noisy we can look at silencing the error reporting
+    raise Failure, "failure when submiting the training job with id: #{training_job.id}" if training_job.failed?
+
+    # kick off a job monitor here that updates the
+    # prediction job resource with the job tasks results
+    TrainingJobMonitorJob.perform_in(TRAINING_JOB_MONITOR.minutes, training_job.id)
+
+    training_job
   end
 
   def find_recent_training_data_export(workflow_id)
@@ -54,5 +68,13 @@ class RetrainZoobotJob
     return false unless training_data_export
 
     training_data_export.created_at >= RECENT_TRAINING_EXPORT_WINDOW.hours.ago
+  end
+
+  def create_training_job(blob_storage_manifest_path, workflow_id)
+    TrainingJob.create!(
+      manifest_url: "#{STORAGE_URL_PREFIX}#{blob_storage_manifest_path}",
+      workflow_id: workflow_id,
+      state: :pending
+    )
   end
 end

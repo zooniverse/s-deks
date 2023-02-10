@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe RetrainZoobotJob, type: :job do
-  describe 'perform' do
+  describe 'perform', :focus do
     let(:job) { described_class.new }
     let(:workflow_id) { -1 }
     let(:export_training_data_double) { instance_double(Export::TrainingData) }
@@ -13,7 +13,8 @@ RSpec.describe RetrainZoobotJob, type: :job do
       allow(export_training_data_double).to receive(:run)
       allow(Export::TrainingData).to receive(:new).and_return(export_training_data_double)
       allow(batch_training_create_job_double).to receive(:run)
-      allow(Batch::Training::CreateJob).to receive(:new).and_return(batch_training_create_job_double)
+      allow(TrainingJob).to receive(:create!).and_call_original
+      allow(Batch::Training::CreateJob).to receive(:new).with(instance_of(TrainingJob)).and_return(batch_training_create_job_double)
     end
 
     it 'creates the training data export resource' do
@@ -25,9 +26,32 @@ RSpec.describe RetrainZoobotJob, type: :job do
       expect(export_training_data_double).to have_received(:run).once
     end
 
+    it 'creates the training job resource for monitoring' do
+      job.perform(workflow_id)
+      expect(TrainingJob).to have_received(:create!).once
+    end
+
     it 'runs the batch training create job service' do
       job.perform(workflow_id)
       expect(batch_training_create_job_double).to have_received(:run).once
+    end
+
+    it 'queues a TrainingJobMonitorJob in the background' do
+      allow(TrainingJobMonitorJob).to receive(:perform_in)
+      job.perform(workflow_id)
+      expect(TrainingJobMonitorJob).to have_received(:perform_in).with(10.minutes, training_job.id)
+    end
+
+    context 'when the training job failed to submit' do
+      before do
+        allow(training_job).to receive(:failed?).and_return(true)
+      end
+
+      it 'does not queue a TrainingJobMonitorJob in the background if job fails to submit', :aggregate_failures do
+        allow(TrainingJobMonitorJob).to receive(:perform_in)
+        expect { job.perform(training_job.id) }.to raise_error(RetrainZoobotJob::Failure)
+        expect(TrainingJobMonitorJob).not_to have_received(:perform_in)
+      end
     end
 
     describe 'allow the job to load the default context workflow id' do
