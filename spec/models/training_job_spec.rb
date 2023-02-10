@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe TrainingJob, type: :model do
+  let(:manifest_path) { '/path/manifest.csv' }
   let(:manifest_url) do
-    'https://manifest-host.zooniverse.org/manifest.csv'
+    "https://manifest-host.zooniverse.org#{manifest_path}"
   end
   let(:attributes) do
     { manifest_url: manifest_url }
@@ -29,5 +30,11 @@ RSpec.describe TrainingJob, type: :model do
     expect(model).to be_valid
     model.state = :finished
     expect(model).to be_invalid
+  end
+
+  describe '#manifest_path' do
+    it 'returns the url path' do
+      expect(model.manifest_path).to eq(manifest_path)
+    end
   end
 end
