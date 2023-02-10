@@ -19,4 +19,8 @@ class TrainingJob < ApplicationRecord
   def job_id
     File.basename(service_job_url)
   end
+
+  def manifest_path
+    URI.parse(manifest_url.chomp).path
+  end
 end
