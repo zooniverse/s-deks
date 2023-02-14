@@ -3,16 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe RetrainZoobotJob, type: :job do
-  describe 'perform', :focus do
+  describe 'perform' do
     let(:job) { described_class.new }
     let(:workflow_id) { -1 }
     let(:export_training_data_double) { instance_double(Export::TrainingData) }
     let(:batch_training_create_job_double) { instance_double(Batch::Training::CreateJob) }
+    let(:training_job) { TrainingJob.new(id: -1) }
 
     before do
       allow(export_training_data_double).to receive(:run)
       allow(Export::TrainingData).to receive(:new).and_return(export_training_data_double)
-      allow(batch_training_create_job_double).to receive(:run)
+      allow(batch_training_create_job_double).to receive(:run).and_return(training_job)
       allow(TrainingJob).to receive(:create!).and_call_original
       allow(Batch::Training::CreateJob).to receive(:new).with(instance_of(TrainingJob)).and_return(batch_training_create_job_double)
     end
