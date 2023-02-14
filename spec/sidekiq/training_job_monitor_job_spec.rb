@@ -40,6 +40,13 @@ RSpec.describe TrainingJobMonitorJob, type: :job do
         allow(training_job_monitor_result).to receive(:completed?).and_return(true)
       end
 
+      it 'schedules a process prediction creation job' do
+        allow(PredictionManifestExportJob).to receive(:perform_async)
+        job.perform(training_job.id)
+        # default no_args but it can be overridden to pass in a specific subject set id
+        expect(PredictionManifestExportJob).to have_received(:perform_async).with(no_args)
+      end
+
       it 'does not reschedule the monitor job' do
         allow(described_class).to receive(:perform_in)
         job.perform(training_job.id)
