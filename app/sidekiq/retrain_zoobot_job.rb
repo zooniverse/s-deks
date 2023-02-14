@@ -35,14 +35,16 @@ class RetrainZoobotJob
     # submit the export training job to the batch training service
     # this updates the training job state
     training_job = Batch::Training::CreateJob.new(training_job).run
+    debugger if training_job.nil?
 
     # raise a failure here to rely on sidekiq to retry the job
     # and notify us that there are issues with job submission
     # Note: if this gets noisy we can look at silencing the error reporting
     raise Failure, "failure when submiting the training job with id: #{training_job.id}" if training_job.failed?
 
-    # kick off a job monitor here that updates the
-    # prediction job resource with the job tasks results
+    # kick off a job monitor here that updates the training job resource with the job tasks results
+    # this background job will reschedule itself until the training job is completed
+    # and handle the completion / failure events for the training job
     TrainingJobMonitorJob.perform_in(TRAINING_JOB_MONITOR.minutes, training_job.id)
 
     training_job
