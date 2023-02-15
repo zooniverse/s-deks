@@ -18,7 +18,7 @@ module Bajor
 
     basic_auth ENV.fetch('BAJOR_BASIC_AUTH_USERNAME', 'bajor'), ENV.fetch('BAJOR_BASIC_AUTH_PASSWORD', 'bajor')
 
-    BAJOR_BLOB_STORE_HOST_CONTAINER_URL = 'https://kadeactivelearning.blob.core.windows.net/'
+    BAJOR_BLOB_STORE_HOST_CONTAINER_URL = 'https://kadeactivelearning.blob.core.windows.net'
 
     def create_training_job(manifest_path)
       bajor_response = self.class.post(
