@@ -8,6 +8,7 @@ RSpec.describe Batch::Prediction::ExportManifest do
     let(:subject_set_id) { 1 }
     let(:panoptes_client_double) { instance_double(Panoptes::Client) }
     let(:service) { described_class.new(subject_set_id, panoptes_client_double) }
+    let(:blob_double) { instance_double(ActiveStorage::Blob, key: '/path/to/manifest.json') }
 
     before do
       allow(panoptes_client_double).to receive(:subject_set).and_return({ 'links' => { 'project' => '1' } })
@@ -23,7 +24,7 @@ RSpec.describe Batch::Prediction::ExportManifest do
       allow(service).to receive(:fetch_subject_set_subject_ids)
       allow(service).to receive(:create_manifest_data)
       allow(service).to receive(:write_manifest_data_to_temp_file)
-      allow(service).to receive(:upload_manifest_data_to_blob_storage)
+      allow(service).to receive(:upload_manifest_data_to_blob_storage).and_return(blob_double)
     end
 
     it 'does not raise unexpected errors' do
@@ -37,6 +38,11 @@ RSpec.describe Batch::Prediction::ExportManifest do
       expect(service).to have_received(:create_manifest_data)
       expect(service).to have_received(:write_manifest_data_to_temp_file)
       expect(service).to have_received(:upload_manifest_data_to_blob_storage)
+    end
+
+    it 'stores the manifest_url for reuse' do
+      service.run
+      expect(service.manifest_url).to eq("#{Bajor::Client::BLOB_STORE_HOST_CONTAINER_URL}/predictions#{blob_double.key}")
     end
   end
 end

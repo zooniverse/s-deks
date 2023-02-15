@@ -7,6 +7,7 @@ module Batch
   module Prediction
     class ExportManifest
       attr_accessor :subject_set_id, :panoptes_client, :manifest_data, :subject_set, :project_id, :temp_file, :subject_set_subject_ids
+      attr_reader :manifest_url
 
       def initialize(subject_set_id, panoptes_client = Panoptes::Api.client)
         @subject_set_id = subject_set_id
@@ -30,7 +31,11 @@ module Batch
         write_manifest_data_to_temp_file
 
         # upload the manifest to blob storage
-        upload_manifest_data_to_blob_storage
+        blob = upload_manifest_data_to_blob_storage
+        # store the blob url for the uploaded prediction manifest
+        # these are public URLs, long term we might want to turn these
+        # into signed urls via blob.url etc.
+        @manifest_url = "#{Bajor::Client::BLOB_STORE_HOST_CONTAINER_URL}/predictions#{blob.key}"
       ensure
         # cleanup the temp file
         temp_file.close
