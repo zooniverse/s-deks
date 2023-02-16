@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe TrainingJob, type: :model do
   let(:manifest_path) { '/path/manifest.csv' }
   let(:manifest_url) do
-    "https://manifest-host.zooniverse.org#{manifest_path}"
+    "https://manifest-host.zooniverse.org/training#{manifest_path}"
   end
   let(:attributes) do
     { manifest_url: manifest_url }

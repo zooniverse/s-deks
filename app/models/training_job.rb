@@ -21,6 +21,9 @@ class TrainingJob < ApplicationRecord
   end
 
   def manifest_path
-    URI.parse(manifest_url.chomp).path
+    # in the training batch processing system the manifest path is relative to the training container
+    # so we need to remove the training container prefix here when we submit the batch job
+    manifest_url_path = URI.parse(manifest_url.chomp).path
+    manifest_url_path.delete_prefix("/#{Zoobot::Storage.container_name}")
   end
 end
