@@ -6,7 +6,6 @@ class RetrainZoobotJob
   include Sidekiq::Job
 
   RECENT_TRAINING_EXPORT_WINDOW = ENV.fetch('RECENT_TRAINING_EXPORT_WINDOW', 12).to_i
-  STORAGE_URL_PREFIX = 'https://kadeactivelearning.blob.core.windows.net'
   TRAINING_JOB_MONITOR = ENV.fetch('TRAINING_JOB_MONITOR', 10).to_i
 
   def perform(workflow_id = nil)
@@ -73,7 +72,7 @@ class RetrainZoobotJob
 
   def create_training_job(blob_storage_manifest_path, workflow_id)
     TrainingJob.create!(
-      manifest_url: "#{STORAGE_URL_PREFIX}#{blob_storage_manifest_path}",
+      manifest_url: "#{Bajor::Client::BLOB_STORE_HOST_CONTAINER_URL}#{blob_storage_manifest_path}",
       workflow_id: workflow_id,
       state: :pending
     )
