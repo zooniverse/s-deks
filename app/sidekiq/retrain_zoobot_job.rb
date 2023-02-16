@@ -30,7 +30,7 @@ class RetrainZoobotJob
     end
 
     # create a new training job record to track the batch training job
-    training_job = create_training_job(training_data_export.storage_path_key, workflow_id)
+    training_job = create_training_job(training_data_export.storage_path, workflow_id)
     # submit the export training job to the batch training service
     # this updates the training job state
     training_job = Batch::Training::CreateJob.new(training_job).run
