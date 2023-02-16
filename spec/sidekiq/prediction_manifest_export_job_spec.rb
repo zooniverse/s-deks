@@ -4,10 +4,9 @@ require 'rails_helper'
 
 RSpec.describe PredictionManifestExportJob, type: :job do
   describe 'perform' do
-    let(:export_manifest_double) { instance_double(Batch::Prediction::ExportManifest) }
+    let(:export_manifest_double) { instance_double(Batch::Prediction::ExportManifest, manifest_url: 'https://manifest/path.json') }
     let(:subject_set_id) { '1' }
     let(:context_double) { instance_double(Context, active_subject_set_id: subject_set_id) }
-    let(:prediction_job_double) { instance_double(PredictionJob, id: 1) }
     let(:job) { described_class.new }
 
     before do
@@ -16,7 +15,7 @@ RSpec.describe PredictionManifestExportJob, type: :job do
       allow(export_manifest_double).to receive(:run)
       allow(Batch::Prediction::ExportManifest).to receive(:new).and_return(export_manifest_double)
       allow(Context).to receive(:find).and_return(context_double)
-      allow(PredictionJob).to receive(:create!).and_return(prediction_job_double)
+      allow(PredictionJob).to receive(:create!).and_call_original
       allow(PredictionJobSubmissionJob).to receive(:perform_async)
     end
 
@@ -37,10 +36,13 @@ RSpec.describe PredictionManifestExportJob, type: :job do
 
     it 'creates a prediction job resource' do
       job.perform
-      expect(PredictionJob).to have_received(:create!)
+      create_args = { state: :pending, manifest_url: export_manifest_double.manifest_url, subject_set_id: subject_set_id, probability_threshold: 0.8, randomisation_factor: 0.1 }
+      expect(PredictionJob).to have_received(:create!).with(create_args)
     end
 
     it 'submits the prediction job for processing' do
+      prediction_job_double = instance_double(PredictionJob, id: 1)
+      allow(PredictionJob).to receive(:create!).and_return(prediction_job_double)
       job.perform
       expect(PredictionJobSubmissionJob).to have_received(:perform_async).with(prediction_job_double.id)
     end
