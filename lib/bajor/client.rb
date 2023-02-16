@@ -18,7 +18,7 @@ module Bajor
 
     basic_auth ENV.fetch('BAJOR_BASIC_AUTH_USERNAME', 'bajor'), ENV.fetch('BAJOR_BASIC_AUTH_PASSWORD', 'bajor')
 
-    BAJOR_BLOB_STORE_HOST_CONTAINER_URL = 'https://kadeactivelearning.blob.core.windows.net'
+    BLOB_STORE_HOST_CONTAINER_URL = 'https://kadeactivelearning.blob.core.windows.net'
 
     def create_training_job(manifest_path)
       bajor_response = self.class.post(
@@ -68,7 +68,7 @@ module Bajor
         end
         # construct the prediction job results url - this could move to the bajor create prediction job api response
         job_results_path_suffix = job_results_env_setting['value']
-        "#{BAJOR_BLOB_STORE_HOST_CONTAINER_URL}/predictions/#{job_results_path_suffix}/predictions.json"
+        "#{BLOB_STORE_HOST_CONTAINER_URL}/predictions/#{job_results_path_suffix}/predictions.json"
       elsif all_tasks_results.any?('failure') # one of the tasks failed :(
         message = "One or more prediction job tasks failed - see job log details from: #{self.class.base_uri}/prediction/job/#{job_id}"
         raise(PredictionJobTaskError, message)
@@ -100,7 +100,7 @@ module Bajor
         # see https://github.com/zooniverse/bajor/blob/66380956513db525b96e352557a35ae2e0b7e76d/azure/batch/scripts/train_model_finetune_on_catalog.py#L70
         # so using the directory here is good enough for now
         job_results_path_suffix = job_results_env_setting['value']
-        "#{BAJOR_BLOB_STORE_HOST_CONTAINER_URL}/training/#{job_results_path_suffix}/"
+        "#{BLOB_STORE_HOST_CONTAINER_URL}/training/#{job_results_path_suffix}/"
       elsif all_tasks_results.any?('failure') # one of the tasks failed :(
         message = "One or more prediction job tasks failed - see job log details from: #{self.class.base_uri}/training/job/#{job_id}"
         raise(TrainingJobTaskError, message)
