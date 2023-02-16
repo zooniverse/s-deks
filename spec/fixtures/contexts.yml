@@ -3,4 +3,5 @@ galaxy_zoo_active_learning_project:
   workflow_id: 123
   project_id: 39
   active_subject_set_id: 55
+  pool_subject_set_id: 66
 
