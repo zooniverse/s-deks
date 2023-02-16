@@ -3,19 +3,28 @@
 class PredictionManifestExportJob
   include Sidekiq::Job
 
-  def perform(active_subject_set_id = nil)
-    # default to the GZ context active subject set id, but allow it to be overidden via job params
-    active_subject_set_id ||= Context.find(ENV.fetch('ZOOBOT_GZ_CONTEXT_ID')).active_subject_set_id
+  def perform(pool_subject_set_id = nil)
+    # default to the GZ context all subjects pool subject set id
+    # but allow it to be overidden via job params
+    context = Context.find(ENV.fetch('ZOOBOT_GZ_CONTEXT_ID'))
+    pool_subject_set_id ||= context.pool_subject_set_id
 
-    # NOTE: if we have a failure anywere after this point sadly we pay the cost to recreate the manifest
+    # NOTE: if we have a failure anywhere after this point sadly we pay the cost to recreate the manifest
     # ideally we'd add a PredictionExport resource model to track the creation
     # and some smarts here to re-use an existing, recent manifest (perhaps 12 hours?)
     # to avoid reprocessing the same data if we have a job failure (creation / submissione etc)
-    export_manifest_service = Batch::Prediction::ExportManifest.new(active_subject_set_id)
+    export_manifest_service = Batch::Prediction::ExportManifest.new(pool_subject_set_id)
     export_manifest_service.run
 
     # create a prediction job resource
-    prediction_job = PredictionJob.create!(prediction_job_params(active_subject_set_id, export_manifest_service.manifest_url))
+    prediction_job = PredictionJob.create!(
+      prediction_job_params(
+        # use the context's active subject set as the target for prediction results processing, i.e. add/remove subjects from this set
+        context.active_subject_set_id,
+        # use the newly minted manifest url from the export manifest service
+        export_manifest_service.manifest_url
+      )
+    )
 
     # submit the prediction job for processing
     PredictionJobSubmissionJob.perform_async(prediction_job.id)
