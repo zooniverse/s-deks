@@ -55,6 +55,8 @@ class PredictionJobsController < ApplicationController
     prediction_job_params.with_defaults(
       state: :pending,
       # use the project context default active subject_set_id for each env
+      # as the target for any prediction results processing,
+      # i.e. add / remove subjects to/from this active (volunteer facing) subject set
       subject_set_id: Context.find(ENV.fetch('ZOOBOT_GZ_CONTEXT_ID')).active_subject_set_id,
       # NOTE: the below defaults could also move to the context model as required
       # threshold on subjects 80% predicted not likely to be smooth
