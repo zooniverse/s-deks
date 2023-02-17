@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::API
   rescue_from LabelExtractors::GalaxyZoo::UnknownTaskKey, LabelExtractors::Finder::UnknownExtractor do |e|
     # keep notifying HB about these errors - longer term remove if noisy
