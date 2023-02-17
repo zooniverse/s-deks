@@ -56,12 +56,19 @@ module Format
     end
 
     def create_grouped_reductions
-      grouped_subject_reductions.each do |grouped_reduction|
-        grouped_reductions << GroupedReduction.new(
-          grouped_reduction.subject_id,
-          grouped_reduction.unique_id,
-          merge_reduction_labels(grouped_reduction)
-        )
+      # avoid the AR cache for this query to avoid excess object allocations
+      ActiveRecord::Base.uncached do
+        # can't use a find_each / batches approach here as the id isn't in the aggregate query :(
+        # for now we'll just load all the reduction aggregates into memory
+        # this should approximate the number of known subjects for the workflow
+        # as it combines the number of reduction tasks to the unique subjects
+        grouped_subject_reductions.each do |grouped_reduction|
+          grouped_reductions << GroupedReduction.new(
+            grouped_reduction.subject_id,
+            grouped_reduction.unique_id,
+            merge_reduction_labels(grouped_reduction)
+          )
+        end
       end
     end
 
