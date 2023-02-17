@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require 'honeybadger/ruby'
+
 class TrainingJobMonitorJob
+  class TrainingFailure < StandardError; end
   include Sidekiq::Job
 
   MONITOR_JOB_RESCHEDULE_DELAY = ENV.fetch('MONITOR_JOB_RESCHEDULE_DELAY', 1).to_i
@@ -13,8 +16,13 @@ class TrainingJobMonitorJob
 
     training_job = Batch::Training::MonitorJob.new(training_job).run
 
-    # avoid rescheduling the job if it's failed or completed
-    return if training_job.failed?
+    if training_job.failed?
+      # notify HB about these errors - longer term remove if noisy
+      Honeybadger.notify(
+        TrainingFailure.new("Training Job failed, id: #{training_job.id}, message: #{training_job.message}")
+      )
+      return # avoid rescheduling the job if it's failed or completed
+    end
 
     if training_job.completed?
       # As the training job is finished- we want to run the prediction system using the newly trained model

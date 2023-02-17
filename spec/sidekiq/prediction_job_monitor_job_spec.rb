@@ -60,6 +60,12 @@ RSpec.describe PredictionJobMonitorJob, type: :job do
         job.perform(prediction_job.id)
         expect(described_class).not_to have_received(:perform_in)
       end
+
+      it 'reports the failure error to HB' do
+        allow(Honeybadger).to receive(:notify)
+        job.perform(prediction_job.id)
+        expect(Honeybadger).to have_received(:notify).with(instance_of(PredictionJobMonitorJob::PredictionFailure))
+      end
     end
 
     context 'when the prediction job has been already completed' do

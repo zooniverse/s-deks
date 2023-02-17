@@ -65,6 +65,12 @@ RSpec.describe TrainingJobMonitorJob, type: :job do
         job.perform(training_job.id)
         expect(described_class).not_to have_received(:perform_in)
       end
+
+      it 'reports the failure error to HB' do
+        allow(Honeybadger).to receive(:notify)
+        job.perform(training_job.id)
+        expect(Honeybadger).to have_received(:notify).with(instance_of(TrainingJobMonitorJob::TrainingFailure))
+      end
     end
 
     context 'when the training job has been already completed' do
