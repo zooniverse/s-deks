@@ -37,5 +37,17 @@ RSpec.describe TrainingDataSyncerJob, type: :job do
       job.perform(subject_to_sync.id)
       expect(training_data_sync_service_2).to have_received(:run).once
     end
+
+    context 'when the azure storeage returns an error' do
+      before do
+        allow(training_data_sync_service_1).to receive(:run).and_raise(Storage::TrainingDataSync::Failure)
+        allow(described_class).to receive(:perform_in)
+      end
+
+      it 'rescuedules the job' do
+        job.perform(subject_to_sync.id)
+        expect(described_class).to have_received(:perform_in).with(ActiveSupport::Duration, subject_to_sync.id)
+      end
+    end
   end
 end

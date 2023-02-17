@@ -2,6 +2,8 @@
 
 module Storage
   class TrainingDataSync
+    class Failure < StandardError; end
+
     COPY_OPERATION_OK_CODES = %w[success pending].freeze
     PROD_CONTAINER_URL_PREFIX = 'https://panoptesuploads.blob.core.windows.net/public'
     STAGING_CONTAINER_URL_PREFIX = 'https://panoptesuploadsstaging.blob.core.windows.net/public'
@@ -20,6 +22,9 @@ module Storage
         blob_destination_path,
         src_blob_uri_from_src_url
       )
+    # rescue a copy operation failure from a race condition with the already copied / pending check above.
+    rescue Azure::Core::Http::HTTPError => e
+      raise Failure, "Failed to copy #{src_image_url} to #{blob_destination_path}: #{e.message}"
     end
 
     def image_url_blob_already_copied_or_pending
