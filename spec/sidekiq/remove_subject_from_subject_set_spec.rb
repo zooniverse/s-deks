@@ -24,5 +24,29 @@ RSpec.describe RemoveSubjectFromSubjectSetJob, type: :job do
       job.perform(subject_id, subject_set_id)
       expect(panoptes_endpoint_double).to have_received(:delete).with("/subject_sets/#{subject_set_id}/links/subjects/#{subject_id}")
     end
+
+    context 'when the server has an error' do
+      let(:error_msg) { '{"errors"=>[{"message"=>"Attempted to update a stale object: SubjectSet."}]}' }
+
+      before do
+        # https://github.com/zooniverse/panoptes-client.rb/blob/bf0cffdf87b96bc97ed1924a09bb924d7c80d79d/lib/panoptes/endpoints/base_endpoint.rb#L75
+        allow(panoptes_endpoint_double).to receive(:delete).and_raise(Panoptes::Client::ServerError, error_msg)
+        allow(job).to receive(:sleep).and_return(0)
+      end
+
+      it 'retries up to the number of attempts (default is 3)', :aggregate_failures do
+        expect { job.perform(subject_id, subject_set_id) }.to raise_error(Panoptes::Client::ServerError, error_msg)
+        expect(panoptes_endpoint_double).to have_received(:delete).with("/subject_sets/#{subject_set_id}/links/subjects/#{subject_id}").exactly(3).times
+      end
+
+      it 'sleeps for a short duration to space out the retry operations', :aggregate_failures do
+        expect { job.perform(subject_id, subject_set_id) }.to raise_error(Panoptes::Client::ServerError, error_msg)
+        expect(job).to have_received(:sleep).exactly(2).times
+      end
+
+      it 're-raises the error after exhausting all retries' do
+        expect { job.perform(subject_id, subject_set_id, 1) }.to raise_error(Panoptes::Client::ServerError, error_msg)
+      end
+    end
   end
 end
