@@ -117,6 +117,7 @@ RSpec.describe PredictionResults::Process do
       # ensure we add all the under threshold subjects to the active set
       process_results_service.randomisation_factor = 1.0
       process_results_service.under_threshold_subject_ids = [under_threshold_subject_id]
+      process_results_service.over_threshold_subject_ids = [over_threshold_subject_id]
     end
 
     it 'calls the AddSubjectToSubjectSet worker with the sampled under threshold data' do

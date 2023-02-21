@@ -53,7 +53,10 @@ module PredictionResults
     end
 
     def add_random_under_threshold_subjects_to_active_set
-      num_random_subject_ids_to_sample = (under_threshold_subject_ids.count * randomisation_factor).to_i
+      # don't skew the prediction results by adding too many under threshold images
+      # ensure we only use apply the randomisation factor to the count of over threshold subject ids
+      # i.e. 10% of the number of over threshold subject ids
+      num_random_subject_ids_to_sample = (over_threshold_subject_ids.count * randomisation_factor).to_i
       random_under_threshold_subject_ids = under_threshold_subject_ids.sample(num_random_subject_ids_to_sample)
       bulk_job_args = random_under_threshold_subject_ids.map { |subject_id| [subject_id, subject_set_id] }
       AddSubjectToSubjectSetJob.perform_bulk(bulk_job_args)
