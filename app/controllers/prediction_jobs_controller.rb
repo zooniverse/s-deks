@@ -62,7 +62,7 @@ class PredictionJobsController < ApplicationController
       # threshold on subjects 80% predicted not likely to be smooth
       probability_threshold: ENV.fetch('PREDICTION_JOB_PROBABILITY_THRESHOLD_DEFAULT', '0.8').to_f,
       # attempt to add 10% of the 'smooth' prediction subjects for some randomisation of the data (avoid overfitting the model etc)
-      randomisation_factor: ENV.fetch('PREDICTION_JOB_RANDOMISATION_FACTOR_DEFAULT', '0.1').to_f
+      randomisation_factor: ENV.fetch('PREDICTION_JOB_RANDOMISATION_FACTOR_DEFAULT', '0.2').to_f
     )
   end
 end

@@ -102,7 +102,7 @@ RSpec.describe 'PredictionJobs', type: :request do
     it 'creates the PredictionJob resource with default values' do
       allow(PredictionJob).to receive(:create!).and_return(prediciton_job_result)
       create_request
-      expected_attributes = { manifest_url: manifest_url, state: :pending, probability_threshold: 0.8, randomisation_factor: 0.1, subject_set_id: 55}.stringify_keys
+      expected_attributes = { manifest_url: manifest_url, state: :pending, probability_threshold: 0.8, randomisation_factor: 0.2, subject_set_id: 55}.stringify_keys
       expect(PredictionJob).to have_received(:create!).with(expected_attributes)
     end
 
@@ -139,12 +139,12 @@ RSpec.describe 'PredictionJobs', type: :request do
         {
           manifest_url: manifest_url,
           probability_threshold: 0.8,
-          randomisation_factor: 0.1,
+          randomisation_factor: 0.2,
           subject_set_id: '1'
         }
       end
       let(:expected_params) do
-        { manifest_url: manifest_url, state: :pending, probability_threshold: 0.8, randomisation_factor: 0.1, subject_set_id: '1' }.stringify_keys
+        { manifest_url: manifest_url, state: :pending, probability_threshold: 0.8, randomisation_factor: 0.2, subject_set_id: '1' }.stringify_keys
       end
 
       it 'creates the prediction job with the optional params' do

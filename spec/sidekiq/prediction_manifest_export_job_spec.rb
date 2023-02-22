@@ -37,7 +37,7 @@ RSpec.describe PredictionManifestExportJob, type: :job do
 
     it 'creates a prediction job resource' do
       job.perform
-      create_args = { state: :pending, manifest_url: export_manifest_double.manifest_url, subject_set_id: active_subject_set_id, probability_threshold: 0.8, randomisation_factor: 0.1 }
+      create_args = { state: :pending, manifest_url: export_manifest_double.manifest_url, subject_set_id: active_subject_set_id, probability_threshold: 0.8, randomisation_factor: 0.2 }
       expect(PredictionJob).to have_received(:create!).with(create_args)
     end
 

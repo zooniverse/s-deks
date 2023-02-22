@@ -252,7 +252,7 @@ Returns a JSON payload listing the last 10 prediciton jobs resources
     'results_url': 'https://container.blob.core.windows.net/predictions/jobs/job_id/results/predictions.csv',
     'subject_set_id': 110267,
     'probability_threshold': 0.8,
-    'randomisation_factor': 0.1
+    'randomisation_factor': 0.2
   }
 ]
 ```
@@ -275,7 +275,7 @@ Returns a JSON payload describing the prediction job resource
     'results_url': 'https://container.blob.core.windows.net/predictions/jobs/job_id/results/predictions.csv',
     'subject_set_id': 110267,
     'probability_threshold': 0.8,
-    'randomisation_factor': 0.1
+    'randomisation_factor': 0.2
   }
 ```
 
