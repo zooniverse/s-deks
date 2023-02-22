@@ -120,7 +120,7 @@ spec:
           resources:
             requests:
               memory: "500Mi"
-              cpu: "100m"
+              cpu: "500m"
             limits:
               memory: "2000Mi"
               cpu: "2000m"
@@ -152,6 +152,19 @@ spec:
             # directory location on host node temp disk
             path: /mnt/kade-production-sidekiq-data
             type: DirectoryOrCreate
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kade-production-sidekiq
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: kade-production-sidekiq
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 95
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
