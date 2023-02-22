@@ -9,7 +9,6 @@ data:
   PORT: '80'
   RAILS_ENV: 'production'
   RAILS_LOG_TO_STDOUT: 'true'
-  RAILS_MAX_THREADS: '5'
   REDIS_URL: 'redis://kade-production-redis:6379/0'
   TRAINING_PATH_PREFIX: '/mnt/batch/tasks/fsmounts/training/catalogues/production/images'
   ZOOBOT_GZ_CONTEXT_ID: '1'
@@ -77,6 +76,8 @@ spec:
             value: '__IMAGE_TAG__'
           - name: BAJOR_API_URL
             value: 'http://bajor-production-app'
+          - name: RAILS_MAX_THREADS
+            value: '5'
           envFrom:
           - secretRef:
               name: kade-production-env-vars
@@ -134,6 +135,8 @@ spec:
             value: '__IMAGE_TAG__'
           - name: BAJOR_API_URL
             value: 'http://bajor-production-app'
+          - name: RAILS_MAX_THREADS
+            value: '8'
           envFrom:
           - secretRef:
               name: kade-production-env-vars
