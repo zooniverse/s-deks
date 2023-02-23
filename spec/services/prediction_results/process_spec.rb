@@ -61,9 +61,9 @@ RSpec.describe PredictionResults::Process do
 
     it 'adds random subjects under the probability threshold to the active set' do
       # this ensures we add variety to volunteers and keep 'normal' data in the training set so we don't overfit the model
-      allow(process_results_service).to receive(:add_random_under_threshold_subjects_to_active_set)
+      allow(process_results_service).to receive(:add_random_spice_subjects_to_active_set)
       process_results_service.run
-      expect(process_results_service).to have_received(:add_random_under_threshold_subjects_to_active_set)
+      expect(process_results_service).to have_received(:add_random_spice_subjects_to_active_set)
     end
   end
 
@@ -76,13 +76,22 @@ RSpec.describe PredictionResults::Process do
       process_results_service.partition_results
       expect(process_results_service.over_threshold_subject_ids).to match_array([over_threshold_subject_id])
       expect(process_results_service.under_threshold_subject_ids).to match_array([under_threshold_subject_id])
+      expect(process_results_service.random_spice_subject_ids).to be_empty
     end
 
-    it 'allows the probability_thresold to be set a runtime', :aggregate_failures  do
+    it 'allows the probability_threshold to be set a runtime', :aggregate_failures do
       process_results_service.probability_threshold = 1.0
       process_results_service.partition_results
       expect(process_results_service.under_threshold_subject_ids).to match_array([over_threshold_subject_id, under_threshold_subject_id])
       expect(process_results_service.over_threshold_subject_ids).to be_empty
+    end
+
+    it 'correctly sets the random spice subject ids', :aggregate_failures do
+      process_results_service.randomisation_factor = 1.0
+      process_results_service.partition_results
+      expect(process_results_service.over_threshold_subject_ids).to match_array([over_threshold_subject_id])
+      expect(process_results_service.under_threshold_subject_ids).to be_empty
+      expect(process_results_service.random_spice_subject_ids).to match_array([under_threshold_subject_id])
     end
   end
 
@@ -95,7 +104,7 @@ RSpec.describe PredictionResults::Process do
     it 'calls the AddSubjectToSubjectSet worker correctly' do
       allow(AddSubjectToSubjectSetJob).to receive(:perform_bulk)
       process_results_service.move_over_threshold_subjects_to_active_set
-      expect(AddSubjectToSubjectSetJob).to have_received(:perform_bulk).with([[over_threshold_subject_id, active_subject_set_id]])
+      expect(AddSubjectToSubjectSetJob).to have_received(:perform_bulk).with([[[over_threshold_subject_id], active_subject_set_id]])
     end
   end
 
@@ -108,22 +117,19 @@ RSpec.describe PredictionResults::Process do
     it 'calls the RemoveSubjectFromSubjectSet worker correctly' do
       allow(RemoveSubjectFromSubjectSetJob).to receive(:perform_bulk)
       process_results_service.remove_under_threshold_subjects_from_active_set
-      expect(RemoveSubjectFromSubjectSetJob).to have_received(:perform_bulk).with([[under_threshold_subject_id, active_subject_set_id]])
+      expect(RemoveSubjectFromSubjectSetJob).to have_received(:perform_bulk).with([[[under_threshold_subject_id], active_subject_set_id]])
     end
   end
 
   describe '#add_random_under_threshold_subjects_to_active_set' do
     before do
-      # ensure we add all the under threshold subjects to the active set
-      process_results_service.randomisation_factor = 1.0
-      process_results_service.under_threshold_subject_ids = [under_threshold_subject_id]
-      process_results_service.over_threshold_subject_ids = [over_threshold_subject_id]
+      process_results_service.random_spice_subject_ids = [under_threshold_subject_id]
     end
 
     it 'calls the AddSubjectToSubjectSet worker with the sampled under threshold data' do
       allow(AddSubjectToSubjectSetJob).to receive(:perform_bulk)
-      process_results_service.add_random_under_threshold_subjects_to_active_set
-      expect(AddSubjectToSubjectSetJob).to have_received(:perform_bulk).with([[under_threshold_subject_id, active_subject_set_id]])
+      process_results_service.add_random_spice_subjects_to_active_set
+      expect(AddSubjectToSubjectSetJob).to have_received(:perform_bulk).with([[[under_threshold_subject_id], active_subject_set_id]])
     end
   end
 end

@@ -4,9 +4,11 @@ require 'remote_file/reader'
 
 module PredictionResults
   class Process
+    SUBJECT_ACTION_API_BATCH_SIZE = ENV.fetch('SUBJECT_ACTION_API_BATCH_SIZE', '10').to_i
+
     attr_accessor :results_url, :subject_set_id, :probability_threshold,
                   :over_threshold_subject_ids, :under_threshold_subject_ids,
-                  :randomisation_factor, :prediction_data
+                  :random_spice_subject_ids, :randomisation_factor, :prediction_data
 
     def initialize(results_url:, subject_set_id:, probability_threshold: 0.8, randomisation_factor: 0.2)
       @results_url = results_url
@@ -15,6 +17,7 @@ module PredictionResults
       @randomisation_factor = randomisation_factor
       @over_threshold_subject_ids = []
       @under_threshold_subject_ids = []
+      @random_spice_subject_ids = []
       @prediction_data = nil
     end
 
@@ -25,9 +28,13 @@ module PredictionResults
         prediction_data_results = JSON.parse(results_file.read)
         @prediction_data = prediction_data_results['data']
         partition_results
+        # TODO: ensure the resulting sets are mutually exclusive to avoid
+        # running more jobs / API calls than needed
+        # e.g. remove under threshold ids may conflict with the add random ones
+        # do a set diff operation to ensure we don't add the same subject ids
         move_over_threshold_subjects_to_active_set
         remove_under_threshold_subjects_from_active_set
-        add_random_under_threshold_subjects_to_active_set
+        add_random_spice_subjects_to_active_set
       end
     end
 
@@ -40,26 +47,39 @@ module PredictionResults
         @over_threshold_subject_ids << subject_id if probability >= probability_threshold
         @under_threshold_subject_ids << subject_id if probability < probability_threshold
       end
+      # now add some 'spice' to the results by adding some random under threshold subject ids
+      # but don't skew the prediction results by adding too many under threshold images
+      # ensure we only use apply the randomisation factor to the count of over threshold subject ids
+      # i.e. 20% of the number of over threshold subject ids
+      num_random_subject_ids_to_sample = (over_threshold_subject_ids.count * randomisation_factor).to_i
+      @random_spice_subject_ids = under_threshold_subject_ids.sample(num_random_subject_ids_to_sample)
+
+      # ensure the random subject ids aren't in the under_threshold_subject_ids list
+      @under_threshold_subject_ids = under_threshold_subject_ids - random_spice_subject_ids
     end
 
     def move_over_threshold_subjects_to_active_set
-      bulk_job_args = over_threshold_subject_ids.map { |subject_id| [subject_id, subject_set_id] }
-      AddSubjectToSubjectSetJob.perform_bulk(bulk_job_args)
+      AddSubjectToSubjectSetJob.perform_bulk(
+        api_batch_bulk_job_args(over_threshold_subject_ids)
+      )
     end
 
     def remove_under_threshold_subjects_from_active_set
-      bulk_job_args = under_threshold_subject_ids.map { |subject_id| [subject_id, subject_set_id] }
-      RemoveSubjectFromSubjectSetJob.perform_bulk(bulk_job_args)
+      RemoveSubjectFromSubjectSetJob.perform_bulk(
+        api_batch_bulk_job_args(under_threshold_subject_ids)
+      )
     end
 
-    def add_random_under_threshold_subjects_to_active_set
-      # don't skew the prediction results by adding too many under threshold images
-      # ensure we only use apply the randomisation factor to the count of over threshold subject ids
-      # i.e. 10% of the number of over threshold subject ids
-      num_random_subject_ids_to_sample = (over_threshold_subject_ids.count * randomisation_factor).to_i
-      random_under_threshold_subject_ids = under_threshold_subject_ids.sample(num_random_subject_ids_to_sample)
-      bulk_job_args = random_under_threshold_subject_ids.map { |subject_id| [subject_id, subject_set_id] }
-      AddSubjectToSubjectSetJob.perform_bulk(bulk_job_args)
+    def add_random_spice_subjects_to_active_set
+      AddSubjectToSubjectSetJob.perform_bulk(
+        api_batch_bulk_job_args(random_spice_subject_ids)
+      )
+    end
+
+    def api_batch_bulk_job_args(subject_ids)
+      subject_ids
+        .each_slice(SUBJECT_ACTION_API_BATCH_SIZE)
+        .map { |batch_subject_ids| [batch_subject_ids, subject_set_id] }
     end
   end
 end
