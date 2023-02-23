@@ -57,5 +57,7 @@ Rails.application.routes.draw do
 
   resources :training_jobs, only: %i[index show]
 
+  resources :contexts, only: %i[index show]
+
   # all other routes go here
 end
