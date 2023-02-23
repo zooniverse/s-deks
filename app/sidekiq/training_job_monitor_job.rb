@@ -36,7 +36,7 @@ class TrainingJobMonitorJob
       PredictionManifestExportJob.perform_async(context.id)
     else
       # reschedule this job to run again in 1 minute
-      TrainingJobMonitorJob.perform_in(MONITOR_JOB_RESCHEDULE_DELAY.minute, training_job.id)
+      TrainingJobMonitorJob.perform_in(MONITOR_JOB_RESCHEDULE_DELAY.minute, training_job.id, context.id)
     end
   end
 end

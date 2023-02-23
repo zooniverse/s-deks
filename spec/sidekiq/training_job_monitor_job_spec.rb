@@ -34,7 +34,7 @@ RSpec.describe TrainingJobMonitorJob, type: :job do
       allow(training_job_monitor_result).to receive(:completed?).and_return(false)
       allow(described_class).to receive(:perform_in)
       job.perform(training_job.id, context.id)
-      expect(described_class).to have_received(:perform_in).with(1.minute, training_job_monitor_result.id)
+      expect(described_class).to have_received(:perform_in).with(1.minute, training_job_monitor_result.id, context.id)
     end
 
     context 'when the monitor job returns a completed job' do
