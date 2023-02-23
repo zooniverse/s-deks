@@ -7,4 +7,4 @@ zoobot_training_job:
   queue: 'high'
   args: '1' # the context_id to train on (holds the workflow, active and pool subject set ids)
   description: 'Scheduled Worker to re-train GZ Zoobot on latest data'
-  status: 'enabled'
+  status: <%= Rails.env.production? ? 'enabled' : 'disabled' %> # only enable this in production, manually schedule via the sidekiq UI in other envs
