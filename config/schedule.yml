@@ -1,8 +1,10 @@
 # config/schedule.yml
 
+# this file can be used to paramterize RetrainZoobotJob for different contexts (workflow and subject sets)
 zoobot_training_job:
   cron: "1 0 * * 0" # sunday 1 min past midnight https://crontab.guru/#1_0_*_*_0
   class: 'RetrainZoobotJob'
   queue: 'high'
+  args: '1' # the context_id to train on (holds the workflow, active and pool subject set ids)
   description: 'Scheduled Worker to re-train GZ Zoobot on latest data'
-  status: 'disabled' # currently disable until we have transfer learning in place
+  status: 'enabled'
