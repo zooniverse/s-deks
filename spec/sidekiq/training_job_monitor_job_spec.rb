@@ -4,6 +4,8 @@ require 'rails_helper'
 
 RSpec.describe TrainingJobMonitorJob, type: :job do
   describe 'perform' do
+    fixtures :contexts
+
     let(:training_job) do
       TrainingJob.create(
         service_job_url: 'https://bajor-staging.zooniverse.org/training/job/64bf4fab-ed6d-4f9a-b8ae-004086e3676f',
@@ -13,8 +15,8 @@ RSpec.describe TrainingJobMonitorJob, type: :job do
       )
     end
     let(:training_job_monitor_result) { TrainingJob.new(id: -1) }
-
     let(:training_job_monitor_service) { instance_double(Batch::Training::MonitorJob) }
+    let(:context) { Context.first }
     let(:job) { described_class.new }
 
     before do
@@ -24,35 +26,32 @@ RSpec.describe TrainingJobMonitorJob, type: :job do
     end
 
     it 'runs the training job monitor service' do
-      job.perform(training_job.id)
+      job.perform(training_job.id, context.id)
       expect(training_job_monitor_service).to have_received(:run)
     end
 
     it 'reschedules itself if the job has not fininshed' do
       allow(training_job_monitor_result).to receive(:completed?).and_return(false)
       allow(described_class).to receive(:perform_in)
-      job.perform(training_job.id)
+      job.perform(training_job.id, context.id)
       expect(described_class).to have_received(:perform_in).with(1.minute, training_job_monitor_result.id)
     end
 
     context 'when the monitor job returns a completed job' do
-      let(:context_double) { instance_double(Context, id: 1, pool_subject_set_id: 1) }
-
       before do
         allow(training_job_monitor_result).to receive(:completed?).and_return(true)
         allow(training_job_monitor_result).to receive(:workflow_id).and_return(1)
-        allow(Context).to receive(:find_by).with(workflow_id: training_job_monitor_result.workflow_id).and_return(context_double)
       end
 
       it 'schedules a process prediction creation job with the correct pool_subject_set_id' do
         allow(PredictionManifestExportJob).to receive(:perform_async)
-        job.perform(training_job.id)
-        expect(PredictionManifestExportJob).to have_received(:perform_async).with(context_double.id)
+        job.perform(training_job.id, context.id)
+        expect(PredictionManifestExportJob).to have_received(:perform_async).with(context.id)
       end
 
       it 'does not reschedule the monitor job' do
         allow(described_class).to receive(:perform_in)
-        job.perform(training_job.id)
+        job.perform(training_job.id, context.id)
         expect(described_class).not_to have_received(:perform_in)
       end
     end
@@ -65,13 +64,13 @@ RSpec.describe TrainingJobMonitorJob, type: :job do
 
       it 'does not reschedule the monitor job' do
         allow(described_class).to receive(:perform_in)
-        job.perform(training_job.id)
+        job.perform(training_job.id, context.id)
         expect(described_class).not_to have_received(:perform_in)
       end
 
       it 'reports the failure error to HB' do
         allow(Honeybadger).to receive(:notify)
-        job.perform(training_job.id)
+        job.perform(training_job.id, context.id)
         expect(Honeybadger).to have_received(:notify).with(instance_of(TrainingJobMonitorJob::TrainingFailure))
       end
     end
@@ -82,7 +81,7 @@ RSpec.describe TrainingJobMonitorJob, type: :job do
       end
 
       it 'does not run the training job monitor service' do
-        job.perform(training_job.id)
+        job.perform(training_job.id, context.id)
         expect(training_job_monitor_service).not_to have_received(:run)
       end
     end

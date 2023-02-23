@@ -8,8 +8,9 @@ class TrainingJobMonitorJob
 
   MONITOR_JOB_RESCHEDULE_DELAY = ENV.fetch('MONITOR_JOB_RESCHEDULE_DELAY', 1).to_i
 
-  def perform(training_job_id)
+  def perform(training_job_id, context_id)
     training_job = TrainingJob.find(training_job_id)
+    context = Context.find(context_id)
 
     # short circuit if we run this on a job that's already done
     return if training_job.completed?
@@ -29,10 +30,9 @@ class TrainingJobMonitorJob
       # so we call the prediction manifest export job to create a manifest and submit it for batch processing
       #
       # Ensure the prediction system runs over the correct subject sets
-      # pool == source data for prediciton
-      # active == target for results
-      # this information is encoded into the context resource for the workflow
-      context = Context.find_by(workflow_id: training_job.workflow_id)
+      # this information is encoded into the context resource for the workflow, i.e. the
+      # pool subject set is the source data for prediciton
+      # active subject set is the target for results
       PredictionManifestExportJob.perform_async(context.id)
     else
       # reschedule this job to run again in 1 minute
