@@ -3,9 +3,9 @@
 class AddSubjectToSubjectSetJob
   include Sidekiq::Job
 
-  def perform(subject_id, subject_set_id, max_retries=3)
+  def perform(subject_ids, subject_set_id, max_retries=3)
     retries ||= 1
-    Panoptes::Api.client.add_subjects_to_subject_set(subject_set_id, [subject_id])
+    Panoptes::Api.client.add_subjects_to_subject_set(subject_set_id, Array.wrap(subject_ids))
   rescue Panoptes::Client::ServerError => e
     # handle intermittent API errors like the following
     # e.g. {"errors"=>[{"message"=>"Attempted to update a stale object: SubjectSet."}]}

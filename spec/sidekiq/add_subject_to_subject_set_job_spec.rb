@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe AddSubjectToSubjectSetJob, type: :job do
   describe 'perform' do
-    let(:subject_id) { 1 }
+    let(:subject_ids) { [1, 2] }
     let(:subject_set_id) { 2 }
     let(:job) { described_class.new }
     let(:panoptes_client_double) { instance_double(Panoptes::Client) }
@@ -17,8 +17,8 @@ RSpec.describe AddSubjectToSubjectSetJob, type: :job do
     end
 
     it 'calls the api client to add the subject to the subject set' do
-      job.perform(subject_id, subject_set_id)
-      expect(panoptes_client_double).to have_received(:add_subjects_to_subject_set).with(subject_set_id, [subject_id])
+      job.perform(subject_ids, subject_set_id)
+      expect(panoptes_client_double).to have_received(:add_subjects_to_subject_set).with(subject_set_id, subject_ids)
     end
 
     context 'when the server has an error' do
@@ -31,17 +31,17 @@ RSpec.describe AddSubjectToSubjectSetJob, type: :job do
       end
 
       it 'retries up to the number of attempts (default is 3)', :aggregate_failures do
-        expect { job.perform(subject_id, subject_set_id) }.to raise_error(Panoptes::Client::ServerError, error_msg)
-        expect(panoptes_client_double).to have_received(:add_subjects_to_subject_set).with(subject_set_id, [subject_id]).exactly(3).times
+        expect { job.perform(subject_ids, subject_set_id) }.to raise_error(Panoptes::Client::ServerError, error_msg)
+        expect(panoptes_client_double).to have_received(:add_subjects_to_subject_set).with(subject_set_id, subject_ids).exactly(3).times
       end
 
       it 'sleeps for a short duration to space out the retry operations', :aggregate_failures do
-        expect { job.perform(subject_id, subject_set_id) }.to raise_error(Panoptes::Client::ServerError, error_msg)
+        expect { job.perform(subject_ids, subject_set_id) }.to raise_error(Panoptes::Client::ServerError, error_msg)
         expect(job).to have_received(:sleep).exactly(2).times
       end
 
       it 're-raises the error after exhausting all retries' do
-        expect { job.perform(subject_id, subject_set_id, 1) }.to raise_error(Panoptes::Client::ServerError, error_msg)
+        expect { job.perform(subject_ids, subject_set_id, 1) }.to raise_error(Panoptes::Client::ServerError, error_msg)
       end
     end
   end
