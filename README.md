@@ -296,3 +296,47 @@ Requires a JSON payload for creating a Prediction Job resource.
   }
 }
 ```
+
+### Training Jobs Resource
+
+#### List Training Jobs resources
+
+`GET /training_jobs/` List all training jobs
+
+Returns a JSON payload listing the last 10 training jobs resources
+
+``` javascript
+[
+  {
+    'id': 10,
+    'service_job_url': 'https://bajor.zooniverse.org/training/job/job-id',
+    'manifest_url': 'https://container.blob.core.windows.net/training/catalogues/production/export-1.json',
+    'state': 'completed',
+    'message': '',
+    'created_at': '2022-11-25T10:55:00.551Z',
+    'updated_at': '2022-11-25T11:09:19.891Z',
+    'results_url': 'https://container.blob.core.windows.net/training/jobs/job_id/results/',
+    'workflow_id': 1
+  }
+]
+```
+
+#### Get the details of a Training Job resource
+
+`GET /training_job/$id`
+
+Returns a JSON payload describing the training job resource
+
+``` javascript
+{
+    'id': 10,
+    'service_job_url': 'https://bajor.zooniverse.org/training/job/job-id',
+    'manifest_url': 'https://container.blob.core.windows.net/training/catalogues/production/export-1.json',
+    'state': 'completed',
+    'message': '',
+    'created_at': '2022-11-25T10:55:00.551Z',
+    'updated_at': '2022-11-25T11:09:19.891Z',
+    'results_url': 'https://container.blob.core.windows.net/training/jobs/job_id/results/',
+    'workflow_id': 1
+}
+```

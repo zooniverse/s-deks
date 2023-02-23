@@ -55,5 +55,7 @@ Rails.application.routes.draw do
 
   resources :prediction_jobs, only: %i[index show create]
 
+  resources :training_jobs, only: %i[index show]
+
   # all other routes go here
 end
