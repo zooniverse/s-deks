@@ -25,13 +25,15 @@ class TrainingJobMonitorJob
     end
 
     if training_job.completed?
-      # As the training job is finished- we want to run the prediction system using the newly trained model
+      # As the training job is finished - we want to run the prediction system using the newly trained model
       # so we call the prediction manifest export job to create a manifest and submit it for batch processing
       #
-      # NOTE: this jobs allows us to override the subject set id
-      # if we want to create a prediction manifest for a specific subject set
-      # and not just the Default GZ Active Learning Loop system setup.
-      PredictionManifestExportJob.perform_async
+      # Ensure the prediction system runs over the correct subject sets
+      # pool == source data for prediciton
+      # active == target for results
+      # this information is encoded into the context resource for the workflow
+      context = Context.find_by(workflow_id: training_job.workflow_id)
+      PredictionManifestExportJob.perform_async(context.id)
     else
       # reschedule this job to run again in 1 minute
       TrainingJobMonitorJob.perform_in(MONITOR_JOB_RESCHEDULE_DELAY.minute, training_job.id)

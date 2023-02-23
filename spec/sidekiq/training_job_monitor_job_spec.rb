@@ -36,15 +36,18 @@ RSpec.describe TrainingJobMonitorJob, type: :job do
     end
 
     context 'when the monitor job returns a completed job' do
+      let(:context_double) { instance_double(Context, id: 1, pool_subject_set_id: 1) }
+
       before do
         allow(training_job_monitor_result).to receive(:completed?).and_return(true)
+        allow(training_job_monitor_result).to receive(:workflow_id).and_return(1)
+        allow(Context).to receive(:find_by).with(workflow_id: training_job_monitor_result.workflow_id).and_return(context_double)
       end
 
-      it 'schedules a process prediction creation job' do
+      it 'schedules a process prediction creation job with the correct pool_subject_set_id' do
         allow(PredictionManifestExportJob).to receive(:perform_async)
         job.perform(training_job.id)
-        # default no_args but it can be overridden to pass in a specific subject set id
-        expect(PredictionManifestExportJob).to have_received(:perform_async).with(no_args)
+        expect(PredictionManifestExportJob).to have_received(:perform_async).with(context_double.id)
       end
 
       it 'does not reschedule the monitor job' do
