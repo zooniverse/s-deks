@@ -7,7 +7,10 @@ RSpec.describe Batch::Prediction::ExportManifest do
   describe '#run' do
     let(:subject_set_id) { 1 }
     let(:panoptes_client_double) { instance_double(Panoptes::Client) }
-    let(:service) { described_class.new(subject_set_id, panoptes_client_double) }
+    let(:panoptes_client_pool) do
+      ConnectionPool.new(size: 1, timeout: 1) { panoptes_client_double }
+    end
+    let(:service) { described_class.new(subject_set_id, panoptes_client_pool) }
     let(:blob_double) { instance_double(ActiveStorage::Blob, key: '/path/to/manifest.json') }
 
     before do

@@ -6,26 +6,28 @@ require 'json'
 module Batch
   module Prediction
     class ExportManifest
-      attr_accessor :subject_set_id, :panoptes_client, :manifest_data, :subject_set, :project_id, :temp_file, :subject_set_subject_ids
+      MANIFEST_SUBJECT_SET_BATCH_SIZE = ENV.fetch('MANIFEST_SUBJECT_SET_BATCH_SIZE', '10').to_i
+
+      attr_accessor :subject_set_id, :panoptes_client_pool, :manifest_data, :subject_set, :project_id, :temp_file, :subject_set_subject_ids
       attr_reader :manifest_url
 
-      def initialize(subject_set_id, panoptes_client = Panoptes::Api.client)
+      def initialize(subject_set_id, panoptes_client_pool = nil)
         @subject_set_id = subject_set_id
-        @panoptes_client = panoptes_client
+        @panoptes_client_pool = panoptes_client_pool || ConnectionPool.new(size: MANIFEST_SUBJECT_SET_BATCH_SIZE, timeout: 5) { Panoptes::Api.client }
         @manifest_data = []
         @subject_set_subject_ids = []
         @temp_file = Tempfile.new("prediction_manifest_subject_set#{subject_set_id}.csv")
       end
 
       def run
-        @subject_set = panoptes_client.subject_set(subject_set_id)
-        @project_id = subject_set.dig('links', 'project')
-        # NOTE: the following use the async faraday adapter
-        # to collect data async and speed up the manifest creation
-        # collect all the subject ids in the subject set
-        fetch_subject_set_subject_ids
-        # enumerate the subjects and create the manifest data
-        create_manifest_data
+        panoptes_client_pool.with do |panoptes_client|
+          @subject_set = panoptes_client.subject_set(subject_set_id)
+          @project_id = subject_set.dig('links', 'project')
+          # collection of the subject set subject ids
+          fetch_subject_set_subject_ids(panoptes_client)
+          # enumerate the subjects and create the manifest data
+          create_manifest_data(panoptes_client)
+        end
 
         # write the manifest data to a temp file
         write_manifest_data_to_temp_file
@@ -42,14 +44,17 @@ module Batch
         temp_file.unlink
       end
 
-      def fetch_subject_set_subject_ids(slices=4)
+      def fetch_subject_set_subject_ids(panoptes_client, slices = MANIFEST_SUBJECT_SET_BATCH_SIZE)
         return if subject_set_id.nil?
 
         query = { subject_set_id: subject_set_id }
         # this is a hack to get around the fact that the panoptes client
-        # doesn't support the `set_member_subjects` types
-        # using the SetMemberSubject Resource allows us to quickly
-        # collect the subject ids linked to the set
+        # as it doesn't support the `set_member_subjects` types
+        # we use the SetMemberSubject Resource allows us to enumerate all the subejct ids in the set
+        # which we can use to async fetch all the subject resources vs paging through the subject response objects
+        # filtering on the subject_set_id
+        # note this approach is what the Python Client does but in serial and it's slow
+        # https://github.com/zooniverse/panoptes-python-client/blob/4b49b3c789462637fa6cb4677cbe05147dbae9d5/panoptes_client/subject_set.py#L83-L84
         first_page = panoptes_client.panoptes.get('/set_member_subjects', query)
         first_page['set_member_subjects'].each do |set_member_subject|
           subject_set_subject_ids << set_member_subject['links']['subject']
@@ -61,44 +66,54 @@ module Batch
         # find the remaining pages of SetMemeberSubjects data asynchronously
         (2..page_count).each_slice(slices) do |page_nums|
           Async do
-            page_nums.each do |page_num|
+            results = page_nums.map do |page_num|
               page_query = { subject_set_id: subject_set_id, page: page_num }
-              page = panoptes_client.panoptes.get('/set_member_subjects', page_query)
+              Async do
+                panoptes_client.panoptes.get('/set_member_subjects', page_query)
+              end
+            end.map(&:wait)
+            # process the async results into the subject_set_subject_ids
+            results.each do |page|
               page['set_member_subjects'].each do |set_member_subject|
                 subject_set_subject_ids << set_member_subject['links']['subject']
               end
             end
+          ensure
+            Faraday.default_connection.close
           end
         end
       end
 
-      def create_manifest_data(slices=4)
+      def create_manifest_data(panoptes_client, slices = MANIFEST_SUBJECT_SET_BATCH_SIZE)
         subject_set_subject_ids.each_slice(slices) do |batch_of_subject_ids|
-          subject_responses = []
           # fetch the subjects asynchronously, https://github.com/socketry/async-http-faraday
           Async do
-            batch_of_subject_ids.each do |subject_id|
-              subject_responses << panoptes_client.subject(subject_id)
+            subject_responses = batch_of_subject_ids.map do |subject_id|
+              Async do
+                panoptes_client.subject(subject_id)
+              end
+            end.map(&:wait)
+            subject_responses.each do |subject|
+              # Create a data row for each image URL in the Subject
+              # this will duplicate the subject information for each image URL
+              subject['locations'].each_with_index do |location, frame_id|
+                manifest_data << [
+                  location.values[0], # image_url
+                  # The subject's JSON information is stored as a string,
+                  # Yes, really - this is the format that hamlet sets up.
+                  JSON.dump(
+                    {
+                      project_id: project_id,
+                      subject_set_id: subject_set_id.to_s,
+                      subject_id: subject['id'],
+                      frame_id: frame_id.to_s
+                    }
+                  )
+                ]
+              end
             end
-          end
-          subject_responses.each do |subject|
-            # Create a data row for each image URL in the Subject
-            # this will duplicate the subject information for each image URL
-            subject['locations'].each_with_index do |location, frame_id|
-              manifest_data << [
-                location.values[0], # image_url
-                # The subject's JSON information is stored as a string,
-                # Yes, really - this is the format that hamlet sets up.
-                JSON.dump(
-                  {
-                    project_id: project_id,
-                    subject_set_id: subject_set_id.to_s,
-                    subject_id: subject['id'],
-                    frame_id: frame_id.to_s
-                  }
-                )
-              ]
-            end
+          ensure
+            Faraday.default_connection.close
           end
         end
       end
