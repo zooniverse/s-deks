@@ -16,11 +16,11 @@ RSpec.describe PredictionResults::Process do
   let(:under_threshold_subject_id) { 2 }
   # schema is from the bajor api prediction jobs results
   # https://github.com/zooniverse/bajor/blob/main/azure/batch/scripts/predict_on_catalog.py
-  # 'data': { 'subject_id': ['probability_at_least_20pc_featured', ['smooth-or-featured-cd_smooth_prediction', 'smooth-or-featured-cd_featured-or-disk_prediction', 'smooth-or-featured-cd_problem_prediction'] ] }
+  # 'data': { 'subject_id': { 'sample_num': ['probability_at_least_20pc_featured', ['smooth-or-featured-cd_smooth_prediction', 'smooth-or-featured-cd_featured-or-disk_prediction', 'smooth-or-featured-cd_problem_prediction'] ] } }
   let(:prediction_results_data) do
     {
-      over_threshold_subject_id => [0.9, [0.1, 0.1, 0.1]], # most likely not smooth galaxy (fake prediction data values)
-      under_threshold_subject_id => [0.1, [0.1, 0.1, 0.1]] # most likely a smooth galaxy (fake prediction data values)
+      over_threshold_subject_id => { '0' => [0.9, [0.1, 0.1, 0.1]] }, # most likely not smooth galaxy (fake prediction data values)
+      under_threshold_subject_id => { '0' => [0.1, [0.1, 0.1, 0.1]] } # most likely a smooth galaxy (fake prediction data values)
     }
   end
 

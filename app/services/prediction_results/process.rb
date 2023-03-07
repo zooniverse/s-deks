@@ -39,11 +39,14 @@ module PredictionResults
     end
 
     def partition_results
-      prediction_data.each do |subject_id, probability_values|
+      prediction_data.each do |subject_id, prediction_samples|
         # data schema format is published in the file
         # and https://github.com/zooniverse/bajor/blob/main/azure/batch/scripts/predict_on_catalog.py
-        # the first value is the probability we partition on
-        probability = probability_values[0]
+        # the hash is keyed by the sample_num
+        # we will use the the first sample for the prediction results
+        prediction_results = prediction_samples['0']
+        # and we want the probability from the first entry in the prediction results array
+        probability = prediction_results[0]
         @over_threshold_subject_ids << subject_id if probability >= probability_threshold
         @under_threshold_subject_ids << subject_id if probability < probability_threshold
       end
