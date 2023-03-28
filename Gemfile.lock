@@ -308,7 +308,7 @@ GEM
     spring (4.1.1)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
-    strong_migrations (1.4.3)
+    strong_migrations (1.4.4)
       activerecord (>= 5.2)
     test-prof (1.2.0)
     thor (1.2.1)
