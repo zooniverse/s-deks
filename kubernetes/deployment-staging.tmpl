@@ -126,6 +126,8 @@ spec:
               cpu: "1000m"
           command: ["bundle", "exec", "sidekiq"]
           env:
+          - name: PG_STATEMENT_TIMEOUT
+            value: '300000'
           - name: REVISION
             value: '__IMAGE_TAG__'
           - name: HONEYBADGER_REVISION
@@ -138,7 +140,7 @@ spec:
           - secretRef:
               name: kade-common-env-vars
           - secretRef:
-              name: kade-staging-sidekiq-db
+              name: kade-staging-app-db
           - configMapRef:
               name: kade-staging-shared
           volumeMounts:
