@@ -26,6 +26,12 @@ class RetrainZoobotJob
       Export::TrainingData.new(training_data_export).run
     end
 
+    # this is where we could intercept the training job submission
+    # to avoid a training run if there isn't enough data for a viable model
+    # one idea would be to check the number of rows in the training data export attached file
+    # or even better we store the number of exported rows in the training data export model
+    # https://github.com/zooniverse/kade/issues/62
+
     # create a new training job record to track the batch training job
     training_job = create_training_job(training_data_export.storage_path, training_context.workflow_id)
     # submit the export training job to the batch training service
