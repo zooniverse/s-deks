@@ -77,6 +77,10 @@ module Import
       unique_id = subject_metadata['#name']
       return unique_id if unique_id
 
+      # generic metadata
+      unique_id = subject_metadata['id_str'] || subject_metadata['!id_str'] || subject_metadata['#id_str']
+      return unique_id if unique_id
+
       # staging has older data with different subject metadata - fallback to handling this special env case
       subject_metadata['!SDSS_ID'] if Rails.env.staging? || Rails.env.test?
     end
