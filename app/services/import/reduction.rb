@@ -69,11 +69,19 @@ module Import
       subject_metadata = payload.dig('subject', 'metadata')
       return unless subject_metadata
 
-      # cosmic dawn metadata - may be marked as hidden (!id) or private (#id) metadata
+      # this is the standard gz metadata for all future uploads
+      unique_id = subject_metadata['!filename']
+      return unique_id if unique_id
+
+      # this catches various common (non-standard and to be avoided in future) variations
+      unique_id = subject_metadata['!Filename'] || subject_metadata['#filename'] || subject_metadata['#Filename'] || subject_metadata['filename'] || subject_metadata['Filename']
+      return unique_id if unique_id
+
+      # old cosmic dawn metadata - may be marked as hidden (!id) or private (#id) metadata
       unique_id = subject_metadata['id'] || subject_metadata['!id'] || subject_metadata['#id']
       return unique_id if unique_id
 
-      # decals metadata
+      # old decals metadata
       unique_id = subject_metadata['#name']
       return unique_id if unique_id
 
