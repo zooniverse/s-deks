@@ -20,12 +20,12 @@ module Bajor
 
     BLOB_STORE_HOST_CONTAINER_URL = 'https://kadeactivelearning.blob.core.windows.net'
 
-    def create_training_job(manifest_path)
+    def create_training_job(manifest_path, workflow_name='cosmic_dawn')
       bajor_response = self.class.post(
         '/training/jobs/',
         # NOTE: Here we can augment the batch job run options via bajor
         # via the `run_opts: '--wandb --debug'` etc, these could be set via ENV
-        body: { manifest_path: manifest_path }.to_json,
+        body: { manifest_path: manifest_path, opts: { 'run_opts': "--schema #{workflow_name}", 'workflow_name': workflow_name } }.to_json,
         headers: JSON_HEADERS
       )
 

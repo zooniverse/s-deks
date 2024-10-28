@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+require_relative '../base_extractor'
 
 module LabelExtractors
   module GalaxyZoo
-    class Decals
+    class Decals < BaseExtractor
 
       attr_reader :task_lookup_key, :task_prefix_label, :data_release_suffix
 
@@ -95,13 +96,6 @@ module LabelExtractors
       # longer term we may include gz2 , e.g. -dr12 (gz 1 & 2)
       CATALOG_DATA_RELEASE_SUFFIXES = %w[dr5 dr8]
 
-      def self.label_prefixes
-        TASK_KEY_LABEL_PREFIXES
-      end
-
-      def self.data_labels
-        TASK_KEY_DATA_LABELS
-      end
 
       # provide a flat task question and answers list for the decals mission catalogues
       def self.question_answers_schema
@@ -120,38 +114,9 @@ module LabelExtractors
         @data_release_suffix = data_release_suffix
       end
 
-      # extract the keys from the reduction data payload hash
-      # and convert the keys to the workflow question tasks
-      #
-      # e.g. workflow type (GZ) are question type 'decision tree' tasks
-      # looking at the 'T0' task it correlates to 3 exclusive answers:
-      # 0 (smooth)
-      # 1 (features or disk)
-      # 2 (star or artifact)
-      #
-      # then combined with the label prefix used to identify the correlated task name for Zoobot
-      def extract(data_hash)
-        data_hash.transform_keys do |key|
-          # create the lable key used for column headers in the derived training catalogues
-          # note the hyphen and underscore formatting, see Zoobot lable schema for more details
-          "#{task_prefix_label}-#{data_release_suffix}_#{data_payload_label(key)}"
-        end
-      end
-
       private
-
-      def task_prefix
-        prefix = TASK_KEY_LABEL_PREFIXES[task_lookup_key]
-        raise UnknownTaskKey, "key not found: #{task_lookup_key}" unless prefix
-
-        prefix
-      end
-
-      def data_payload_label(key)
-        label = TASK_KEY_DATA_LABELS.dig(task_lookup_key, key)
-        raise UnknownLabelKey, "key not found: #{key}" unless label
-
-        label
+      def self.data_release_suffix
+        data_release_suffix
       end
     end
   end

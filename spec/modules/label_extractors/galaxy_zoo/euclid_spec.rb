@@ -2,13 +2,13 @@
 
 require 'rails_helper'
 
-RSpec.describe LabelExtractors::GalaxyZoo::Decals do
+RSpec.describe LabelExtractors::GalaxyZoo::Euclid do
   let(:data_label_schema) do
     {
       'T0' => {
         '0' => 'smooth',
         '1' => 'featured-or-disk',
-        '2' => 'artifact'
+        '2' => 'problem'
       },
       'T1' => {
         '0' => 'round',
@@ -58,6 +58,28 @@ RSpec.describe LabelExtractors::GalaxyZoo::Decals do
         '1' => 'major-disturbance',
         '2' => 'minor-disturbance',
         '3' => 'none'
+      },
+      'T12' => {
+        '0' => 'yes',
+        '1' => 'no'
+      },
+      'T13' => {
+        '0' => 'yes',
+        '1' => 'no'
+      },
+      'T14' => {
+        '0' => 'star',
+        '1' => 'artifact',
+        '2' => 'zoom'
+      },
+      'T15' => {
+        '0' => 'saturation',
+        '1' => 'diffraction',
+        '2' => 'satellite',
+        '3' => 'ray',
+        '4' => 'scattered',
+        '5' => 'other',
+        '6' => 'ghost'
       }
     }
   end
@@ -72,7 +94,11 @@ RSpec.describe LabelExtractors::GalaxyZoo::Decals do
       'T6' => 'spiral-winding',
       'T7' => 'spiral-arm-count',
       'T8' => 'bulge-size',
-      'T11' => 'merging' # T10 is not used for training and no T9 :shrug:
+      'T11' => 'merging', # T10 is not used for training and no T9 :shrug:
+      'T12' => 'lensing',
+      'T13' => 'clumps',
+      'T14' => 'problem',
+      'T15' => 'artifact'
     }
   end
 
@@ -90,23 +116,10 @@ RSpec.describe LabelExtractors::GalaxyZoo::Decals do
 
   describe '#question_answers_schema' do
     it 'returns the correct set of header' do
-      expected_column_headers = %w[dr5 dr8].map do |data_catalog_release|
-        described_class.label_prefixes.map do |task_key, question_prefix|
-          described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}-#{data_catalog_release}_#{answer_suffix}"}
-        end
+      expected_column_headers = described_class.label_prefixes.map do |task_key, question_prefix|
+        described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}-euclid_#{answer_suffix}"}
       end
       expect(described_class.question_answers_schema).to match(expected_column_headers.flatten)
-    end
-  end
-
-  context 'with a different current data release suffix override' do
-    let(:data_release_suffix) { 'dr12' }
-    let(:extractor_instance) { described_class.new('T0', data_release_suffix) }
-    let(:expected_labels) { { 'smooth-or-featured-dr12_smooth' => 3 } }
-
-    it 'uses the overriden data release suffix in the derived labels' do
-      extracted_labels = extractor_instance.extract({ '0' => 3 })
-      expect(extracted_labels).to match(expected_labels)
     end
   end
 
@@ -119,7 +132,7 @@ RSpec.describe LabelExtractors::GalaxyZoo::Decals do
       # manually construct the expected lables for tests
       def expected_labels(label_prefix, task_lookup_key, payload)
         payload.transform_keys do |key|
-          "#{label_prefix}-dr8_#{data_label_schema.dig(task_lookup_key, key)}"
+          "#{label_prefix}-euclid_#{data_label_schema.dig(task_lookup_key, key)}"
         end
       end
 
@@ -139,9 +152,9 @@ RSpec.describe LabelExtractors::GalaxyZoo::Decals do
 
     it 'raises an error if the task key is not found in the known schema' do
       expect {
-        # T12 is unknonw in this schema
-        described_class.new('T12').extract(data_payload)
-      }.to raise_error(LabelExtractors::BaseExtractor::UnknownTaskKey, 'key not found: T12')
+        # T16 is unknown in this schema
+        described_class.new('T16').extract(data_payload)
+      }.to raise_error(LabelExtractors::BaseExtractor::UnknownTaskKey, 'key not found: T16')
     end
   end
 end

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Export::TrainingData do
   describe '#run' do
-    let(:workflow_id) { 10 }
+    let(:workflow_id) { 123 }
     let(:file_time) { Time.now.iso8601 }
     let(:storage_path) { "#{Zoobot::Storage.path_key(workflow_id)}-#{file_time}.csv" }
     let(:storage_path_file_name) { "workflow-#{workflow_id}-#{file_time}.csv" }
