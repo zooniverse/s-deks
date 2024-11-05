@@ -2,7 +2,7 @@
 
 module LabelExtractors
   module GalaxyZoo
-    class CosmicDawn < LabelExtractors::Shared::CosmicDawnAndEuclid
+    class CosmicDawn < BaseExtractor
 
       # GZ decision tree task schema and lable tables
       #

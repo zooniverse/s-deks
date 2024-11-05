@@ -2,7 +2,7 @@
 
 module LabelExtractors
   module GalaxyZoo
-    class Euclid < LabelExtractors::Shared::CosmicDawnAndEuclid
+    class Euclid < BaseExtractor
 
       attr_reader :task_lookup_key, :task_prefix_label
 

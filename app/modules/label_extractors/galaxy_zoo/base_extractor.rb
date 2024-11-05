@@ -36,9 +36,13 @@ module LabelExtractors
         self::TASK_KEY_DATA_LABELS
       end
 
-      # Base version of question_answers_schema method to be customized by subclasses
+      # provide a flat task question and answers list for the decals mission catalogues
       def self.question_answers_schema
-        raise NotImplementedError, "Subclass must define `question_answers_schema`"
+        label_prefixes.map do |task_key, question_prefix|
+          data_labels[task_key].values.map do |answer_suffix|
+            "#{question_prefix}-#{data_release_suffix}_#{answer_suffix}"
+          end
+        end.flatten
       end
 
       private
