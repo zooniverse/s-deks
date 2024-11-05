@@ -1,9 +1,8 @@
 # frozen_string_literal: true
-require_relative '../base_extractor'
 
 module LabelExtractors
   module Shared
-    class CosmicDawnAndEuclid < BaseExtractor
+    class CosmicDawnAndEuclid < LabelExtractors::GalaxyZoo::BaseExtractor
 
       def self.data_release_suffix
         raise NotImplementedError, "Subclass must define `data_release_suffix`"

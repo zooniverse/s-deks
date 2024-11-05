@@ -25,7 +25,7 @@ RSpec.describe LabelExtractors::Finder do
     it 'raises an error if the task key is not known for the label schema' do
       expect {
         described_class.extractor_instance('galaxy_zoo_cosmic_dawn_t50')
-      }.to raise_error(LabelExtractors::BaseExtractor::UnknownTaskKey, 'key not found: T50')
+      }.to raise_error(LabelExtractors::GalaxyZoo::UnknownTaskKey, 'key not found: T50')
     end
 
     it 'finds the decals mission data' do

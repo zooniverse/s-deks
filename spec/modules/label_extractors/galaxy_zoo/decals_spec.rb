@@ -3,78 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe LabelExtractors::GalaxyZoo::Decals do
-  let(:data_label_schema) do
-    {
-      'T0' => {
-        '0' => 'smooth',
-        '1' => 'featured-or-disk',
-        '2' => 'artifact'
-      },
-      'T1' => {
-        '0' => 'round',
-        '1' => 'in-between',
-        '2' => 'cigar-shaped'
-      },
-      'T2' => {
-        '0' => 'yes',
-        '1' => 'no'
-      },
-      'T3' => {
-        '0' => 'rounded',
-        '1' => 'boxy',
-        '2' => 'none'
-      },
-      'T4' => {
-        '0' => 'no',
-        '1' => 'weak',
-        '2' => 'strong'
-      },
-      'T5' => {
-        '0' => 'yes',
-        '1' => 'no'
-      },
-      'T6' => {
-        '0' => 'tight',
-        '1' => 'medium',
-        '2' => 'loose'
-      },
-      'T7' => {
-        '0' => '1',
-        '1' => '2',
-        '2' => '3',
-        '3' => '4',
-        '4' => 'more-than-4',
-        '5' => 'cant-tell'
-      },
-      'T8' => {
-        '0' => 'none',
-        '1' => 'small',
-        '2' => 'moderate',
-        '3' => 'large',
-        '4' => 'dominant'
-      },
-      'T11' => {
-        '0' => 'merger',
-        '1' => 'major-disturbance',
-        '2' => 'minor-disturbance',
-        '3' => 'none'
-      }
-    }
-  end
-  let(:label_prefix_schema) do
-    {
-      'T0' => 'smooth-or-featured',
-      'T1' => 'how-rounded',
-      'T2' => 'disk-edge-on',
-      'T3' => 'edge-on-bulge',
-      'T4' => 'bar',
-      'T5' => 'has-spiral-arms',
-      'T6' => 'spiral-winding',
-      'T7' => 'spiral-arm-count',
-      'T8' => 'bulge-size',
-      'T11' => 'merging' # T10 is not used for training and no T9 :shrug:
-    }
-  end
+  let(:data_label_schema) {LabelExtractors::GalaxyZoo::Decals::TASK_KEY_DATA_LABELS}
+  let(:label_prefix_schema) {LabelExtractors::GalaxyZoo::Decals::TASK_KEY_LABEL_PREFIXES}
 
   describe '#label_prefixes' do
     it 'has the correct schema label prefixes' do
@@ -134,14 +64,14 @@ RSpec.describe LabelExtractors::GalaxyZoo::Decals do
       expect {
         # T0 has 3 choices (0, 1, 2)
         described_class.new('T0').extract(unknown_key_payload)
-      }.to raise_error(LabelExtractors::BaseExtractor::UnknownLabelKey, 'key not found: 3')
+      }.to raise_error(LabelExtractors::GalaxyZoo::UnknownLabelKey, 'key not found: 3')
     end
 
     it 'raises an error if the task key is not found in the known schema' do
       expect {
         # T12 is unknonw in this schema
         described_class.new('T12').extract(data_payload)
-      }.to raise_error(LabelExtractors::BaseExtractor::UnknownTaskKey, 'key not found: T12')
+      }.to raise_error(LabelExtractors::GalaxyZoo::UnknownTaskKey, 'key not found: T12')
     end
   end
 end
