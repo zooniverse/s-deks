@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe LabelExtractors::GalaxyZoo::CosmicDawn do
-  let(:data_label_schema) {LabelExtractors::GalaxyZoo::CosmicDawn::TASK_KEY_DATA_LABELS}
-  let(:label_prefix_schema) {LabelExtractors::GalaxyZoo::CosmicDawn::TASK_KEY_LABEL_PREFIXES}
+RSpec.describe LabelExtractors::GalaxyZoo::Euclid do
+  let(:data_label_schema) {LabelExtractors::GalaxyZoo::Euclid::TASK_KEY_DATA_LABELS}
+  let(:label_prefix_schema) {LabelExtractors::GalaxyZoo::Euclid::TASK_KEY_LABEL_PREFIXES}
 
   describe '#label_prefixes' do
     it 'has the correct schema label prefixes' do
@@ -21,7 +21,7 @@ RSpec.describe LabelExtractors::GalaxyZoo::CosmicDawn do
   describe '#question_answers_schema' do
     it 'returns the correct set of header' do
       expected_column_headers = described_class.label_prefixes.map do |task_key, question_prefix|
-        described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}-cd_#{answer_suffix}"}
+        described_class.data_labels[task_key].values.map { |answer_suffix| "#{question_prefix}-euclid_#{answer_suffix}"}
       end
       expect(described_class.question_answers_schema).to match(expected_column_headers.flatten)
     end
@@ -36,7 +36,7 @@ RSpec.describe LabelExtractors::GalaxyZoo::CosmicDawn do
       # manually construct the expected lables for tests
       def expected_labels(label_prefix, task_lookup_key, payload)
         payload.transform_keys do |key|
-          "#{label_prefix}-cd_#{data_label_schema.dig(task_lookup_key, key)}"
+          "#{label_prefix}-euclid_#{data_label_schema.dig(task_lookup_key, key)}"
         end
       end
 

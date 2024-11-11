@@ -2,17 +2,12 @@
 
 module LabelExtractors
   module GalaxyZoo
-    class CosmicDawn < BaseExtractor
+    class Euclid < BaseExtractor
 
-      # GZ decision tree task schema and lable tables
-      #
-      # NOTE: staging is the same as prod but T10 maps to T11(prod) and T9 (last task) maps to T10(prod)
-      # this mapping is done via the caesar external effect url configs
-      # so T10 Reducer output sends to T11 schema mapping in KaDE
-      # see details below for production schema task mappings
-      #
-      # Derived to conform to the existing catalogue schema for Zoobot decals (dr5, dr8 and onwards)
-      # https://github.com/mwalmsley/zoobot/blob/1a4f48105254b3073b6e3cb47014c6db938ba73f/zoobot/label_metadata.py#L32
+      attr_reader :task_lookup_key, :task_prefix_label
+
+      # Derived to conform to the existing catalogue schema for Zoobot euclid
+      # https://github.com/mwalmsley/galaxy-datasets/blob/eed30d3e37b5559d0427c339e8dc1d2a9dc2d004/galaxy_datasets/shared/label_metadata.py#L462
       TASK_KEY_LABEL_PREFIXES = {
         'T0' => 'smooth-or-featured',
         'T1' => 'how-rounded',
@@ -103,11 +98,12 @@ module LabelExtractors
           '2' => 'satellite',
           '3' => 'ray',
           '4' => 'scattered',
-          '5' => 'other'
+          '5' => 'other',
+          '6' => 'ghost'
         }
       }.freeze
 
-      DATA_RELEASE_SUFFIX = 'cd'
+      DATA_RELEASE_SUFFIX = 'euclid'
 
       private
       def self.data_release_suffix

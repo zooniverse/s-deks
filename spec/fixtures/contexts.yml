@@ -4,4 +4,6 @@ galaxy_zoo_active_learning_project:
   project_id: 39
   active_subject_set_id: 55
   pool_subject_set_id: 66
+  module_name: 'galaxy_zoo'
+  extractor_name: 'cosmic_dawn'
 

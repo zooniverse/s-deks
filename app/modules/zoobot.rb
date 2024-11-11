@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module Zoobot
-  def self.gz_label_column_headers
+  def self.label_column_headers(module_name='GalaxyZoo', extractor_name='CosmicDawn')
+    schema_klass = "LabelExtractors::#{module_name}::#{extractor_name}".constantize
     # as data sets change, switch to different mission label extractors, e.g. Decals is older
-    %w[id_str file_loc] | LabelExtractors::GalaxyZoo::CosmicDawn.question_answers_schema
+    %w[id_str file_loc] | schema_klass.question_answers_schema
   end
 
   module Storage

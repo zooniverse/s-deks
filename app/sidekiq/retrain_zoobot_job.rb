@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'bajor/client'
 
 class RetrainZoobotJob
   class Failure < StandardError; end

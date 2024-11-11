@@ -14,7 +14,8 @@ module Batch
 
       def run
         begin
-          bajor_job_url = bajor_client.create_training_job(training_job.manifest_path)
+          context = Context.find_by(workflow_id: training_job.workflow_id)
+          bajor_job_url = bajor_client.create_training_job(training_job.manifest_path, context.extractor_name)
           training_job.update(state: :submitted, service_job_url: bajor_job_url, message: '')
         rescue Bajor::Client::Error => e
           # mark the jobs as failed and record the client error message

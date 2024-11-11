@@ -19,8 +19,16 @@ RSpec.describe Bajor::Client do
   describe 'create_training_job' do
     let(:request_url) { "#{bajor_host}/training/jobs/" }
     let(:catalogue_manifest_path) { 'training_catalogues/manifest_path.csv' }
+    let(:run_opts) { '--schema cosmic_dawn' }
+    let(:workflow_name) { 'cosmic_dawn' }
     let(:request_body) do
-      { manifest_path: catalogue_manifest_path }
+      {
+        manifest_path: catalogue_manifest_path,
+        opts: {
+          run_opts: run_opts,
+          workflow_name: workflow_name
+        }
+      }
     end
     let(:job_id) { '3ed68115-dc36-4f66-838c-a52869031676' }
     let(:bajor_response_body) do

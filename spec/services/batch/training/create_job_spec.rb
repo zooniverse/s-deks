@@ -7,7 +7,7 @@ RSpec.describe Batch::Training::CreateJob do
   describe '#run' do
     let(:manifest_path) { '/a/shared/blob/storage/path.csv' }
     let(:manifest_url) { "https://a.shared.blob.storage#{manifest_path}"}
-    let(:training_job) { TrainingJob.new(manifest_url: manifest_url, workflow_id: '1', state: :pending) }
+    let(:training_job) { TrainingJob.new(manifest_url: manifest_url, workflow_id: '123', state: :pending) }
     let(:bajor_client_double) { instance_double(Bajor::Client) }
     let(:training_create_job) { described_class.new(training_job, bajor_client_double) }
     let(:job_service_url) { 'https://bajor-host/training/job/123' }
@@ -21,8 +21,9 @@ RSpec.describe Batch::Training::CreateJob do
     end
 
     it 'calls the bajor client service with the correct manifest_path' do
+      parent_context = Context.find_by(workflow_id: training_job.workflow_id)
       training_create_job.run
-      expect(bajor_client_double).to have_received(:create_training_job).with(manifest_path).once
+      expect(bajor_client_double).to have_received(:create_training_job).with(manifest_path, parent_context.extractor_name).once
     end
 
     it 'updates the state tracking info on the training job resource' do

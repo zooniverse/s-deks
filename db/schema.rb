@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_02_16_054738) do
+ActiveRecord::Schema[7.0].define(version: 2024_10_17_120552) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -49,6 +49,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_02_16_054738) do
     t.datetime "updated_at", null: false
     t.bigint "active_subject_set_id", null: false
     t.bigint "pool_subject_set_id", null: false
+    t.string "module_name"
+    t.string "extractor_name"
     t.index ["workflow_id", "project_id"], name: "index_contexts_on_workflow_id_and_project_id", unique: true
   end
 

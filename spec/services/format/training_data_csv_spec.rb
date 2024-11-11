@@ -7,7 +7,7 @@ RSpec.describe Format::TrainingDataCsv do
     fixtures :contexts
 
     let(:workflow_id) { 4 }
-    let(:formatter) { described_class.new(workflow_id, Zoobot.gz_label_column_headers) }
+    let(:formatter) { described_class.new(workflow_id, Zoobot.label_column_headers) }
     let(:subject_locations) do
       [
         { 'image/jpeg': 'https://panoptes-uploads.zooniverse.org/subject_location/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg' }
@@ -42,7 +42,7 @@ RSpec.describe Format::TrainingDataCsv do
     end
 
     it 'returns the csv data in the temp file' do
-      expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
+      expected_output = "#{Zoobot.label_column_headers.join(',')}\n8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n"
       results = File.read(export_file.path)
       expect(results).to eq(expected_output)
     end
@@ -71,7 +71,7 @@ RSpec.describe Format::TrainingDataCsv do
         expected_lines = [
           '8000_231121_468,/test/2f2490b4-65c1-4dca-ba25-c44128aa7a39.jpeg,3,9,0,1,5,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0'
         ].join("\n")
-        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n#{expected_lines}\n"
+        expected_output = "#{Zoobot.label_column_headers.join(',')}\n#{expected_lines}\n"
         results = File.read(export_file.path)
         expect(results).to eq(expected_output)
       end
@@ -92,7 +92,7 @@ RSpec.describe Format::TrainingDataCsv do
       end
 
       it 'returns the multi image csv data in the temp file' do
-        expected_output = "#{Zoobot.gz_label_column_headers.join(',')}\n#{expected_lines}\n"
+        expected_output = "#{Zoobot.label_column_headers.join(',')}\n#{expected_lines}\n"
         results = File.read(export_file.path)
         expect(results).to eq(expected_output)
       end
