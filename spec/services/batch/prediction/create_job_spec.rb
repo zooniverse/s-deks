@@ -9,7 +9,7 @@ RSpec.describe Batch::Prediction::CreateJob do
       PredictionJob.new(
         manifest_url: manifest_url,
         state: :pending,
-        subject_set_id: 1,
+        subject_set_id: 55,
         probability_threshold: 0.5,
         randomisation_factor: 0.5
       )
@@ -32,8 +32,9 @@ RSpec.describe Batch::Prediction::CreateJob do
       end
 
       it 'calls the bajor client service to create a prediction job' do
+        context = Context.find_by(active_subject_set_id: prediction_job.subject_set_id)
         prediction_create_job.run
-        expect(bajor_client_double).to have_received(:create_prediction_job).with(manifest_url).once
+        expect(bajor_client_double).to have_received(:create_prediction_job).with(manifest_url, context.extractor_name).once
       end
 
       it 'updates the state tracking info on the prediction job resource' do

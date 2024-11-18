@@ -6,6 +6,8 @@ require 'rails_helper'
 RSpec.describe Bajor::Client do
   let(:bajor_client) { described_class.new }
   let(:bajor_host) { 'https://bajor.zooniverse.org' }
+  let(:run_opts) { '--schema cosmic_dawn' }
+  let(:workflow_name) { 'cosmic_dawn' }
   let(:request_headers) do
     {
       'Accept' => 'application/json',
@@ -19,8 +21,6 @@ RSpec.describe Bajor::Client do
   describe 'create_training_job' do
     let(:request_url) { "#{bajor_host}/training/jobs/" }
     let(:catalogue_manifest_path) { 'training_catalogues/manifest_path.csv' }
-    let(:run_opts) { '--schema cosmic_dawn' }
-    let(:workflow_name) { 'cosmic_dawn' }
     let(:request_body) do
       {
         manifest_path: catalogue_manifest_path,
@@ -93,7 +93,7 @@ RSpec.describe Bajor::Client do
     let(:request_url) { "#{bajor_host}/prediction/jobs/" }
     let(:manifest_url) { 'https://manifest-host.zooniverse.org/manifest.csv' }
     let(:request_body) do
-      { manifest_url: manifest_url }
+      { manifest_url: manifest_url, opts: { workflow_name: workflow_name} }
     end
     let(:job_id) { '3ed68115-dc36-4f66-838c-a52869031c9c' }
     let(:bajor_response_body) do
