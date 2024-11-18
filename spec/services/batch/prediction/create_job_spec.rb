@@ -5,11 +5,12 @@ require 'rails_helper'
 RSpec.describe Batch::Prediction::CreateJob do
   describe '#run' do
     let(:manifest_url) { 'https://manifest-host.zooniverse.org/manifest.csv' }
+    let(:context){Context.first}
     let(:prediction_job) do
       PredictionJob.new(
         manifest_url: manifest_url,
         state: :pending,
-        subject_set_id: 55,
+        subject_set_id: context.active_subject_set_id,
         probability_threshold: 0.5,
         randomisation_factor: 0.5
       )
@@ -32,7 +33,6 @@ RSpec.describe Batch::Prediction::CreateJob do
       end
 
       it 'calls the bajor client service to create a prediction job' do
-        context = Context.find_by(active_subject_set_id: prediction_job.subject_set_id)
         prediction_create_job.run
         expect(bajor_client_double).to have_received(:create_prediction_job).with(manifest_url, context.extractor_name).once
       end
