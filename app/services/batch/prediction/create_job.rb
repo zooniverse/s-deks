@@ -15,12 +15,12 @@ module Batch
       def run
         begin
           subject_set_id = prediction_job.subject_set_id
-          context = Context.where(active_subject_set_id: subject_set_id).or(Context.where(pool_subject_set_id: subject_set_id)).order(Arel.sql("CASE WHEN active_subject_set_id = #{subject_set_id} THEN 0 ELSE 1 END"))
+          context = Context
+            .where(active_subject_set_id: subject_set_id)
+            .or(Context.where(pool_subject_set_id: subject_set_id))
+            .order(Arel.sql("CASE WHEN active_subject_set_id = #{subject_set_id} THEN 0 ELSE 1 END"))
 
-          workflow_name = nil
-          if context.first.present?
-            workflow_name = context.first.extractor_name
-          end
+          workflow_name = context.first&.extractor_name
 
           bajor_job_url = bajor_client.create_prediction_job(prediction_job.manifest_url, workflow_name)
           prediction_job.update(state: :submitted, service_job_url: bajor_job_url, message: '')
