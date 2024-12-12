@@ -6,6 +6,8 @@ require 'rails_helper'
 RSpec.describe Bajor::Client do
   let(:bajor_client) { described_class.new }
   let(:bajor_host) { 'https://bajor.zooniverse.org' }
+  let(:run_opts) { '--schema cosmic_dawn' }
+  let(:workflow_name) { 'cosmic_dawn' }
   let(:request_headers) do
     {
       'Accept' => 'application/json',
@@ -19,8 +21,6 @@ RSpec.describe Bajor::Client do
   describe 'create_training_job' do
     let(:request_url) { "#{bajor_host}/training/jobs/" }
     let(:catalogue_manifest_path) { 'training_catalogues/manifest_path.csv' }
-    let(:run_opts) { '--schema cosmic_dawn' }
-    let(:workflow_name) { 'cosmic_dawn' }
     let(:request_body) do
       {
         manifest_path: catalogue_manifest_path,
@@ -68,6 +68,40 @@ RSpec.describe Bajor::Client do
       end
     end
 
+    context 'with specific workflow_name' do
+      let(:workflow_name) { 'euclid' }
+      let(:run_opts) { '--schema euclid' }
+
+      let(:request_body) do
+        {
+          manifest_path: catalogue_manifest_path,
+          opts: {
+            run_opts: run_opts,
+            workflow_name: workflow_name
+          }
+        }
+      end
+      let(:request) do
+        stub_request(:post, request_url)
+          .with(
+            body: request_body,
+            headers: request_headers
+          )
+      end
+
+      before do
+        request.to_return(status: 201, body: bajor_response_body.to_json, headers: { content_type: 'application/json' })
+      end
+
+      it 'sends the right workflow name' do
+        bajor_client.create_training_job(catalogue_manifest_path, workflow_name)
+        expect(
+          a_request(:post, request_url).with(body: request_body, headers: request_headers)
+        ).to have_been_made.once
+      end
+
+    end
+
     context 'with a failed repsonse' do
       let(:error_message) do
         'Active Jobs are running in the batch system - please wait till they are fininshed processing.'
@@ -93,7 +127,7 @@ RSpec.describe Bajor::Client do
     let(:request_url) { "#{bajor_host}/prediction/jobs/" }
     let(:manifest_url) { 'https://manifest-host.zooniverse.org/manifest.csv' }
     let(:request_body) do
-      { manifest_url: manifest_url }
+      { manifest_url: manifest_url, opts: { workflow_name: workflow_name} }
     end
     let(:job_id) { '3ed68115-dc36-4f66-838c-a52869031c9c' }
     let(:bajor_response_body) do
@@ -130,6 +164,37 @@ RSpec.describe Bajor::Client do
       it 'returns the submitted job id as a batch job service url' do
         result = bajor_client.create_prediction_job(manifest_url)
         expect(result).to eq("#{bajor_host}/prediction/job/#{job_id}")
+      end
+    end
+
+    context 'with specific workflow_name' do
+      let(:workflow_name) { 'euclid' }
+      let(:run_opts) { '--schema euclid' }
+
+      let(:request_body) do
+        { manifest_url: manifest_url, opts: { workflow_name: workflow_name} }
+      end
+
+      let(:request) do
+        stub_request(:post, request_url)
+          .with(
+            body: request_body,
+            headers: request_headers
+          )
+      end
+
+      before do
+        request.to_return(status: 201, body: bajor_response_body.to_json, headers: { content_type: 'application/json' })
+      end
+
+      it 'sends the right workflow name' do
+
+        bajor_client.create_prediction_job(manifest_url, 'euclid')
+
+
+        expect(
+          a_request(:post, request_url).with(body: request_body, headers: request_headers)
+        ).to have_been_made.once
       end
     end
 

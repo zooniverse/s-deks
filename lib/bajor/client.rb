@@ -36,10 +36,10 @@ module Bajor
       bajor_training_job_tracking_url(bajor_response['id'])
     end
 
-    def create_prediction_job(manifest_url)
+    def create_prediction_job(manifest_url, workflow_name='cosmic_dawn')
       bajor_response = self.class.post(
         '/prediction/jobs/',
-        body: { manifest_url: manifest_url }.to_json,
+        body: { manifest_url: manifest_url, opts: { 'workflow_name': workflow_name } }.to_json,
         headers: JSON_HEADERS
       )
 
