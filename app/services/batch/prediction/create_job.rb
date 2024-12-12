@@ -15,10 +15,7 @@ module Batch
       def run
         begin
           subject_set_id = prediction_job.subject_set_id
-          context = Context
-            .where(active_subject_set_id: subject_set_id)
-            .or(Context.where(pool_subject_set_id: subject_set_id))
-            .order(Arel.sql("CASE WHEN active_subject_set_id = #{subject_set_id} THEN 0 ELSE 1 END"))
+          context = Context.where(pool_subject_set_id: subject_set_id)
 
           workflow_name = context.first&.extractor_name
 

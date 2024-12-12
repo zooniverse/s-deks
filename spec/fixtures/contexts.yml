@@ -15,24 +15,3 @@ galaxy_zoo_euclid_active_learning_project:
   pool_subject_set_id: 67
   module_name: 'galaxy_zoo'
   extractor_name: 'euclid'
-
-
-third_workflow_context:
-  id: 3
-  workflow_id: 143
-  project_id: 41
-  active_subject_set_id: 70
-  pool_subject_set_id: 80
-  module_name: 'galaxy_zoo'
-  extractor_name: 'third_workflow'
-
-fourth_workflow_context:
-  id: 4
-  workflow_id: 153
-  project_id: 42
-  active_subject_set_id: 80
-  pool_subject_set_id: 70
-  module_name: 'galaxy_zoo'
-  extractor_name: 'fourth_workflow'
-
-

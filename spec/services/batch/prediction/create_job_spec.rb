@@ -12,7 +12,7 @@ RSpec.describe Batch::Prediction::CreateJob do
       PredictionJob.new(
         manifest_url: manifest_url,
         state: :pending,
-        subject_set_id: context.active_subject_set_id,
+        subject_set_id: context.pool_subject_set_id,
         probability_threshold: 0.5,
         randomisation_factor: 0.5
       )
@@ -54,26 +54,6 @@ RSpec.describe Batch::Prediction::CreateJob do
         it 'calls the bajor client service with workflow name from pool_subject_set_id' do
           described_class.new(prediction_job, bajor_client_double).run
           expect(bajor_client_double).to have_received(:create_prediction_job).with(manifest_url, context.extractor_name).once
-        end
-      end
-
-      describe 'with same active_subject_id and pool_subject_set_id' do
-        let(:context1){ contexts(:third_workflow_context) }
-        let(:context2){ contexts(:fourth_workflow_context) }
-        let(:prediction_job) do
-          PredictionJob.new(
-            manifest_url: manifest_url,
-            state: :pending,
-            subject_set_id: context2.pool_subject_set_id,
-            probability_threshold: 0.5,
-            randomisation_factor: 0.5
-          )
-        end
-
-        it 'calls the bajor client service with workflow name from an active_subject_set_id' do
-
-          described_class.new(prediction_job, bajor_client_double).run
-          expect(bajor_client_double).to have_received(:create_prediction_job).with(manifest_url, context1.extractor_name).once
         end
       end
 
