@@ -22,6 +22,7 @@ module Batch
           bajor_job_url = bajor_client.create_prediction_job(prediction_job.manifest_url, workflow_name)
           prediction_job.update(state: :submitted, service_job_url: bajor_job_url, message: '')
         rescue Bajor::Client::Error => e
+          Honeybadger.notify(e)
           # mark the jobs as failed and record the client error message
           prediction_job.update(state: :failed, message: e.message)
         end
