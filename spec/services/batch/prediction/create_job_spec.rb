@@ -12,7 +12,7 @@ RSpec.describe Batch::Prediction::CreateJob do
       PredictionJob.new(
         manifest_url: manifest_url,
         state: :pending,
-        subject_set_id: context.pool_subject_set_id,
+        subject_set_id: context.active_subject_set_id,
         probability_threshold: 0.5,
         randomisation_factor: 0.5
       )
